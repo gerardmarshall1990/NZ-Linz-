@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Idempotent LINZ WFS -> PostGIS (schema raw) loader for the Auckland extent.
 
-Usage: ingest_linz.py <dataset> [<dataset> ...]   (datasets: parcels buildings addresses titles)
+Usage: ingest_linz.py <dataset> [<dataset> ...]   (datasets: parcels buildings addresses titles facilities rail_stations)
 Pages are cached under data/linz/<dataset>/ so an interrupted run resumes.
 Each dataset is loaded into a fresh raw.<table> (dropped and recreated) so re-runs are safe.
 """
@@ -18,6 +18,8 @@ DATASETS = {  # name -> (LINZ layer id, raw table, sort key)
     "buildings": ("layer-101290", "linz_buildings", "building_id"),
     "addresses": ("layer-123113", "linz_addresses", "address_id"),
     "titles": ("layer-50804", "linz_titles", "id"),
+    "facilities": ("layer-105588", "linz_facilities", "facility_id"),  # hospitals + schools
+    "rail_stations": ("layer-50318", "linz_rail_stations", "t50_fid"),
 }
 
 def load_env():
