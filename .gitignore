@@ -6,3 +6,7 @@ node_modules/
 data/
 uploads/
 backups/
+
+# manual source files are third-party documents: do not commit
+docs/sources_manual/*/*
+!docs/sources_manual/*/.gitkeep
