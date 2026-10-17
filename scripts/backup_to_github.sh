@@ -20,7 +20,7 @@ if echo "$URL" | grep -q "github.com[:/]"; then
   slug=$(echo "$URL" | sed -E 's#.*github.com[:/]##; s#\.git$##'); code=$(curl -s -o /dev/null -m 15 -w "%{http_code}" "https://api.github.com/repos/$slug" || echo 000)
   [ "$code" != "200" ] || die "the backup repository $slug is PUBLIC. Make it private first"
 fi
-export BACKUP_PASSPHRASE
+export BACKUP_PASSPHRASE INCLUDE_UPLOADS=0
 OUT=$(bash scripts/backup_userdata.sh | tail -1 | sed -E 's/.*: (backups\/[^ ]+) .*/\1/')
 case "$OUT" in *.tar.gpg) ;; *) die "the backup was not encrypted ($OUT)" ;; esac
 [ -f "$OUT" ] || die "backup file missing"

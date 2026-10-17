@@ -20,6 +20,7 @@ echo "$files" | grep -q "userdata/.*\.tar\.gpg" && check "remote has the encrypt
 echo "$files" | tr ' ' '\n' | grep -vE '^(\.gitignore|README\.md|userdata/.*\.tar\.gpg)?$' | grep -q . ; check "remote has nothing but encrypted files and docs" $? 1
 f=$(ls "$T"/clone/userdata/*.gpg | head -1)
 gpg --batch --pinentry-mode loopback --passphrase 0123456789abcdefXYZ -d "$f" 2>/dev/null | tar -tf - | grep -q userdata.dump; check "backup decrypts and contains the database dump" $? 0
+gpg --batch --pinentry-mode loopback --passphrase 0123456789abcdefXYZ -d "$f" 2>/dev/null | tar -tf - | grep -q uploads.tar; check "pushed archive does NOT contain uploaded plans" $? 1
 gpg --batch --pinentry-mode loopback --passphrase wrongwrongwrongwrong -d "$f" >/dev/null 2>&1; check "wrong passphrase cannot decrypt" $? 2
 git -C "$T/remote.git" log -p --all 2>/dev/null | grep -c "0123456789abcdefXYZ" | { read n; check "passphrase never appears in the repository history" "$n" 0; }
 exit $fail
