@@ -8,7 +8,9 @@ for l in (Path(__file__).resolve().parent.parent / ".env").read_text().splitline
     if "=" in l and not l.startswith("#"): k, v = l.split("=", 1); os.environ.setdefault(k, v)
 a, b, bbox = sys.argv[1], sys.argv[2], [float(x) for x in sys.argv[3].split(",")]; n = int(sys.argv[4]) if len(sys.argv) > 4 else 12
 dsn = lambda db: f"host=localhost dbname={db} user={os.environ['POSTGRES_USER']} password={os.environ['POSTGRES_PASSWORD']}"
+SKIP = set(os.environ.get("SKIP_COLS", "").split(","))   # e.g. dist_hospital_m,dist_rail_m in slice mode (nearest facility can lie outside the slice)
 COLS = "parcel_id, zone_name, overlays, hazard_flags, building_count, round(total_footprint_m2::numeric,1) AS footprint, title_type, address, address_count, pc120_depends, pc120_proposed_zone, round(area_m2::numeric,1) AS area, is_reserve, dist_hospital_m, dist_rail_m"
+COLS = ", ".join(c for c in COLS.split(", ") if c.split(" AS ")[-1].strip() not in SKIP)
 env = f"ST_MakeEnvelope({bbox[0]},{bbox[1]},{bbox[2]},{bbox[3]},2193)"
 with psycopg.connect(dsn(a), autocommit=True) as ca, psycopg.connect(dsn(b), autocommit=True) as cb:
     ids_a = {r[0] for r in ca.execute(f"SELECT parcel_id FROM core.sites WHERE geom && {env} AND ST_Within(ST_PointOnSurface(geom), {env})").fetchall()}

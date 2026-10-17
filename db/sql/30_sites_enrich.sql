@@ -83,10 +83,17 @@ FROM raw.linz_titles t WHERE s.titles_raw IS NOT NULL AND t.title_no = split_par
 
 -- Council property record (no values are published; keys only).
 ALTER TABLE core.sites ADD COLUMN IF NOT EXISTS ac_property_id text, ADD COLUMN IF NOT EXISTS ac_valuation_ref text;
-UPDATE core.sites s SET ac_property_id = p."propertyid", ac_valuation_ref = p."valuationref"
-FROM raw.ac_property p WHERE ST_Intersects(p.geom, ST_PointOnSurface(s.geom)) AND p."addresstype" = 'Primary';
+-- Several Primary property polygons can contain a parcel's point (overlaps): pick deterministically (smallest polygon, then lowest id). An unordered UPDATE...FROM picked an arbitrary row,
+-- so two builds could disagree (found by the slice bootstrap comparison).
+UPDATE core.sites s SET ac_property_id = x.pid, ac_valuation_ref = x.vref
+FROM (SELECT DISTINCT ON (s2.parcel_id) s2.parcel_id, p."propertyid" AS pid, p."valuationref" AS vref
+      FROM core.sites s2 JOIN raw.ac_property p ON ST_Intersects(p.geom, ST_PointOnSurface(s2.geom)) AND p."addresstype" = 'Primary'
+      ORDER BY s2.parcel_id, ST_Area(p.geom), p."propertyid") x
+WHERE s.parcel_id = x.parcel_id;
 
 -- Māori land indicators (partial: LINZ parcel intent + Māori Purpose zone). Entity link comes in Stage 4.
 ALTER TABLE core.sites ADD COLUMN IF NOT EXISTS maori_land_linz boolean, ADD COLUMN IF NOT EXISTS zone_maori_purpose boolean;
 UPDATE core.sites SET maori_land_linz = (parcel_intent = 'Maori'), zone_maori_purpose = (zone_code = 52);
 
+-- Overlay lists in a fixed order (layers are appended in whatever order they were run).
+UPDATE core.sites SET overlays = ARRAY(SELECT DISTINCT o FROM unnest(overlays) o ORDER BY o) WHERE overlays IS NOT NULL AND array_length(overlays,1) > 1;
