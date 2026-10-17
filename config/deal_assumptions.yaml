@@ -1,0 +1,30 @@
+# Deal assumptions (MASTER_SPEC Part 3 section 6.1). MY inputs, not facts. null = not set: dependent outputs show "needs input" and block the walk-away rent. No silent defaults.
+# Figures marked "spec" were stated in the spec as the owner's working figures; confirm them.
+care_level: rest_home
+fee_per_bed_per_week: 1600            # spec: owner's figure; confirm vs market and funding rules (private-pay assumption)
+food_per_occupied_bed_per_week: 200   # spec: owner's figure
+staff_wage_per_week: 800              # spec: per staff position
+staff_positions_per_8_beds: 4         # spec: owner's reading of "2 staff per 8 residents on days plus 2 on nights": CONFIRM
+roster_coverage_multiplier: null      # needed for 7-day cover
+roster_step_thresholds: []            # beds at which a roster step-up applies (blank: no step shown)
+clinical_lead_cost_per_week: null
+manager_cost_per_week: null
+cook_cleaner_laundry_per_week: null
+utilities_per_week: null
+insurance_per_year: null
+supplies_per_occupied_bed_per_week: null   # treated as variable with occupancy (assumption, stated in the formulas)
+repairs_maintenance_per_year: null
+compliance_and_certification_per_year: null
+other_opex_per_week: null
+stabilised_occupancy: null            # fraction, e.g. 0.92
+fill_ramp_by_month: []                # occupancy fraction per month after opening, e.g. [0.2, 0.4, 0.6, 0.8]
+pre_opening_costs: null               # wages, training, policies, audit, marketing
+working_capital: null
+rent_per_year: null
+lease_term_years: null
+retrofit_funding_mode: i_fund         # i_fund | owner_funds_via_rent
+cost_of_capital_pct: null
+owner_required_yield_on_capex_pct: null  # for owner_funds_via_rent
+target_profit_per_year: null
+minimum_acceptable_profit_per_year: null
+cash_limit: null                      # my stated cash limit; cash required above it is flagged red

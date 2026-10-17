@@ -15,6 +15,7 @@ LAYERS = {  # table suffix -> service
     "pc120_revised": "PC120Revised_PROD_PropertySummary",
 }
 PAGE = 2000
+SLICE = os.environ.get("SLICE_BBOX") or next((l.split("=", 1)[1].strip() for l in (ROOT / ".env").read_text().splitlines() if l.startswith("SLICE_BBOX=")), "")  # slice mode: only properties intersecting this EPSG:2193 rectangle
 
 def env():
     for l in (ROOT / ".env").read_text().splitlines():
@@ -34,8 +35,9 @@ def run(key, svc):
     cols = [f["name"] for f in meta["fields"] if f["name"] not in ("OBJECTID", "GlobalID", "Shape__Area", "Shape__Length")]
     rows, off = [], 0
     while True:
-        q = urllib.parse.urlencode({"where": "1=1", "outFields": ",".join(cols), "returnGeometry": "false", "f": "json",
-                                    "resultOffset": off, "resultRecordCount": PAGE, "orderByFields": "OBJECTID"})
+        params = {"where": "1=1", "outFields": ",".join(cols), "returnGeometry": "false", "f": "json", "resultOffset": off, "resultRecordCount": PAGE, "orderByFields": "OBJECTID"}
+        if SLICE: params.update({"geometry": SLICE, "geometryType": "esriGeometryEnvelope", "inSR": 2193, "spatialRel": "esriSpatialRelIntersects"})
+        q = urllib.parse.urlencode(params)
         feats = get(f"{BASE}/{svc}/FeatureServer/0/query?{q}")["features"]
         rows += [[(f["attributes"].get(c) or "") for c in cols] for f in feats]
         off += len(feats)

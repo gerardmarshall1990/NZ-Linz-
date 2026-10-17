@@ -1,0 +1,29 @@
+# Retrofit rates (MASTER_SPEC Part 3 section 5). ALL BLANK: no invented prices. Fill each line with low/base/high, source (QS quote, supplier, own), date and region.
+# unit: what a quantity is counted in. basis: 'plan' = quantity derived from the confirmed plan/option; 'allowance' = a lump allowance when no quantity can be derived (flagged ALLOWANCE in outputs).
+# pct lines (preliminaries, fees, contingency) are a percentage of the subtotal of the lines above them.
+lines:
+  strip_out_demolition:    {unit: room, basis: plan, low: null, base: null, high: null, source: null, date: null, region: Auckland}
+  ensuite_build_or_upgrade: {unit: ensuite, basis: plan, low: null, base: null, high: null, source: null, date: null, region: Auckland}
+  room_change_of_use_fitout: {unit: room, basis: plan, low: null, base: null, high: null, source: null, date: null, region: Auckland}
+  kitchen_upgrade:         {unit: lump, basis: allowance, low: null, base: null, high: null, source: null, date: null, region: Auckland}
+  laundry_upgrade:         {unit: lump, basis: allowance, low: null, base: null, high: null, source: null, date: null, region: Auckland}
+  nurse_call:              {unit: point, basis: plan, low: null, base: null, high: null, source: null, date: null, region: Auckland}
+  fire_alarm_detection:    {unit: point, basis: plan, low: null, base: null, high: null, source: null, date: null, region: Auckland}
+  emergency_lighting_exit_signs: {unit: point, basis: plan, low: null, base: null, high: null, source: null, date: null, region: Auckland}
+  sprinkler_system:        {unit: lump, basis: allowance, low: null, base: null, high: null, source: null, date: null, region: Auckland}
+  fire_rated_linings_doors: {unit: lump, basis: allowance, low: null, base: null, high: null, source: null, date: null, region: Auckland}
+  corridor_widening:       {unit: lump, basis: allowance, low: null, base: null, high: null, source: null, date: null, region: Auckland}
+  door_widening:           {unit: door, basis: plan, low: null, base: null, high: null, source: null, date: null, region: Auckland}
+  lift_or_platform_lift:   {unit: lift, basis: plan, low: null, base: null, high: null, source: null, date: null, region: Auckland}
+  heating_ventilation:     {unit: lump, basis: allowance, low: null, base: null, high: null, source: null, date: null, region: Auckland}
+  electrical_upgrade:      {unit: lump, basis: allowance, low: null, base: null, high: null, source: null, date: null, region: Auckland}
+  hot_water:               {unit: lump, basis: allowance, low: null, base: null, high: null, source: null, date: null, region: Auckland}
+  flooring_finishes_painting: {unit: m2, basis: plan, low: null, base: null, high: null, source: null, date: null, region: Auckland}
+  furniture_fitout_per_bed: {unit: bed, basis: plan, low: null, base: null, high: null, source: null, date: null, region: Auckland}
+  external_works:          {unit: lump, basis: allowance, low: null, base: null, high: null, source: null, date: null, region: Auckland}
+  consent_and_council_fees: {unit: lump, basis: allowance, low: null, base: null, high: null, source: null, date: null, region: Auckland}
+  healthcert_audit_costs:  {unit: lump, basis: allowance, low: null, base: null, high: null, source: null, date: null, region: Auckland}
+pct_lines:
+  preliminaries_and_margins: {low: null, base: null, high: null}
+  professional_fees:         {low: null, base: null, high: null}
+  contingency:               {low: null, base: null, high: null}

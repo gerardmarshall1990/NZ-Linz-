@@ -1,0 +1,3 @@
+# Timeline scenarios (MASTER_SPEC Part 3 section 7), weeks. Editable.
+target: {consent_weeks: 4, works_weeks: 8, audit_signoff_weeks: 4, fill_weeks: 4}   # consent counted from a complete lodgement
+contract: {total_months: 9}                                                          # editable default; phase split not specified
