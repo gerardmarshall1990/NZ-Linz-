@@ -31,6 +31,10 @@ def main():
         found = psql(f"SELECT count(*) FROM analytics.rules WHERE {where}").strip()
         if found == "0": n["unmatched"] += 1; continue
         n[ans] += 1
+        nk = psql(f"SELECT zone, section_ref, parameter, status, topic FROM analytics.rules WHERE {where}").strip().split("\n")[0].split("|") if apply else []
+        if apply and len(nk) == 5:
+            q = lambda v: "NULL" if v == "" else "'" + v.replace("'", "''") + "'"
+            sql.append(f"INSERT INTO core.owner_review_log (answer, zone, section_ref, parameter, status, topic, review_key) VALUES ('{ans}', {', '.join(q(v) for v in nk)}, {q(key)});")
         sql.append(f"UPDATE analytics.rules SET owner_review = '{ans}', owner_verified = {'true' if ans == 'correct' else 'false'}, owner_verified_at = now() WHERE {where};")
     print(n, "(dry run)" if not apply else "")
     if apply and sql: psql("\n".join(sql)); print("applied", len(sql), "updates")

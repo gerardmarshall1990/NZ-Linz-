@@ -1,4 +1,4 @@
-.PHONY: bootstrap app-db app up down refresh refresh-linz refresh-auckland core backup manual rules test feeds feeds-status check-page
+.PHONY: backup-full owner-review-table bootstrap app-db app up down refresh refresh-linz refresh-auckland core backup manual rules test feeds feeds-status check-page
 SHELL := /bin/bash
 PSQL = set -a; . ./.env; set +a; PGPASSWORD=$$POSTGRES_PASSWORD psql -h $${PGHOST:-localhost} -U $$POSTGRES_USER -d $$POSTGRES_DB -v ON_ERROR_STOP=1 -q
 
@@ -25,6 +25,10 @@ core:
 
 # Run at the end of every stage: make backup STAGE=stage2
 backup:
+	bash scripts/backup_userdata.sh
+
+# Full database dump (large, rarely needed: bootstrap rebuilds everything except user data)
+backup-full:
 	./scripts/backup.sh $(STAGE)
 
 manual:
@@ -63,3 +67,6 @@ app:
 # Rebuild every regenerable layer from the original sources (target = POSTGRES_DB in .env)
 bootstrap:
 	bash scripts/bootstrap.sh
+
+owner-review-table:
+	$(PSQL) -f db/sql/85_owner_review_log.sql

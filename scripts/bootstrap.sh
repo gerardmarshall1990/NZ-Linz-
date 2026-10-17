@@ -12,6 +12,7 @@ step ingest_linz        make refresh-linz
 step ingest_auckland    make refresh-auckland
 step core_sites         make core
 step rules_corpus       make rules
+step owner_review_log    bash -c 'make owner-review-table && python3 scripts/replay_owner_review.py'
 step feeds_register     make feeds
 step app_tables_roles   make app-db
 step manual_sources     make manual
