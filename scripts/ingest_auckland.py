@@ -11,6 +11,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 BASE = "https://services1.arcgis.com/n4yPwebTjJCmXB6W/arcgis/rest/services"
 PAGE = 2000
+SLICE = os.environ.get("SLICE_BBOX") or next((l.split("=", 1)[1].strip() for l in (ROOT / ".env").read_text().splitlines() if l.startswith("SLICE_BBOX=")), "")  # "minE,minN,maxE,maxN" EPSG:2193: slice mode (separate cache)
+DATA = ROOT / "data" / ("slice" if SLICE else "") / "auckland"
 # key -> (service, layer id)
 LAYERS = {
     "zone": ("Unitary_Plan_Base_Zone", 0),
@@ -51,8 +53,9 @@ def load_env():
             k, v = line.split("=", 1); os.environ.setdefault(k, v)
 
 def fetch(service, layer, offset):
-    q = urllib.parse.urlencode({"where": "1=1", "outFields": "*", "outSR": 2193, "f": "geojson",
-                                "resultOffset": offset, "resultRecordCount": PAGE, "orderByFields": "OBJECTID"})
+    params = {"where": "1=1", "outFields": "*", "outSR": 2193, "f": "geojson", "resultOffset": offset, "resultRecordCount": PAGE, "orderByFields": "OBJECTID"}
+    if SLICE: params.update({"geometry": SLICE, "geometryType": "esriGeometryEnvelope", "inSR": 2193, "spatialRel": "esriSpatialRelIntersects"})
+    q = urllib.parse.urlencode(params)
     url = f"{BASE}/{service}/FeatureServer/{layer}/query?{q}"
     for attempt in range(6):
         try:
@@ -67,7 +70,7 @@ def fetch(service, layer, offset):
 def run(key):
     service, layer = LAYERS[key]
     table = f"ac_{key}"
-    d = ROOT / "data" / "auckland" / key; d.mkdir(parents=True, exist_ok=True)
+    d = DATA / key; d.mkdir(parents=True, exist_ok=True)
     offset, pages = 0, []
     while True:
         f = d / f"page_{offset:08d}.json"

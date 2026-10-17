@@ -11,7 +11,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 # Auckland region extent, EPSG:2193. WFS URN axis order is northing,easting.
 E0, N0, E1, N1 = 1640000, 5850000, 1830000, 6050000
+# SLICE_BBOX="minE,minN,maxE,maxN" (EPSG:2193, in .env) loads only that rectangle into a separate cache (data/slice): used to prove `make bootstrap` quickly.
+SLICE = os.environ.get("SLICE_BBOX") or next((l.split("=", 1)[1].strip() for l in (ROOT / ".env").read_text().splitlines() if l.startswith("SLICE_BBOX=")), "")
+if SLICE: E0, N0, E1, N1 = [int(float(v)) for v in SLICE.split(",")]
 BBOX = f"{N0},{E0},{N1},{E1},urn:ogc:def:crs:EPSG::2193"
+DATA = ROOT / "data" / ("slice" if SLICE else "") / "linz"
 PAGE = 5000
 DATASETS = {  # name -> (LINZ layer id, raw table, sort key)
     "parcels": ("layer-50772", "linz_parcels", "id"),
@@ -46,7 +50,7 @@ def pg_dsn():
 
 def run(name):
     layer, table, sort = DATASETS[name]
-    d = ROOT / "data" / "linz" / name
+    d = DATA / name
     d.mkdir(parents=True, exist_ok=True)
     start, pages = 0, []
     while True:
