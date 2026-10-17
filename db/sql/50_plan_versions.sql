@@ -45,4 +45,5 @@ SELECT s.parcel_id, s.zone_name, v.version_label AS operative_plan, s.pc120_prop
 FROM core.sites s JOIN analytics.plan_versions v ON v.id = s.plan_version_id;
 -- narrow covering index: status counts must not scan the wide geometry table (they ran ~14 s against the agent's 15 s limit)
 CREATE INDEX IF NOT EXISTS sites_plan_status_idx ON core.sites (plan_version_id, pc120_depends, pc120_zone_differs);
-GRANT USAGE ON SCHEMA analytics TO ai_readonly; GRANT SELECT ON ALL TABLES IN SCHEMA analytics TO ai_readonly; GRANT SELECT ON ALL TABLES IN SCHEMA core TO ai_readonly;
+-- Not a blanket grant on core: core also holds user tables (chat history) that the agent role must not read (see 99_ai_grants.sql).
+GRANT USAGE ON SCHEMA analytics TO ai_readonly; GRANT SELECT ON ALL TABLES IN SCHEMA analytics TO ai_readonly; GRANT SELECT ON core.sites TO ai_readonly;

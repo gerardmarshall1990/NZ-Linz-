@@ -64,6 +64,7 @@ app-db:
 	$(PSQL) -f db/sql/95_listings.sql
 	$(PSQL) -f db/sql/96_settings.sql
 	python3 scripts/load_rh_requirements.py
+	$(PSQL) -f db/sql/99_ai_grants.sql
 
 app:
 	python3 -m uvicorn backend.app.main:app --host 0.0.0.0 --port 8000
