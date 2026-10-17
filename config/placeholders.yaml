@@ -1,0 +1,66 @@
+# Placeholder inputs (owner request 2026-10-17). Loaded ONLY into blank inputs (never over a value you entered), flagged "placeholder: estimate" with the source below.
+# Rules: use a published source where one exists, otherwise a deliberately CAUTIOUS (higher-cost, lower-profit) figure, never a hopeful one. Anything that depends on a placeholder shows
+# "Uses placeholder inputs: not decision-grade", and verdicts are capped at AMBER while any is in use. Published figures below came from web search summaries; the pages themselves could not be
+# opened from the sandbox (blocked), so verify them before relying on them.
+placeholders:
+  cook_cleaner_laundry_per_week:
+    value: 5600
+    label: Cook, cleaner and laundry (whole home, per week)
+    basis: derived from a published wage
+    source: "Living Wage 2026/27 = $29.90 per hour from 1 Sep 2026 (Living Wage Aotearoa: https://www.livingwage.org.nz/new_2026_2027_living_wage_rate). Hours are MY assumption: cook 8 h + cleaner 8 h + laundry 6 h = 22 h a day x 7 days = 154 h a week x $29.90 = $4,605, plus 20% employer costs (holiday pay, KiwiSaver, ACC; my cautious allowance) = $5,526, rounded up to $5,600. Sized for a home of about 30 beds, so it overstates the cost of a smaller home (cautious)."
+  utilities_per_week:
+    value: 1500
+    label: Utilities (power, gas, water, waste, phone; whole home, per week)
+    basis: cautious
+    source: "No published source found. Deliberately high round figure for a building of about 30 beds."
+  insurance_per_year:
+    value: 60000
+    label: Insurance (building, contents, liability; per year)
+    basis: cautious
+    source: "No published source found. Deliberately high round figure for a care building of about 30 beds; get a broker quote."
+  repairs_maintenance_per_year:
+    value: 60000
+    label: Repairs and maintenance (per year)
+    basis: cautious
+    source: "No published source found. Deliberately high round figure (about $2,000 per bed for 30 beds)."
+  compliance_and_certification_per_year:
+    value: 25000
+    label: Compliance and certification (audits, quality systems, per year)
+    basis: cautious
+    source: "No published fee found: HealthCERT audit fees are quoted by each designated auditing agency (search found no published amounts). Deliberately high round figure; get quotes."
+  pre_opening_costs:
+    value: 150000
+    label: Pre-opening costs (one-off)
+    basis: derived from your inputs, rounded up
+    source: "For a 30-bed home: 4 weeks of full roster wages = 15 positions x $800 x 1.4 x 4 = $67,200, plus clinical lead and manager 4 weeks = $7,000, plus $50,000 for audit, legal, training, policies and marketing (my allowance) = $124,200, rounded up to $150,000."
+  working_capital:
+    value: 250000
+    label: Working capital reserve
+    basis: derived from your inputs, rounded up
+    source: "About 8 weeks of running costs for a 30-bed home (about $30,000 a week from the placeholders and your inputs) = $240,000, rounded up to $250,000. Fill-ramp losses are modelled separately."
+  lease_term_years:
+    value: 5
+    label: Lease term (years)
+    basis: cautious
+    source: "No published source. A SHORTER term means a higher yearly retrofit charge, so 5 years is the cautious choice (real leases are often longer). You said this depends on the deal: use the per-deal box."
+  cost_of_capital_pct:
+    value: 9.0
+    label: Cost of capital (% a year)
+    basis: published base rate plus cautious margin
+    source: "RBNZ Official Cash Rate reported as 2.75% after the 2 Sep 2026 decision (search summaries of RBNZ announcements, e.g. https://www.focus-economics.com/countries/new-zealand/news/monetary-policy/new-zealand-central-bank-meeting-02-09-2026/; the RBNZ page could not be opened). Bank commercial lending would be well below 9%; this adds a cautious 6.25-point margin for private capital on a specialised asset. Depends on the deal: use the per-deal box."
+  minimum_acceptable_profit_per_year:
+    value: 150000
+    label: Minimum acceptable profit (per year, per home)
+    basis: cautious
+    source: "No published source for YOUR requirement. Deliberately demanding: about $5,000 per bed for 30 beds. Context only: a 2024 Ansell Strategic study (as reported by Grant Thornton NZ: https://www.grantthornton.co.nz/insights/budget-2024-aged-care/) found average operator EBITDA of about $3.94 per occupied bed per day (about $1,440 a year). Depends on the deal: use the per-deal box."
+  target_profit_per_year:
+    value: 300000
+    label: Target profit (per year, per home)
+    basis: cautious
+    source: "No published source. Twice the placeholder minimum. Depends on the deal."
+confirmed:
+  roster_coverage_multiplier:
+    value: 1.4
+    label: Roster coverage multiplier
+    flag: confirmed
+    source: "1.4 confirmed by the owner on 2026-10-17. The master spec (section 0.3) listed 1.4 as a placeholder until an operator confirms; this is the owner's confirmation, not an operator's."

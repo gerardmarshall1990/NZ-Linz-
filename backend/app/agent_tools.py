@@ -95,7 +95,8 @@ def listings_search(filters: dict | None = None) -> dict:
     f = {k: v for k, v in (filters or {}).items() if k in ("min_beds", "max_beds", "min_rent", "max_rent", "suburb", "verdict", "source")}
     r = listings.search(f)
     rows = [{"listing_id": o["listing"]["id"], "address": o["listing"]["raw_address"], "bedrooms": o["listing"]["bedrooms"], "rent_per_week": o["listing"]["rent_per_week"], "verdict": o["verdict"], "confidence": o["confidence"],
-             "reasons": o["reasons"][:4], "needs_input": o.get("needs_input"), "walk_away_rent": (o.get("economics") or {}).get("offer_ceiling"), "parcel_id": o["listing"]["parcel_id"]} for o in r["listings"][:50]]
+             "reasons": o["reasons"][:4], "needs_input": o.get("needs_input"), "walk_away_rent": (o.get("economics") or {}).get("offer_ceiling"), "parcel_id": o["listing"]["parcel_id"],
+             "placeholder_banner": o.get("placeholder_banner"), "placeholders_used": [x["label"] for x in o.get("placeholders_used", [])]} for o in r["listings"][:50]]
     return {"count": r["count"], "verdict_counts": r["verdict_counts"], "listings": rows, "source_coverage": r["source_coverage"], "source": "owner-imported listings (CSV/manual) + verdict engine"}
 
 TOOLS = [

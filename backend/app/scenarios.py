@@ -36,6 +36,7 @@ def economics_run(parcel_id: int, option_id: int, overrides: dict | None, retrof
     f = economics.feasibility(o["beds"], p, rc, conf); f["sensitivity"] = economics.sensitivity(o["beds"], p, rc)
     f.update(option_id=option_id, scenario=o["scenario"], beds=o["beds"], retrofit_cost_used=rc, below_target=o["below_target"], rules_not_applied=o["rules_not_applied"],
              note_beds="Beds come from the layout option; regulatory bed rules not yet applied (see rules_not_applied).")
+    f.update(settings.banner_for(settings.used_not_decision_grade(settings.OPEX_NEEDED, overrides) if f.get("stabilised") else []))
     f["scenario_id"] = _store(parcel_id, option_id, "economics", {"assumptions": p, "retrofit": rc}, f, conf)
     return f
 
@@ -62,6 +63,7 @@ def offer_run(parcel_id: int, option_id: int, body: dict) -> dict:
     out = economics.run_offer(inp)
     out.update(option_id=option_id, beds=o["beds"], below_target=o["below_target"], walk_away_rent_per_week=feas["walk_away_rent_per_week"], needs_input_feasibility=feas["needs_input"],
                banner_confidence="Screening only: bedrooms/plans not confirmed" if conf in (None, "ESTIMATED") else None)
+    out.update(settings.banner_for(settings.used_not_decision_grade(settings.OFFER_NEEDED, body.get("assumptions"))))
     out["scenario_id"] = _store(parcel_id, option_id, "offer", {k: v for k, v in inp.items() if k != "N_fn"} | {"assumptions": p}, out, conf)
     return out
 
@@ -93,6 +95,7 @@ def offer_for_listing(listing_id: int, body: dict) -> dict:
     out = economics.run_offer(inp)
     out.update(listing_id=listing_id, beds=beds, below_target=beds < 50, walk_away_rent_per_week=feas["walk_away_rent_per_week"], needs_input_feasibility=feas["needs_input"],
                basis="screening: beds = listed bedrooms (upper bound), retrofit = beds x screening cost per bed, entirely an allowance", banner_confidence="Screening only: bedrooms/plans not confirmed")
+    out.update(settings.banner_for(settings.used_not_decision_grade(settings.OFFER_NEEDED, body.get("assumptions"))))
     with conn() as c:
         c.execute("INSERT INTO core.rh_property (parcel_id, created_by) VALUES (%s, 'listing') ON CONFLICT DO NOTHING", (l["parcel_id"],))      # the scenario belongs to a Property Record; creating an empty one changes no fact
         r = c.execute("INSERT INTO core.rh_scenario (parcel_id, option_id, kind, inputs, output, confidence, created_by) VALUES (%s,NULL,'offer',%s::jsonb,%s::jsonb,%s,'owner') RETURNING id",

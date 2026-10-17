@@ -68,8 +68,8 @@ def map_listings(min_beds: int | None = None, max_beds: int | None = None, min_r
     r = listings.search({"min_beds": min_beds, "max_beds": max_beds, "min_rent": min_rent, "max_rent": max_rent, "suburb": suburb, "verdict": verdict})
     feats = [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [o["lon"], o["lat"]]},
               "properties": {"id": o["listing"]["id"], "verdict": o["verdict"], "beds": o["listing"]["bedrooms"], "rent": o["listing"]["rent_per_week"], "address": o["listing"]["raw_address"],
-                             "confidence": o["confidence"], "parcel_id": o["listing"]["parcel_id"], "match": o["listing"]["match_confidence"]}} for o in r["listings"] if o["lon"] is not None]
-    return {"type": "FeatureCollection", "features": feats, "verdict_counts": r["verdict_counts"], "not_on_map": r["count"] - len(feats), "source_coverage": r["source_coverage"]}
+                             "confidence": o["confidence"], "parcel_id": o["listing"]["parcel_id"], "match": o["listing"]["match_confidence"], "placeholders": bool(o.get("placeholder_banner"))}} for o in r["listings"] if o["lon"] is not None]
+    return {"type": "FeatureCollection", "features": feats, "verdict_counts": r["verdict_counts"], "not_on_map": r["count"] - len(feats), "source_coverage": r["source_coverage"], "placeholder_banner": ("Uses placeholder inputs: not decision-grade: verdicts are capped at AMBER" if any(f["properties"]["placeholders"] for f in feats) else None)}
 
 @app.get("/api/sites/{parcel_id}")
 def get_site(parcel_id: int):
@@ -325,6 +325,15 @@ class SearchIn(BaseModel):
 
 @app.post("/api/listings/search")
 def listing_search(body: SearchIn): return listings.search(body.filters, body.assumptions)
+
+# ---------------- Placeholders page
+@app.get("/api/placeholders")
+def get_placeholders():
+    from .labels import PLACEHOLDER_BANNER
+    return {"banner": PLACEHOLDER_BANNER, "placeholders": settings.placeholder_rows(), "rule": "While any placeholder or estimated input is used, verdicts are capped at AMBER and every dependent figure carries the banner. Editing a value here turns it into your own figure."}
+
+@app.post("/api/placeholders/load")
+def load_placeholders(): return settings.load_placeholders()
 
 # ---------------- My inputs (assumptions and rates entered in the app)
 @app.get("/api/settings")

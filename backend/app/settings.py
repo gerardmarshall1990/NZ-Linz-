@@ -45,7 +45,9 @@ def rates_cfg() -> dict:
         if k.startswith("pct:") and k[4:] in cfg["pct_lines"]: cfg["pct_lines"][k[4:]].update(v)
     return cfg
 
-FLAGS = ("owner_entered", "estimate", "quote", "confirmed")
+FLAGS = ("owner_entered", "estimate", "quote", "confirmed", "placeholder")
+NOT_DECISION_GRADE = ("placeholder", "estimate")      # inputs that cap verdicts at AMBER and trigger the banner
+from .labels import PLACEHOLDER_BANNER as BANNER
 
 def set_assumptions(values: dict, flags: dict | None = None, notes: dict | None = None) -> dict:
     """Save assumptions. Each saved value carries a flag (owner_entered by default; estimate / quote / confirmed on request) and an optional note, with the date."""
@@ -92,3 +94,45 @@ def view() -> dict:
     return {"assumptions": {k: {"value": v, "from": "you" if f"assumption:{k}" in s else ("config" if v is not None else "blank"), "flag": (s.get(f"flag:assumption:{k}") or {}).get("flag"), "note": (s.get(f"flag:assumption:{k}") or {}).get("note"), "on": (s.get(f"flag:assumption:{k}") or {}).get("on")} for k, v in d.items()},
             "blank_assumptions": [k for k, v in d.items() if v is None and not isinstance(a[k], list)],
             "rates": rates_cfg(), "note": "Blank means not set. Dependent outputs show 'needs input' until you set them."}
+
+
+# ------------------------------------------------------------------------------------ placeholders
+import yaml
+from .config import ROOT as _ROOT
+
+def placeholder_defs() -> dict: return yaml.safe_load((_ROOT / "config/placeholders.yaml").read_text())
+
+def meta() -> dict:
+    s = stored(); return {k[len("flag:assumption:"):]: v for k, v in s.items() if k.startswith("flag:assumption:")}
+
+def load_placeholders() -> dict:
+    """Fill ONLY blank inputs with the placeholders (flag 'placeholder', source as note) and record the confirmed roster multiplier. Never overwrites a value you entered."""
+    defs = placeholder_defs(); cur = assumptions(); st = stored(); loaded, kept = [], []
+    vals, flags, notes = {}, {}, {}
+    for k, d in defs["placeholders"].items():
+        if f"assumption:{k}" in st and st[f"assumption:{k}"] is not None: kept.append(k); continue
+        vals[k] = d["value"]; flags[k] = "placeholder"; notes[k] = d["source"]; loaded.append(k)
+    for k, d in defs["confirmed"].items():
+        if f"assumption:{k}" in st and st[f"assumption:{k}"] is not None: kept.append(k); continue
+        vals[k] = d["value"]; flags[k] = d["flag"]; notes[k] = d["source"]; loaded.append(k)
+    if vals: set_assumptions(vals, flags, notes)
+    return {"loaded": loaded, "kept_your_values": kept}
+
+def placeholder_rows() -> list[dict]:
+    d = placeholder_defs(); a = view()["assumptions"]; out = []
+    for k, x in a.items():
+        if x.get("flag") in NOT_DECISION_GRADE:
+            info = d["placeholders"].get(k, {})
+            out.append({"key": k, "label": info.get("label", k.replace("_", " ")), "value": x["value"], "flag": x["flag"], "source": x.get("note"), "basis": info.get("basis", "owner estimate"), "on": x.get("on")})
+    return out
+
+def used_not_decision_grade(keys, overrides: dict | None = None) -> list[dict]:
+    """The not-decision-grade inputs (placeholders and owner estimates) that a result actually depends on, excluding any you overrode for that one deal."""
+    ov = set(overrides or {}); rows = {r["key"]: r for r in placeholder_rows()}
+    return [{"key": k, "label": rows[k]["label"], "value": rows[k]["value"], "flag": rows[k]["flag"], "source": rows[k]["source"]} for k in keys if k in rows and k not in ov]
+
+OPEX_NEEDED = list(economics.OPEX_KEYS) + ["stabilised_occupancy", "retrofit_cost_per_bed_screening", "lease_term_years", "cost_of_capital_pct", "minimum_acceptable_profit_per_year"]
+OFFER_NEEDED = OPEX_NEEDED + ["pre_opening_costs", "working_capital", "fill_ramp_by_month", "target_profit_per_year"]
+
+def banner_for(used: list[dict]) -> dict:
+    return {"placeholder_banner": BANNER if used else None, "placeholders_used": used}

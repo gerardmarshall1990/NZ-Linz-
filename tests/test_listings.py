@@ -36,6 +36,7 @@ def client(addrs):
             num, road = addrs["single"][1], addrs["single"][2]
             c.execute("DELETE FROM core.user_listing WHERE source_id LIKE 'T-%%' OR raw_address LIKE '%%Unmatched Nowhere%%' OR raw_address = %s", (f"{num} {road}",))
             for pid in (addrs["single"][4], addrs["multi"][5]):
+                c.execute("DELETE FROM core.rh_scenario WHERE parcel_id=%s", (pid,))
                 c.execute("DELETE FROM core.rh_property_fact_history WHERE parcel_id=%s", (pid,)); c.execute("DELETE FROM core.rh_property_fact WHERE parcel_id=%s", (pid,)); c.execute("DELETE FROM core.rh_property WHERE parcel_id=%s", (pid,))
             c.commit()
     clean(); yield TestClient(app); clean()

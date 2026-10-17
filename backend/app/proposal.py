@@ -39,6 +39,9 @@ def build(scenario_id: int, mode: str, address: str | None = None) -> dict:
          f"- Net operating profit shared is defined as: revenue minus food, staffing (with roster coverage), clinical lead and manager, utilities, insurance, compliance and certification, supplies, repairs and maintenance and other agreed operating costs, before the owner's share.",
          "- " + o["legal_flags"]]
     if o.get("banner_confidence"): L.insert(1, f"*{o['banner_confidence']}*")
+    if o.get("placeholder_banner"):
+        L.insert(1, f"**{o['placeholder_banner']}.** Placeholders used: " + "; ".join(f"{x['label']} = {x['value']}" for x in o["placeholders_used"]) + ".")
+        L += ["", "### Placeholder inputs this proposal rests on"] + [f"- {x['label']}: {x['value']} ({x['flag']}). {x['source']}" for x in o["placeholders_used"]]
     return {"scenario_id": scenario_id, "mode": mode, "markdown": "\n".join(L)}
 
 def pdf(markdown: str) -> bytes:

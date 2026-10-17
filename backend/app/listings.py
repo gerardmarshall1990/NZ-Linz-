@@ -177,8 +177,9 @@ def verdict_for(listing_id: int, overrides: dict | None = None) -> dict:
                          (site["zone_name"], list(ACT_PATTERNS))).fetchall() if site and site["zone_name"] else []
         tier = c.execute("SELECT confidence FROM core.rh_property_fact WHERE parcel_id = %s AND field = 'bedrooms_total'", (l["parcel_id"],)).fetchone() if l["parcel_id"] else None
         pt = c.execute("SELECT ST_X(ST_Transform(ST_Centroid(geom), 4326)) AS lon, ST_Y(ST_Transform(ST_Centroid(geom), 4326)) AS lat FROM raw.linz_addresses WHERE address_id = %s", (l["address_id"],)).fetchone() if l["address_id"] else None
+    from . import settings
     p = scenarios.assumptions(overrides)
-    v = V.verdict(_listing_json(l), site, rows, p, (tier or {}).get("confidence", "DOCUMENTED"))
+    v = V.verdict(_listing_json(l), site, rows, p, (tier or {}).get("confidence", "DOCUMENTED"), settings.used_not_decision_grade(settings.OPEX_NEEDED, overrides))
     return {"listing": _listing_json(l), **v, "lon": pt["lon"] if pt else None, "lat": pt["lat"] if pt else None, "source_coverage": sources()["coverage_warning"]}
 
 def search(filters: dict, overrides: dict | None = None) -> dict:

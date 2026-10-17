@@ -43,7 +43,7 @@ def zone_path(rows: list[dict]) -> tuple[str, str]:
     if st <= ACTIVITY_BLOCKED: return "blocked", "every related activity is non-complying or prohibited in this zone"
     return "unknown", "related activity statuses unclear"
 
-def verdict(listing: dict, site: dict | None, activity_rows: list[dict], p: dict, bedrooms_tier: str | None = "DOCUMENTED") -> dict:
+def _verdict(listing: dict, site: dict | None, activity_rows: list[dict], p: dict, bedrooms_tier: str | None = "DOCUMENTED") -> dict:
     beds = listing.get("bedrooms"); rent = listing.get("rent_per_week"); reasons, flags, unknown = [], [], []
     out = {"verdict": None, "reasons": reasons, "flags": flags, "confidence": bedrooms_tier, "banner": "Screening only: bedrooms/plans not confirmed" if bedrooms_tier in (None, "ESTIMATED") else None,
            "label": "Screening label from the stated inputs. Not an approval and not a promise that it will work.", "hazard_info": (site or {}).get("hazard_flags"), "hazard_note": "Natural hazards are information only for conversions of existing buildings."}
@@ -76,3 +76,16 @@ def verdict(listing: dict, site: dict | None, activity_rows: list[dict], p: dict
     if red: out["verdict"] = "RED"; return out
     if unknown or bedrooms_tier in (None, "ESTIMATED"): out["verdict"] = "AMBER"; reasons += unknown; reasons.append("economics positive at the asking rent but items above are unknown or only estimated"); return out
     out["verdict"] = "GREEN"; reasons.append(ztxt); reasons.append("economics positive at the asking rent; engineering items still need professionals (see Rest Home tab)"); return out
+
+
+def verdict(listing: dict, site: dict | None, activity_rows: list[dict], p: dict, bedrooms_tier: str | None = "DOCUMENTED", placeholders: list[dict] | None = None) -> dict:
+    """The verdict, then the placeholder rules: any result that rests on placeholder or estimated inputs carries the banner and the list of inputs that drove it, and can never be GREEN."""
+    from .labels import PLACEHOLDER_BANNER
+    out = _verdict(listing, site, activity_rows, p, bedrooms_tier)
+    used = placeholders or []
+    out["placeholders_used"] = used if out.get("economics") is not None else []
+    out["placeholder_banner"] = PLACEHOLDER_BANNER if out["placeholders_used"] else None
+    if out["placeholder_banner"] and out["verdict"] == "GREEN":
+        out["verdict"] = "AMBER"
+        out["reasons"].insert(0, "capped at AMBER: " + PLACEHOLDER_BANNER.lower() + " (" + ", ".join(x["label"] for x in out["placeholders_used"]) + ")")
+    return out
