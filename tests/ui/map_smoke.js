@@ -9,6 +9,9 @@ const { chromium } = require('/opt/node-tools/node_modules/playwright');
   page.on('console', m => { if (m.type() === 'error' && !/tile\.openstreetmap|Failed to load resource/.test(m.text())) errors.push('console: ' + m.text()); });
   const fail = msg => { console.log('FAIL: ' + msg); console.log(errors.join('\n')); process.exit(1); };
   await page.goto(base + '/', { waitUntil: 'networkidle' });
+  if (!page.url().endsWith('/login')) fail('not redirected to /login when signed out: ' + page.url());
+  await page.fill('#p', process.env.UI_PASSWORD); await page.click('button'); await page.waitForURL(base + '/', { timeout: 10000 }).catch(() => fail('login did not complete'));
+  await page.waitForLoadState('networkidle');
   if (!(await page.locator('.leaflet-container').count())) fail('map did not render');
   if (!/Rest Home Finder/.test(await page.title())) fail('title');
   // listings appear as clickable dots

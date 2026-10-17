@@ -1,4 +1,4 @@
-.PHONY: backup-github backup-full owner-review-table bootstrap app-db app up down refresh refresh-linz refresh-auckland core backup manual rules test feeds feeds-status check-page
+.PHONY: app-private backup-github backup-full owner-review-table bootstrap app-db app up down refresh refresh-linz refresh-auckland core backup manual rules test feeds feeds-status check-page
 SHELL := /bin/bash
 PSQL = set -a; . ./.env; set +a; PGPASSWORD=$$POSTGRES_PASSWORD psql -h $${PGHOST:-localhost} -U $$POSTGRES_USER -d $$POSTGRES_DB -v ON_ERROR_STOP=1 -q
 
@@ -67,7 +67,7 @@ app-db:
 	$(PSQL) -f db/sql/99_ai_grants.sql
 
 app:
-	python3 -m uvicorn backend.app.main:app --host 0.0.0.0 --port 8000
+	python3 -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000
 
 # Rebuild every regenerable layer from the original sources (target = POSTGRES_DB in .env)
 bootstrap:
@@ -79,3 +79,7 @@ owner-review-table:
 # Encrypted user-data backup pushed to the separate PRIVATE backup repo (refuses if unencrypted). See docs/BACKUP.md
 backup-github:
 	bash scripts/backup_to_github.sh
+
+# Private access over Tailscale (needs APP_PASSWORD and TS_AUTHKEY in the environment). See docs/ACCESS.md
+app-private:
+	bash scripts/start_private.sh

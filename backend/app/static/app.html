@@ -19,7 +19,7 @@ table{width:100%;border-collapse:collapse;font-size:.9rem}td,th{padding:6px 4px;
 .kv{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:5px 0;border-top:1px solid var(--bd)}.kv:first-child{border-top:0}.kv b{text-align:right}
 a{color:var(--acc)}footer{margin:24px 0;color:var(--mut);font-size:.8rem}label{display:block;font-size:.8rem;color:var(--mut)}
 </style></head><body>
-<header><h1>Rest Home Finder</h1><div class="mut">Screening tool. Not planning, legal, engineering or financial advice. Council decides applications.</div>
+<header><h1>Rest Home Finder <button onclick="fetch('/logout',{method:'POST'}).then(()=>location.href='/login')" style="float:right;font-size:.8rem">Sign out</button></h1><div class="mut">Screening tool. Not planning, legal, engineering or financial advice. Council decides applications.</div>
 <div id="coverage" class="banner hidden"></div></header>
 <div class="row" style="padding:0 14px 8px"><input id="q" placeholder="Find an address" onkeydown="if(event.key==='Enter')find()"><button class="pri" onclick="find()">Find</button>
 <select id="fv" onchange="loadListings()"><option value="">all verdicts</option><option>GREEN</option><option>AMBER</option><option>RED</option><option>GREY</option></select>

@@ -117,7 +117,7 @@ def test_chat_endpoint_blocked_without_key(monkeypatch):
     from backend.app.main import app
     cl = TestClient(app)
     r = cl.post("/api/chat", json={"message": "hello"}); assert r.status_code == 503 and "ANTHROPIC_API_KEY" in r.text
-    assert cl.get("/api/health").json()["agent_available"] is False
+    assert cl.get("/api/status").json()["agent_available"] is False
 
 def test_chat_endpoint_streams_events_with_injected_client(monkeypatch):
     monkeypatch.setenv("ANTHROPIC_API_KEY", "x"); monkeypatch.setenv("ANTHROPIC_MODEL", "test-model")

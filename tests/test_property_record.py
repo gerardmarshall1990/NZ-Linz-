@@ -38,7 +38,7 @@ def make_dxf(units=6) -> bytes:
 def mk_prop(client): assert client.post(f"/api/property/{PARCEL}").status_code == 200
 
 def test_health_and_site(client):
-    assert client.get("/api/health").json()["sites"] > 500000
+    assert client.get("/api/status").json()["sites"] > 500000
     assert client.get(f"/api/sites/{PARCEL}").json()["parcel_id"] == PARCEL
     assert client.get("/api/sites/1").status_code == 404
 

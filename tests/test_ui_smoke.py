@@ -14,7 +14,7 @@ def free_port():
 
 def test_map_app_in_browser(addrs, tmp_path):
     num, road, sub = addrs["single"][1], addrs["single"][2], addrs["single"][3]
-    port = free_port(); env = {**os.environ, "UPLOAD_DIR": str(tmp_path)}
+    port = free_port(); pw = os.environ["APP_PASSWORD"]; env = {**os.environ, "UPLOAD_DIR": str(tmp_path), "APP_PASSWORD": pw}
     srv = subprocess.Popen([sys.executable, "-m", "uvicorn", "backend.app.main:app", "--port", str(port), "--log-level", "warning"], cwd=ROOT, env=env)
     try:
         import httpx
@@ -23,10 +23,12 @@ def test_map_app_in_browser(addrs, tmp_path):
                 if httpx.get(f"http://127.0.0.1:{port}/api/health", timeout=2).status_code == 200: break
             except Exception: time.sleep(0.5)
         base = f"http://127.0.0.1:{port}"
-        httpx.put(base + "/api/settings/assumptions", json={"values": INPUTS})
-        httpx.post(base + "/api/listings/import", files={"file": ("l.csv", (CSV_HEAD + f"T-ui,{num} {road},{sub},500,12,3,rent,\n").encode())}, data={"source": "csv_manual", "dry_run": "false"})
+        assert httpx.get(base + "/api/status").status_code == 401                       # nothing without a login
+        cl = httpx.Client(base_url=base); assert cl.post("/login", json={"password": pw}).status_code == 200
+        cl.put("/api/settings/assumptions", json={"values": INPUTS})
+        cl.post("/api/listings/import", files={"file": ("l.csv", (CSV_HEAD + f"T-ui,{num} {road},{sub},500,12,3,rent,\n").encode())}, data={"source": "csv_manual", "dry_run": "false"})
         shot = str(tmp_path / "map.png")
-        r = subprocess.run(["node", str(ROOT / "tests/ui/map_smoke.js"), base, shot, f"{num} {road}"], capture_output=True, text=True, timeout=120)
+        r = subprocess.run(["node", str(ROOT / "tests/ui/map_smoke.js"), base, shot, f"{num} {road}"], capture_output=True, text=True, timeout=120, env={**os.environ, "UI_PASSWORD": pw})
         assert r.returncode == 0, r.stdout + r.stderr
         assert Path(shot).stat().st_size > 5000
         Path(os.environ.get("UI_SHOT_COPY", "/dev/null")).write_bytes(Path(shot).read_bytes()) if os.environ.get("UI_SHOT_COPY") else None

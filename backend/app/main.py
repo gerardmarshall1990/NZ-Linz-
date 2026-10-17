@@ -2,21 +2,46 @@
 Run:  uvicorn backend.app.main:app --host 0.0.0.0 --port 8000   (from the repo root)"""
 from pathlib import Path
 from typing import Literal
-from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Query, Request, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse, Response
 from pydantic import BaseModel, Field
-from . import agent, briefs, settings, listings, proposal, scenarios, calibration, compliance, drawings, estimates, facts, gaps, layout, plans, uploads, vision_reader
+from . import agent, auth, briefs, settings, listings, proposal, scenarios, calibration, compliance, drawings, estimates, facts, gaps, layout, plans, uploads, vision_reader
 from .config import upload_dir
 from .db import conn
 
-app = FastAPI(title="NZ Property Intelligence: Remote Conversion Pipeline", version="0.1")
+app = FastAPI(title="NZ Property Intelligence: Remote Conversion Pipeline", version="0.1", docs_url=None, redoc_url=None, openapi_url=None)
+app.middleware("http")(auth.middleware)
 STATIC = Path(__file__).parent / "static"
 FOOTER = "Screening and preparation tool. Not planning, legal, engineering or financial advice. Council decides applications. Confirm with a qualified planner and the relevant professionals."
 
 @app.get("/api/health")
-def health():
+def health(): return {"ok": True}          # public and minimal: nothing about the data or configuration
+
+@app.get("/api/status")
+def status():
     with conn() as c: n = c.execute("SELECT count(*) AS n FROM core.sites").fetchone()["n"]
     return {"ok": True, "sites": n, "vision_available": vision_reader.available(), "agent_available": agent.available(), "footer": FOOTER}
+
+class LoginIn(BaseModel):
+    password: str = Field(max_length=200)
+
+@app.get("/login", response_class=HTMLResponse)
+def login_form(): return auth.login_page()
+
+@app.post("/login")
+def login(body: LoginIn, request: Request):
+    from fastapi.responses import JSONResponse
+    ip = auth._ip(request)
+    if not auth.configured(): return JSONResponse({"detail": "server not configured: set APP_PASSWORD"}, 503)
+    if auth.locked(ip): return JSONResponse({"detail": "too many attempts: wait 15 minutes"}, 429)
+    if not auth.check_password(body.password):
+        auth.record_fail(ip); return JSONResponse({"detail": "wrong password"}, 401)
+    r = JSONResponse({"ok": True}); auth.set_cookie(r, request, auth.create_session()); return r
+
+@app.post("/logout")
+def logout(request: Request):
+    from fastapi.responses import JSONResponse
+    auth.destroy(request.cookies.get(auth.COOKIE)); r = JSONResponse({"ok": True}); r.delete_cookie(auth.COOKIE, path="/"); return r
 
 @app.get("/", response_class=HTMLResponse)
 def home(): return (STATIC / "app.html").read_text()
