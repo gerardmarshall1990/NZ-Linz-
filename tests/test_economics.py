@@ -130,3 +130,9 @@ def test_breakeven_for_each_party_and_ramp_deficits():
 def test_no_hazard_inputs_anywhere():
     import inspect; src = inspect.getsource(E).lower()
     assert "hazard" not in src and "flood" not in src
+
+def test_profit_share_never_pays_the_owner_a_negative_amount():
+    loss = {"low": -500, "base": -400, "high": -300}
+    r = E.run_offer(full(N=loss, N_fn=lambda o: -400 + 10 * o, terms={"s": 0.4, "conversion_payment_per_week": 0}))["modes"]["jv"]
+    assert r["owner"]["weekly_at_stabilisation"] == 0 and all(v >= 0 for v in r["owner"]["cases"].values())
+    assert r["operator"]["stabilised_weekly_net_after_owner"] == -391                                      # the operator carries the whole loss (N at 90% occupancy)

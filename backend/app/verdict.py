@@ -66,7 +66,7 @@ def verdict(listing: dict, site: dict | None, activity_rows: list[dict], p: dict
         out["verdict"] = "RED" if red else "GREY"; reasons += red; reasons.append("economics cannot be judged: inputs not set (see needs_input)"); return out
     if mb["minimum_beds"] is None: red.append("no bed count reaches the minimum acceptable profit with these inputs")
     elif beds < mb["minimum_beds"]: red.append(f"too small: {beds} bedrooms vs {mb['minimum_beds']} needed for the minimum acceptable profit")
-    wa = econ["walk_away_rent"]; out["economics"] = {**econ, "asking_rent": rent, "rent_multiple_possible": (wa / rent) if (rent and wa is not None) else None,
+    wa = econ["walk_away_rent"]; out["economics"] = {**econ, "asking_rent": rent, "rent_multiple_possible": (wa / rent) if (rent and wa is not None and wa > 0) else None, "ceiling_note": ("no rent makes this work: it loses money before any rent is paid" if wa is not None and wa <= 0 else None),
                                                      "offer_ceiling": wa, "below_target": beds < 50}
     if rent is not None:
         out["offer_levels"] = [{"multiple": mu, "rent": rent * mu, "weekly_profit_after_rent": econ["N"] - econ["retrofit_charge"] - rent * mu, "above_ceiling": rent * mu > wa} for mu in (1.25, 1.5, 2.0)]

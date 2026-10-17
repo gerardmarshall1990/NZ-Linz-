@@ -1,0 +1,237 @@
+{
+ "stabilised_only": {
+  "needs_input": [],
+  "confidence": "ESTIMATED",
+  "modes": {
+   "jv": {
+    "owner": {
+     "weekly_at_stabilisation": 2500.0,
+     "multiple_of_current": 2.5,
+     "current_income_used": 1000,
+     "current_income_note": "owner's current income not entered: asking rent used as the comparison",
+     "weekly_during_conversion": 0.0,
+     "cases": {
+      "occ_60": 1500.0,
+      "occ_80": 2000.0,
+      "occ_100": 2500.0,
+      "occ_downside": 1500.0,
+      "n_lower": 1750.0
+     },
+     "cumulative_12m": 90000.0,
+     "cumulative_24m": 220000.0,
+     "vs_leaving_as_is_12m": 38000.0,
+     "vs_leaving_as_is_24m": 116000.0,
+     "multiple_at_cases": {
+      "occ_60": 1.5,
+      "occ_80": 2.0,
+      "occ_100": 2.5,
+      "occ_downside": 1.5,
+      "n_lower": 1.75
+     }
+    },
+    "operator": {
+     "stabilised_weekly_net_after_owner": 2500.0,
+     "payback_weeks_stabilised_only": 20.0,
+     "payback_weeks_full_timeline_from_lease_start": 36,
+     "cash_required": 50000.0,
+     "cash_components": {
+      "retrofit": 50000,
+      "owner_payments_during_conversion": 0.0,
+      "pre_opening": 0,
+      "ramp_deficits": 0.0,
+      "working_capital": 0
+     },
+     "peak_cash": 50000.0,
+     "cash_curve_by_month": [
+      0.0,
+      -6250.0,
+      -31250.0,
+      -50000.0,
+      -45000.0,
+      -35000.0,
+      -22500.0,
+      -12500.0,
+      -2500.0,
+      10000.0,
+      20000.0,
+      30000.0,
+      42500.0,
+      52500.0,
+      62500.0,
+      75000.0,
+      85000.0,
+      95000.0,
+      107500.0,
+      117500.0,
+      127500.0,
+      140000.0,
+      150000.0,
+      160000.0
+     ],
+     "excludes_note_for_simple_payback": "The simple payback excludes the conversion period, any payments to the owner during it, the fill ramp and pre-opening costs. The full-timeline figures include them."
+    },
+    "break_even_occupancy": {
+     "needs_input": [
+      "operating model (N as a function of occupancy)"
+     ]
+    },
+    "flags": [
+     {
+      "level": "amber",
+      "text": "profit share with no minimum payment: the owner receives nothing during consent, works, audit and fill"
+     }
+    ],
+    "terms": {
+     "s": 0.5,
+     "conversion_payment_per_week": 0,
+     "retrofit_recovery_first": false
+    },
+    "retrofit_recovery_first": {
+     "weeks_before_sharing_starts": 10.0,
+     "owner_income_until_then": 0.0,
+     "note": "shown beside the default treatment; the switch is off by default"
+    },
+    "note_net_definition": "Net operating profit shared = revenue minus food, staffing (with roster coverage), clinical lead and manager, utilities, insurance, compliance and certification, supplies, repairs and maintenance and other agreed operating costs, before the JV share."
+   }
+  },
+  "ranking": [
+   "jv"
+  ],
+  "range": {
+   "retrofit": {
+    "low": 50000,
+    "base": 50000,
+    "high": 50000
+   },
+   "N": {
+    "low": 5000,
+    "base": 5000,
+    "high": 5000
+   }
+  },
+  "assumptions": [
+   "N is the weekly net operating profit at the stabilised occupancy; below that it is scaled in proportion to occupancy, which flatters low occupancy because staffing is fixed.",
+   "Downside cases: occupancy 60%, and N lower by 30%.",
+   "Weeks per year = 52. Projections are illustrative and may be wrong.",
+   "Conversion period = 16 weeks (consent 4, works 8, audit and sign-off 4)."
+  ],
+  "banner": "Lawyer review required. Illustrative projections from the stated assumptions; no outcome is promised.",
+  "legal_flags": "A profit share or JV can change legal, tax, liability, lender and insurer treatment. Questions for a lawyer and an accountant: lease with a profit-share rent, a JV entity, or a management agreement; the operator must be the certified legal entity; the owner's lender and insurer may need to consent. This tool recommends no structure.",
+  "flags": []
+ },
+ "full_timeline": {
+  "needs_input": [],
+  "confidence": "ESTIMATED",
+  "modes": {
+   "jv": {
+    "owner": {
+     "weekly_at_stabilisation": 2500.0,
+     "multiple_of_current": 2.5,
+     "current_income_used": 1000,
+     "current_income_note": "owner's current income not entered: asking rent used as the comparison",
+     "weekly_during_conversion": 1000.0,
+     "cases": {
+      "occ_60": 1500.0,
+      "occ_80": 2000.0,
+      "occ_100": 2500.0,
+      "occ_downside": 1500.0,
+      "n_lower": 1750.0
+     },
+     "cumulative_12m": 106000.0,
+     "cumulative_24m": 236000.0,
+     "vs_leaving_as_is_12m": 54000.0,
+     "vs_leaving_as_is_24m": 132000.0,
+     "multiple_at_cases": {
+      "occ_60": 1.5,
+      "occ_80": 2.0,
+      "occ_100": 2.5,
+      "occ_downside": 1.5,
+      "n_lower": 1.75
+     }
+    },
+    "operator": {
+     "stabilised_weekly_net_after_owner": 2500.0,
+     "payback_weeks_stabilised_only": 20.0,
+     "payback_weeks_full_timeline_from_lease_start": 43,
+     "cash_required": 66000.0,
+     "cash_components": {
+      "retrofit": 50000,
+      "owner_payments_during_conversion": 16000.0,
+      "pre_opening": 0,
+      "ramp_deficits": 0.0,
+      "working_capital": 0
+     },
+     "peak_cash": 66000.0,
+     "cash_curve_by_month": [
+      -1000.0,
+      -11250.0,
+      -40250.0,
+      -64000.0,
+      -61000.0,
+      -51000.0,
+      -38500.0,
+      -28500.0,
+      -18500.0,
+      -6000.0,
+      4000.0,
+      14000.0,
+      26500.0,
+      36500.0,
+      46500.0,
+      59000.0,
+      69000.0,
+      79000.0,
+      91500.0,
+      101500.0,
+      111500.0,
+      124000.0,
+      134000.0,
+      144000.0
+     ],
+     "excludes_note_for_simple_payback": "The simple payback excludes the conversion period, any payments to the owner during it, the fill ramp and pre-opening costs. The full-timeline figures include them."
+    },
+    "break_even_occupancy": {
+     "needs_input": [
+      "operating model (N as a function of occupancy)"
+     ]
+    },
+    "flags": [],
+    "terms": {
+     "s": 0.5,
+     "conversion_payment_per_week": 1000,
+     "retrofit_recovery_first": false
+    },
+    "retrofit_recovery_first": {
+     "weeks_before_sharing_starts": 10.0,
+     "owner_income_until_then": 1000,
+     "note": "shown beside the default treatment; the switch is off by default"
+    },
+    "note_net_definition": "Net operating profit shared = revenue minus food, staffing (with roster coverage), clinical lead and manager, utilities, insurance, compliance and certification, supplies, repairs and maintenance and other agreed operating costs, before the JV share."
+   }
+  },
+  "ranking": [
+   "jv"
+  ],
+  "range": {
+   "retrofit": {
+    "low": 50000,
+    "base": 50000,
+    "high": 50000
+   },
+   "N": {
+    "low": 5000,
+    "base": 5000,
+    "high": 5000
+   }
+  },
+  "assumptions": [
+   "N is the weekly net operating profit at the stabilised occupancy; below that it is scaled in proportion to occupancy, which flatters low occupancy because staffing is fixed.",
+   "Downside cases: occupancy 60%, and N lower by 30%.",
+   "Weeks per year = 52. Projections are illustrative and may be wrong.",
+   "Conversion period = 16 weeks (consent 4, works 8, audit and sign-off 4)."
+  ],
+  "banner": "Lawyer review required. Illustrative projections from the stated assumptions; no outcome is promised.",
+  "legal_flags": "A profit share or JV can change legal, tax, liability, lender and insurer treatment. Questions for a lawyer and an accountant: lease with a profit-share rent, a JV entity, or a management agreement; the operator must be the certified legal entity; the owner's lender and insurer may need to consent. This tool recommends no structure.",
+  "flags": []
+ }
+}

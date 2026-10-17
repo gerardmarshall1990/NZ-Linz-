@@ -304,6 +304,18 @@ def listing_review_match(lid: int, body: MatchIn): return listings.review_match(
 @app.post("/api/listings/{lid}/upgrade-record")
 def listing_upgrade(lid: int): return listings.upgrade_property_record(lid)
 
+class ListingOfferIn(BaseModel):
+    terms: dict
+    asking_rent: float | None = None
+    current_net: float | None = None
+    assumptions: dict | None = None
+    retrofit: float | None = None
+    timeline: dict | None = None
+    downside: dict | None = None
+
+@app.post("/api/listings/{lid}/offer")
+def listing_offer(lid: int, body: ListingOfferIn): return scenarios.offer_for_listing(lid, body.model_dump())
+
 @app.get("/api/listings/{lid}")
 def listing_get(lid: int): return listings.verdict_for(lid)
 
@@ -320,9 +332,11 @@ def get_settings(): return settings.view()
 
 class AssumptionsIn(BaseModel):
     values: dict
+    flags: dict | None = None
+    notes: dict | None = None
 
 @app.put("/api/settings/assumptions")
-def put_assumptions(body: AssumptionsIn): return settings.set_assumptions(body.values)
+def put_assumptions(body: AssumptionsIn): return settings.set_assumptions(body.values, body.flags, body.notes)
 
 class RatesIn(BaseModel):
     lines: dict | None = None

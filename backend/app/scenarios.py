@@ -64,3 +64,37 @@ def offer_run(parcel_id: int, option_id: int, body: dict) -> dict:
                banner_confidence="Screening only: bedrooms/plans not confirmed" if conf in (None, "ESTIMATED") else None)
     out["scenario_id"] = _store(parcel_id, option_id, "offer", {k: v for k, v in inp.items() if k != "N_fn"} | {"assumptions": p}, out, conf)
     return out
+
+
+def offer_for_listing(listing_id: int, body: dict) -> dict:
+    """Offer Builder for a listing with no plans yet (screening tier): beds = listed bedrooms (an upper bound), retrofit = beds x your screening retrofit cost per bed with a +/-20% range,
+    all of it an allowance (so the 'mostly allowances' banner shows), rent = the listing's asking rent."""
+    with conn() as c:
+        l = c.execute("SELECT * FROM core.user_listing WHERE id = %s", (listing_id,)).fetchone()
+        if not l: raise HTTPException(404, "no such listing")
+        tier = c.execute("SELECT confidence FROM core.rh_property_fact WHERE parcel_id = %s AND field = 'bedrooms_total'", (l["parcel_id"],)).fetchone() if l["parcel_id"] else None
+    if l["parcel_id"] is None or l["match_confidence"] in ("low", "none"): return {"needs_input": ["address matched to a parcel (review the match in Import)"], "modes": {}, "label": "Needs input."}
+    if not l["bedrooms"]: return {"needs_input": ["bedrooms"], "modes": {}, "label": "Needs input."}
+    rent = body.get("asking_rent") or (float(l["rent_per_week"]) if l["rent_per_week"] else None)
+    if not rent: return {"needs_input": ["asking_rent"], "modes": {}, "label": "Needs input."}
+    p = assumptions(body.get("assumptions")); beds = int(l["bedrooms"]); conf = (tier or {}).get("confidence", "DOCUMENTED")
+    per = p.get("retrofit_cost_per_bed_screening")
+    if body.get("retrofit") is None and per is None: return {"needs_input": ["retrofit_cost_per_bed_screening (or give a retrofit figure)"], "modes": {}, "label": "Needs input: no retrofit cost."}
+    base = float(body["retrofit"]) if body.get("retrofit") is not None else beds * per
+    rt = {"low": base * 0.8, "base": base, "high": base * 1.2}
+    feas = economics.feasibility(beds, p, base, conf)
+    if feas.get("stabilised") is None or feas["stabilised"]["net"] is None: return {"needs_input": feas["needs_input"], "modes": {}, "label": "Needs input: the operating model has unset inputs."}
+    sens = economics.sensitivity(beds, p, base); t = economics.timeline_defaults()["target"]
+    tl = body.get("timeline") or {"consent_weeks": t["consent_weeks"], "works_weeks": t["works_weeks"], "audit_weeks": t["audit_signoff_weeks"]}
+    inp = {"asking_rent": rent, "current_net": body.get("current_net"), "N": sens["N_range"], "N_fn": lambda occ: economics.operating(beds, occ, p)["net"], "stabilised_occupancy": p["stabilised_occupancy"],
+           "retrofit": rt, "allowance_pct": 100.0, "timeline": tl, "fill_ramp_by_month": p["fill_ramp_by_month"], "pre_opening_costs": p["pre_opening_costs"], "working_capital": p["working_capital"],
+           "funding": "i_fund" if p["retrofit_funding_mode"] == "i_fund" else "owner_funds", "walk_away_rent": feas["walk_away_rent_per_week"], "cash_limit": p["cash_limit"],
+           "terms": body.get("terms") or {}, "confidence": {"N": conf, "C": conf}, "downside": body.get("downside")}
+    out = economics.run_offer(inp)
+    out.update(listing_id=listing_id, beds=beds, below_target=beds < 50, walk_away_rent_per_week=feas["walk_away_rent_per_week"], needs_input_feasibility=feas["needs_input"],
+               basis="screening: beds = listed bedrooms (upper bound), retrofit = beds x screening cost per bed, entirely an allowance", banner_confidence="Screening only: bedrooms/plans not confirmed")
+    with conn() as c:
+        c.execute("INSERT INTO core.rh_property (parcel_id, created_by) VALUES (%s, 'listing') ON CONFLICT DO NOTHING", (l["parcel_id"],))      # the scenario belongs to a Property Record; creating an empty one changes no fact
+        r = c.execute("INSERT INTO core.rh_scenario (parcel_id, option_id, kind, inputs, output, confidence, created_by) VALUES (%s,NULL,'offer',%s::jsonb,%s::jsonb,%s,'owner') RETURNING id",
+                      (l["parcel_id"], json.dumps({k: v for k, v in inp.items() if k != "N_fn"} | {"assumptions": p, "listing_id": listing_id}, default=str), json.dumps(out, default=str), conf)).fetchone(); c.commit()
+    out["scenario_id"] = r["id"]; return out

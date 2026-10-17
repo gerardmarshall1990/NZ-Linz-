@@ -28,7 +28,7 @@ def test_blank_by_default_then_saved_and_validated(client):
     assert client.put("/api/settings/assumptions", json={"values": {"retrofit_funding_mode": "gift"}}).status_code == 422
     assert client.put("/api/settings/assumptions", json={"values": {"fill_ramp_by_month": [0.2, 1.5]}}).status_code == 422
     r = client.put("/api/settings/assumptions", json={"values": INPUTS}).json()
-    assert r["assumptions"]["utilities_per_week"] == {"value": 500, "from": "you"} and "utilities_per_week" not in r["blank_assumptions"]
+    assert {k: r["assumptions"]["utilities_per_week"][k] for k in ("value", "from", "flag")} == {"value": 500, "from": "you", "flag": "owner_entered"} and "utilities_per_week" not in r["blank_assumptions"]
     client.put("/api/settings/assumptions", json={"values": {"utilities_per_week": None}})
     assert "utilities_per_week" in client.get("/api/settings").json()["blank_assumptions"]            # cleared goes back to blank, never a default
     client.put("/api/settings/assumptions", json={"values": {"utilities_per_week": 500}})

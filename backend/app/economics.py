@@ -126,7 +126,7 @@ def _weekly_cash(mode: str, t: dict, N_of_occ, occupancy_by_week, weeks_conv: di
         else:
             occ = occupancy_by_week(wk - conv); N = N_of_occ(occ)
             if mode == "fixed": share = t["rent"]
-            elif mode == "jv": share = t["s"] * N
+            elif mode == "jv": share = max(0.0, t["s"] * N)       # a loss is not shared: the owner takes nothing, never a negative amount
             else: share = t["floor"] + t["s_h"] * max(0.0, N - t["threshold"])
             flow += N - share; owner_total += share
             if flow < 0: comp["ramp_deficits"] += -flow
@@ -216,7 +216,7 @@ def run_offer(inp: dict) -> dict:
     # B. JV share
     if terms.get("s") is not None:
         s = terms["s"]; t = {"s": s, "conversion_payment_per_week": terms.get("conversion_payment_per_week"), "retrofit_recovery_first": bool(terms.get("retrofit_recovery_first"))}
-        m = finish("jv", t, s * N_stab, lambda n: s * n)
+        m = finish("jv", t, max(0.0, s * N_stab), lambda n: max(0.0, s * n))
         m["owner"]["multiple_at_cases"] = {k: v / cur_used for k, v in m["owner"]["cases"].items()}
         if not terms.get("conversion_payment_per_week"):
             m["flags"].append({"level": "amber", "text": "profit share with no minimum payment: the owner receives nothing during consent, works, audit and fill" + (" and is below current income at a downside case" if min(m["owner"]["cases"].values()) < cur_used else "")})

@@ -180,3 +180,49 @@ def test_no_scraping_code_in_repo():
         for f in (ROOT / d).rglob("*.py"): assert not banned.search(f.read_text()), f
     for f in list((ROOT / "backend").rglob("*.py")) + list((ROOT / "scripts").glob("*.py")):          # no HTTP calls to listing sites anywhere
         assert not re.search(r"(urlopen|requests\.|httpx\.|curl)[^\n]*(trademe|realestate)", f.read_text(), re.I), f
+
+# ---------------------------------------------------------------- Offer Builder from a listing (no plans yet)
+def test_offer_from_listing_screening(client, addrs):
+    from tests.test_settings_map import INPUTS
+    full, num, road, sub, pid = addrs["single"]
+    post(client, CSV_HEAD + f"T-off,{num} {road},{sub},900,14,4,rent,\n", dry_run=False)
+    with admin() as c: lid = c.execute("SELECT id FROM core.user_listing WHERE source_id = 'T-off'").fetchone()[0]
+    terms = {"multiple": 1.5, "s": 0.4, "floor": 500, "s_h": 0.3, "threshold": 800, "conversion_payment_per_week": 300}
+    r = client.post(f"/api/listings/{lid}/offer", json={"terms": terms}).json()                          # no inputs saved: needs input, no numbers
+    assert r["modes"] == {} and r["needs_input"]
+    ov = {k: v for k, v in INPUTS.items()} | {"fill_ramp_by_month": [0.3, 0.6, 0.8], "pre_opening_costs": 20000, "working_capital": 15000}
+    r = client.post(f"/api/listings/{lid}/offer", json={"terms": terms, "assumptions": ov}).json()
+    assert set(r["modes"]) == {"fixed", "jv", "hybrid"} and r["beds"] == 14 and r["basis"].startswith("screening")
+    assert any("allowances" in f["text"] and f["level"] == "red" for f in r["flags"])                    # all of the screening retrofit is an allowance: red banner
+    assert r["modes"]["fixed"]["owner"]["weekly_at_stabilisation"] <= r["walk_away_rent_per_week"] + 1e-9
+    assert r["range"]["retrofit"]["base"] == 14 * INPUTS["retrofit_cost_per_bed_screening"] and r["range"]["retrofit"]["low"] == pytest.approx(0.8 * r["range"]["retrofit"]["base"])
+    assert "Lawyer review required" in r["banner"]
+    pdf = client.get(f"/api/scenarios/{r['scenario_id']}/proposal.pdf", params={"mode": "jv"}); assert pdf.content.startswith(b"%PDF")
+    assert client.post("/api/listings/999999/offer", json={"terms": terms}).status_code == 404
+    with admin() as c: c.execute("DELETE FROM core.rh_scenario WHERE parcel_id = %s", (pid,))
+
+def test_offer_from_listing_works_for_a_parcel_with_no_property_record_yet(client, addrs):
+    from tests.test_settings_map import INPUTS
+    full, num, road, sub, pid = addrs["multi"][0], addrs["multi"][2], addrs["multi"][3], addrs["multi"][4], addrs["multi"][5]
+    post(client, CSV_HEAD + f"T-new,{num} {road},{sub},700,20,6,rent,\n", dry_run=False)
+    with admin() as c:
+        lid = c.execute("SELECT id FROM core.user_listing WHERE source_id = 'T-new'").fetchone()[0]
+        assert c.execute("SELECT count(*) FROM core.rh_property WHERE parcel_id = %s", (pid,)).fetchone()[0] == 0
+    ov = INPUTS | {"fill_ramp_by_month": [0.5], "pre_opening_costs": 1000, "working_capital": 1000}
+    r = client.post(f"/api/listings/{lid}/offer", json={"terms": {"s": 0.4}, "assumptions": ov}); assert r.status_code == 200 and r.json()["modes"]
+    with admin() as c:
+        c.execute("DELETE FROM core.rh_scenario WHERE parcel_id = %s", (pid,)); c.execute("DELETE FROM core.rh_property WHERE parcel_id = %s", (pid,))
+
+def test_settings_flags_and_notes(client):
+    from backend.app import settings
+    r = client.put("/api/settings/assumptions", json={"values": {"utilities_per_week": 650}, "flags": {"utilities_per_week": "quote"}, "notes": {"utilities_per_week": "Mercury quote 12 Oct"}}).json()
+    a = r["assumptions"]["utilities_per_week"]; assert a["value"] == 650 and a["flag"] == "quote" and a["note"] == "Mercury quote 12 Oct" and a["from"] == "you" and a["on"]
+    r = client.put("/api/settings/assumptions", json={"values": {"insurance_per_year": 20000}}).json(); assert r["assumptions"]["insurance_per_year"]["flag"] == "owner_entered"
+    assert client.put("/api/settings/assumptions", json={"values": {"utilities_per_week": 1}, "flags": {"utilities_per_week": "guess"}}).status_code == 422
+    r = client.put("/api/settings/assumptions", json={"values": {"utilities_per_week": None, "insurance_per_year": None}}).json()
+    assert r["assumptions"]["utilities_per_week"]["value"] is None and r["assumptions"]["utilities_per_week"]["flag"] is None and "utilities_per_week" in r["blank_assumptions"]     # cleared goes back to blank
+    with admin() as c: c.execute("DELETE FROM core.user_setting"); c.execute("DELETE FROM core.user_setting_history")
+
+def test_negative_walk_away_rent_is_stated_plainly():
+    v = V.verdict(L(7, 1950), SITE, ROWS, PV, "DOCUMENTED"); e = v["economics"]
+    assert e["offer_ceiling"] < 0 and e["rent_multiple_possible"] is None and "no rent makes this work" in e["ceiling_note"] and v["verdict"] == "RED"

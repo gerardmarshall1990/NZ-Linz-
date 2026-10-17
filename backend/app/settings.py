@@ -45,10 +45,20 @@ def rates_cfg() -> dict:
         if k.startswith("pct:") and k[4:] in cfg["pct_lines"]: cfg["pct_lines"][k[4:]].update(v)
     return cfg
 
-def set_assumptions(values: dict) -> dict:
+FLAGS = ("owner_entered", "estimate", "quote", "confirmed")
+
+def set_assumptions(values: dict, flags: dict | None = None, notes: dict | None = None) -> dict:
+    """Save assumptions. Each saved value carries a flag (owner_entered by default; estimate / quote / confirmed on request) and an optional note, with the date."""
     clean = {n: _validate_assumption(n, v) for n, v in values.items()}
+    flags = flags or {}; notes = notes or {}
+    for n, f in flags.items():
+        if f not in FLAGS: raise HTTPException(422, f"flag for {n} must be one of {list(FLAGS)}")
+    import datetime
     with conn() as c:
-        for n, v in clean.items(): _put(c, f"assumption:{n}", v)
+        for n, v in clean.items():
+            if _put(c, f"assumption:{n}", v) or n in flags or n in notes:
+                if v is None: c.execute("DELETE FROM core.user_setting WHERE key = %s", (f"flag:assumption:{n}",))
+                else: _put(c, f"flag:assumption:{n}", {"flag": flags.get(n, "owner_entered"), "note": notes.get(n), "on": datetime.date.today().isoformat()})
         c.commit()
     return view()
 
@@ -79,6 +89,6 @@ def _rate(r: dict, pct: bool = False) -> dict:
 
 def view() -> dict:
     d = assumptions(); a = economics.default_assumptions(); s = stored()
-    return {"assumptions": {k: {"value": v, "from": "you" if f"assumption:{k}" in s else ("config" if v is not None else "blank")} for k, v in d.items()},
+    return {"assumptions": {k: {"value": v, "from": "you" if f"assumption:{k}" in s else ("config" if v is not None else "blank"), "flag": (s.get(f"flag:assumption:{k}") or {}).get("flag"), "note": (s.get(f"flag:assumption:{k}") or {}).get("note"), "on": (s.get(f"flag:assumption:{k}") or {}).get("on")} for k, v in d.items()},
             "blank_assumptions": [k for k, v in d.items() if v is None and not isinstance(a[k], list)],
             "rates": rates_cfg(), "note": "Blank means not set. Dependent outputs show 'needs input' until you set them."}
