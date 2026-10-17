@@ -4,7 +4,7 @@
 Source pages (read 2026-10-17):
   https://www.aucklandcouncil.govt.nz/en/plans-policies-bylaws-reports-projects/our-plans-strategies/unitary-plan/auckland-unitary-plan-modifications/proposed-plan-changes/pc-120-housing-intensification-resilience.html
 Status per Council: notified 3 Nov 2025; submissions closed 19 Dec 2025; partially withdrawn and proposed amendments notified 27 Aug 2026; second submission period closed 24 Sep 2026 5pm; hearings to follow.
-Writes data/pc120/pdf/*.pdf, data/pc120/txt/*.txt (info sheets, pdftotext -layout) and data/pc120/manifest.json (url, sha256, bytes).
+Writes data/pc120/pdf/*.pdf, data/pc120/txt/*.txt (pdftotext: reading order for info sheets, -layout for the rest) and data/pc120/manifest.json (url, sha256, bytes).
 """
 import hashlib, json, subprocess, urllib.request
 from pathlib import Path
@@ -34,7 +34,8 @@ def main():
             req = urllib.request.Request(BASE + f, headers={"User-Agent": "Mozilla/5.0 nz-property-research/0.1"})
             local.write_bytes(urllib.request.urlopen(req, timeout=300).read())
         t = txt / (local.stem + ".txt")
-        if not t.exists(): subprocess.run(["pdftotext", "-layout", str(local), str(t)], check=True)
+        # info sheets are two-column: -layout interleaves the columns and breaks the quote matching, so they are extracted in reading order
+        if not t.exists(): subprocess.run(["pdftotext", *([] if "info" in local.name.lower() else ["-layout"]), str(local), str(t)], check=True)
         man["files"].append({"file": local.name, "url": BASE + f, "role": role, "stage": stage, "sha256": hashlib.sha256(local.read_bytes()).hexdigest(), "bytes": local.stat().st_size})
     (ROOT / "data/pc120/manifest.json").write_text(json.dumps(man, indent=1)); print(len(man["files"]), "PC120 documents")
 
