@@ -67,6 +67,17 @@ def fetch(service, layer, offset):
             time.sleep(2 ** attempt)
     raise RuntimeError(f"giving up on {service} offset={offset}")
 
+GEOM = {"esriGeometryPolygon": "MultiPolygon", "esriGeometryPoint": "MultiPoint", "esriGeometryMultipoint": "MultiPoint", "esriGeometryPolyline": "MultiLineString"}
+SQLTYPE = {"esriFieldTypeInteger": "integer", "esriFieldTypeSmallInteger": "integer", "esriFieldTypeDouble": "double precision", "esriFieldTypeSingle": "double precision", "esriFieldTypeOID": "integer"}
+
+def create_empty(service, layer, table, env):
+    """A layer with no features in the requested extent (slice mode, or a layer that is empty upstream) still gets its table, with the layer's own columns, so later SQL never fails on a missing relation."""
+    meta = json.load(urllib.request.urlopen(f"{BASE}/{service}/FeatureServer/{layer}?f=json", timeout=120))
+    cols = ", ".join(f'"{f["name"].lower()}" {SQLTYPE.get(f["type"], "text")}' for f in meta["fields"] if f["name"].lower() != "ogc_fid")
+    g = GEOM.get(meta.get("geometryType"), "Geometry")
+    sql = f"DROP TABLE IF EXISTS raw.{table}; CREATE TABLE raw.{table} (ogc_fid serial PRIMARY KEY, geom geometry({g}, 2193), {cols}); CREATE INDEX ON raw.{table} USING gist (geom);"
+    subprocess.run(["psql", "-h", "localhost", "-U", os.environ["POSTGRES_USER"], "-d", os.environ["POSTGRES_DB"], "-v", "ON_ERROR_STOP=1", "-qc", sql], check=True, env=env)
+
 def run(key):
     service, layer = LAYERS[key]
     table = f"ac_{key}"
@@ -84,6 +95,7 @@ def run(key):
     env = {**os.environ, "PGPASSWORD": os.environ["POSTGRES_PASSWORD"]}
     subprocess.run(["psql", "-h", "localhost", "-U", os.environ["POSTGRES_USER"], "-d", os.environ["POSTGRES_DB"],
                     "-qc", f"DROP TABLE IF EXISTS raw.{table}"], check=True, env=env)
+    if not pages: create_empty(service, layer, table, env); print(f"{key}: no features in this extent -> empty raw.{table}", flush=True); return
     dsn = (f"PG:host=localhost dbname={os.environ['POSTGRES_DB']} user={os.environ['POSTGRES_USER']} "
            f"password={os.environ['POSTGRES_PASSWORD']}")
     for i, f in enumerate(pages):
