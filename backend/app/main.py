@@ -1,0 +1,155 @@
+"""FastAPI app: property intake, Property Record, uploads, plan reader with human review (MASTER_SPEC Part 7 step 1).
+Run:  uvicorn backend.app.main:app --host 0.0.0.0 --port 8000   (from the repo root)"""
+from pathlib import Path
+from typing import Literal
+from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile
+from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse, Response
+from pydantic import BaseModel, Field
+from . import calibration, estimates, facts, plans, uploads, vision_reader
+from .config import upload_dir
+from .db import conn
+
+app = FastAPI(title="NZ Property Intelligence: Remote Conversion Pipeline", version="0.1")
+STATIC = Path(__file__).parent / "static"
+FOOTER = "Screening and preparation tool. Not planning, legal, engineering or financial advice. Council decides applications. Confirm with a qualified planner and the relevant professionals."
+
+@app.get("/api/health")
+def health():
+    with conn() as c: n = c.execute("SELECT count(*) AS n FROM core.sites").fetchone()["n"]
+    return {"ok": True, "sites": n, "vision_available": vision_reader.available(), "footer": FOOTER}
+
+@app.get("/", response_class=HTMLResponse)
+def ui(): return (STATIC / "ui.html").read_text()
+
+# ---------------- sites
+@app.get("/api/sites/search")
+def search_sites(q: str = Query(min_length=3, max_length=80)):
+    with conn() as c:
+        rows = c.execute("""SELECT parcel_id, address, suburb, area_m2::float AS area_m2, zone_name, building_count FROM core.sites WHERE address ILIKE %s ORDER BY address LIMIT 20""", (f"%{q.strip()}%",)).fetchall()
+    return rows
+
+@app.get("/api/sites/{parcel_id}")
+def get_site(parcel_id: int):
+    with conn() as c:
+        s = c.execute("""SELECT parcel_id, appellation, address, suburb, area_m2::float AS area_m2, zone_name, title_type, title_no, building_count, total_footprint_m2::float AS footprint_m2,
+                                address_count, overlays, hazard_flags, maori_land_linz, pc120_depends, pc120_proposed_zone,
+                                ST_AsGeoJSON(ST_Transform(geom, 4326))::json AS geometry,
+                                EXISTS (SELECT 1 FROM core.rh_property p WHERE p.parcel_id = core.sites.parcel_id) AS has_property_record
+                         FROM core.sites WHERE parcel_id = %s""", (parcel_id,)).fetchone()
+    if not s: raise HTTPException(404, "no such parcel")
+    s["hazard_note"] = "Natural hazard flags are information only for rest home conversions of existing buildings (decision 13)."
+    return s
+
+# ---------------- Property Record
+class FactIn(BaseModel):
+    field: str
+    value: object
+    source: str = Field(min_length=2)
+    confidence: Literal["ESTIMATED", "DOCUMENTED", "CONFIRMED"]
+    note: str | None = None
+
+@app.post("/api/property/{parcel_id}")
+def create_property(parcel_id: int, auto_estimate: bool = True):
+    with conn() as c:
+        if not c.execute("SELECT 1 FROM core.sites WHERE parcel_id = %s", (parcel_id,)).fetchone(): raise HTTPException(404, "no such parcel")
+        c.execute("INSERT INTO core.rh_property (parcel_id, created_by) VALUES (%s, 'owner') ON CONFLICT DO NOTHING", (parcel_id,)); c.commit()
+    done = estimates.auto_estimates(parcel_id) if auto_estimate else []
+    return {**facts.get_property(parcel_id), "auto_estimates_written": done}
+
+@app.get("/api/property/{parcel_id}")
+def read_property(parcel_id: int): return facts.get_property(parcel_id)
+
+@app.put("/api/property/{parcel_id}/facts")
+def put_fact(parcel_id: int, f: FactIn):
+    facts.get_property(parcel_id)
+    with conn() as c:
+        changed = facts.set_fact(c, parcel_id, f.field, f.value, f.source, f.confidence, "manual entry", f.note); c.commit()
+    return {"changed": changed, "property": facts.get_property(parcel_id)}
+
+@app.get("/api/property/{parcel_id}/history")
+def read_history(parcel_id: int, field: str | None = None): return facts.history(parcel_id, field)
+
+@app.get("/api/property/{parcel_id}/export.csv", response_class=PlainTextResponse)
+def export(parcel_id: int): return PlainTextResponse(facts.export_csv(parcel_id), media_type="text/csv")
+
+@app.post("/api/property/{parcel_id}/import")
+async def import_facts(parcel_id: int, file: UploadFile = File(...), source: str = Form(min_length=2), dry_run: bool = Form(True)):
+    facts.get_property(parcel_id)
+    return facts.import_csv(parcel_id, (await file.read(1_000_000)).decode("utf-8", errors="replace"), source, dry_run)
+
+# ---------------- uploads
+@app.post("/api/property/{parcel_id}/uploads")
+async def upload(parcel_id: int, file: UploadFile = File(...), kind: Literal["plan", "photo", "document", "scan", "other"] = Form("plan"), source_note: str | None = Form(None)):
+    facts.get_property(parcel_id)
+    data = await file.read(uploads.MAX_UPLOAD_BYTES + 1)
+    s = uploads.store(parcel_id, file.filename or "upload", data)
+    with conn() as c:
+        r = c.execute("""INSERT INTO core.rh_upload (parcel_id, kind, original_name, stored_name, detected_type, size_bytes, sha256, uploaded_by, source_note, page_count) VALUES (%s,%s,%s,%s,%s,%s,%s,'owner',%s,%s)
+                         RETURNING id, kind, original_name, detected_type, size_bytes, page_count""", (parcel_id, kind, uploads.safe_name(file.filename or "upload"), s["stored_name"], s["detected_type"], s["size_bytes"], s["sha256"], source_note, s["page_count"])).fetchone()
+        c.commit()
+    return r
+
+@app.get("/api/property/{parcel_id}/uploads")
+def list_uploads(parcel_id: int):
+    with conn() as c:
+        return [{**r, "uploaded_at": r["uploaded_at"].isoformat()} for r in c.execute("""SELECT id, kind, original_name, detected_type, size_bytes, page_count, uploaded_at, source_note FROM core.rh_upload WHERE parcel_id = %s ORDER BY id DESC""", (parcel_id,)).fetchall()]
+
+@app.get("/api/uploads/{upload_id}/preview.png")
+def preview(upload_id: int, page: int = 1):
+    png, w, h = plans.preview_png(upload_id, page)
+    return Response(png, media_type="image/png", headers={"X-Width": str(w), "X-Height": str(h), "Cache-Control": "private, max-age=3600"})
+
+@app.get("/api/uploads/{upload_id}/download")
+def download(upload_id: int):
+    with conn() as c: u = plans._upload(c, upload_id)
+    return FileResponse(upload_dir() / str(u["parcel_id"]) / u["stored_name"], filename=u["original_name"], headers={"Content-Disposition": f'attachment; filename="{u["original_name"]}"', "X-Content-Type-Options": "nosniff"})
+
+# ---------------- plan reader
+class CalIn(BaseModel):
+    method: Literal["two_point", "stated_scale"]
+    page: int = 1
+    measurements: list[dict] | None = None
+    denominator: float | None = None
+
+@app.post("/api/uploads/{upload_id}/calibrate")
+def do_calibrate(upload_id: int, body: CalIn):
+    with conn() as c: u = plans._upload(c, upload_id)
+    cal = calibration.two_point(body.measurements or []) if body.method == "two_point" else calibration.stated_scale(body.denominator or 0, u["detected_type"] == "pdf")
+    return plans.calibrate(upload_id, body.page, cal)
+
+class ExtractIn(BaseModel):
+    mode: Literal["auto", "manual", "vision"] = "auto"
+    page: int = 1
+    units_override: str | None = None
+
+@app.post("/api/uploads/{upload_id}/extract")
+def do_extract(upload_id: int, body: ExtractIn):
+    mode = body.mode
+    if mode == "auto":
+        with conn() as c: t = plans._upload(c, upload_id)["detected_type"]
+        mode = "manual" if t != "dxf" and not vision_reader.available() else ("vision" if t != "dxf" else "manual")
+    return plans.extract(upload_id, mode, body.page, body.units_override)
+
+@app.get("/api/uploads/{upload_id}/extractions")
+def list_extractions(upload_id: int):
+    with conn() as c:
+        return [{**r, "created_at": r["created_at"].isoformat()} for r in c.execute("SELECT id, page, level_name, source, status, calibrated, created_at, superseded_by FROM core.rh_plan_extraction WHERE upload_id = %s ORDER BY id DESC", (upload_id,)).fetchall()]
+
+@app.get("/api/extractions/{eid}")
+def read_extraction(eid: int): return plans.get_extraction(eid)
+
+class EditIn(BaseModel):
+    ops: list[dict]
+
+@app.patch("/api/extractions/{eid}")
+def patch_extraction(eid: int, body: EditIn): return plans.edit(eid, body.ops)
+
+class ConfirmIn(BaseModel):
+    evidence_level: Literal["PLANS_ON_FILE", "REMOTE_SCAN", "SCAN_VISIT", "ENGINEER_VISIT"]
+    level_name: str | None = None
+
+@app.post("/api/extractions/{eid}/confirm")
+def do_confirm(eid: int, body: ConfirmIn): return plans.confirm(eid, body.evidence_level, body.level_name)
+
+@app.post("/api/extractions/{eid}/reopen")
+def do_reopen(eid: int): return plans.reopen(eid)

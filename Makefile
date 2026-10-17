@@ -1,4 +1,4 @@
-.PHONY: up down refresh refresh-linz refresh-auckland core backup manual rules test feeds feeds-status check-page
+.PHONY: app-db app up down refresh refresh-linz refresh-auckland core backup manual rules test feeds feeds-status check-page
 SHELL := /bin/bash
 PSQL = set -a; . ./.env; set +a; PGPASSWORD=$$POSTGRES_PASSWORD psql -h $${PGHOST:-localhost} -U $$POSTGRES_USER -d $$POSTGRES_DB -v ON_ERROR_STOP=1 -q
 
@@ -52,3 +52,10 @@ feeds:
 
 feeds-status:
 	@python3 scripts/feeds_status.py
+
+app-db:
+	$(PSQL) -f db/sql/80_rh_property.sql
+	bash scripts/create_app_role.sh
+
+app:
+	python3 -m uvicorn backend.app.main:app --host 0.0.0.0 --port 8000

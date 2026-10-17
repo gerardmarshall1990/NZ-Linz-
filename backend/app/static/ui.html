@@ -1,0 +1,84 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Remote Conversion Pipeline</title>
+<style>
+*{box-sizing:border-box}:root{--bg:#fff;--fg:#14202b;--mut:#5b6b7a;--card:#f4f7fa;--bd:#d5dde5;--ok:#1b7f3b;--warn:#b45309;--bad:#b91c1c;--acc:#0b5cab}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1720;--fg:#e8eef4;--mut:#9fb0c0;--card:#17222d;--bd:#2a3a49;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171;--acc:#6db3f2}}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.45 system-ui,-apple-system,Segoe UI,sans-serif;max-width:900px;margin:auto;padding:0 14px 60px}
+h1{font-size:1.3rem;margin:16px 0 4px}h2{font-size:1.1rem;margin:22px 0 8px}h3{font-size:1rem;margin:14px 0 6px}.mut{color:var(--mut);font-size:.88rem}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin:10px 0}input,select,button,textarea{font:inherit;padding:10px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);color:var(--fg);max-width:100%}
+button{cursor:pointer}button.pri{background:var(--acc);color:#fff;border-color:var(--acc)}button.bad{color:var(--bad)}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row>*{min-width:0}
+.chip{display:inline-block;padding:1px 8px;border-radius:10px;border:1px solid var(--bd);font-size:.75rem}.ESTIMATED{color:var(--warn);border-color:var(--warn)}.DOCUMENTED{color:var(--acc);border-color:var(--acc)}.CONFIRMED{color:var(--ok);border-color:var(--ok)}
+.banner{background:#fff3cd;color:#7a4b00;border:1px solid #e0b84c;border-radius:10px;padding:8px 12px;margin:8px 0}@media(prefers-color-scheme:dark){.banner{background:#3b2f0b;color:#f2d98a;border-color:#7c6320}}
+.fact{display:grid;grid-template-columns:1fr auto;gap:2px 8px;padding:8px 0;border-top:1px solid var(--bd)}.fact:first-child{border-top:0}.fact .v{font-weight:600}
+svg{width:100%;height:auto;max-height:70vh;background:#fff;border:1px solid var(--bd);border-radius:8px;touch-action:manipulation}.room{fill:rgba(11,92,171,.18);stroke:#0b5cab;stroke-width:1.5;vector-effect:non-scaling-stroke}.room.sel{fill:rgba(220,30,30,.25);stroke:#c01}
+table{width:100%;border-collapse:collapse;font-size:.9rem}td,th{padding:6px 4px;border-top:1px solid var(--bd);text-align:left}.hidden{display:none}footer{margin-top:30px;font-size:.78rem;color:var(--mut)}
+</style></head><body>
+<h1>Remote Conversion Pipeline</h1><div class="mut">Step 1: property intake, Property Record, plan upload, plan reader with human review. Screening tool: nothing here is an approval or a drawing for consent.</div>
+<div id="status" class="mut"></div>
+
+<section id="s-search" class="card"><h2>1. Find a property</h2><div class="row"><input id="q" placeholder="Address, e.g. 303 Queen Street" style="flex:1"><button class="pri" onclick="search()">Search</button></div><div id="results"></div></section>
+
+<section id="s-prop" class="card hidden"><h2>2. Property Record</h2><div id="site"></div><div id="banner"></div><div id="facts"></div>
+ <h3>Add or correct a fact</h3><div class="row"><select id="f-field"></select><input id="f-value" placeholder="value"><select id="f-conf"><option>DOCUMENTED</option><option>ESTIMATED</option><option>CONFIRMED</option></select></div>
+ <div class="row" style="margin-top:6px"><input id="f-source" placeholder="source (required), e.g. listing, owner email, council file" style="flex:1"><input id="f-note" placeholder="note" style="flex:1"><button class="pri" onclick="saveFact()">Save fact</button></div>
+ <div class="row" style="margin-top:8px"><a id="csv" href="#">Export CSV</a></div></section>
+
+<section id="s-plans" class="card hidden"><h2>3. Plans and documents</h2><div class="mut">PDF, PNG, JPEG, DXF or IFC. DXF is read exactly; PDFs and images need a scale, then you review and confirm.</div>
+ <div class="row" style="margin-top:8px"><input type="file" id="file"><select id="kind"><option>plan</option><option>photo</option><option>document</option><option>scan</option><option>other</option></select><button class="pri" onclick="doUpload()">Upload</button></div><div id="uploads"></div></section>
+
+<section id="s-review" class="card hidden"><h2>4. Plan review (human check)</h2><div id="rv-warn"></div>
+ <div class="row"><button onclick="mode('view')">View</button><button onclick="mode('draw')">Draw room</button><button onclick="mode('cal')">Set scale</button><span id="rv-mode" class="mut"></span></div>
+ <div id="rv-tools" class="mut"></div><svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg><div id="rv-rooms"></div>
+ <h3>Confirm this level</h3><div class="row"><select id="ev"><option value="PLANS_ON_FILE">plans on file / supplied</option><option value="REMOTE_SCAN">remote scan</option><option value="SCAN_VISIT">scan visit</option><option value="ENGINEER_VISIT">engineer visit</option></select><input id="lvl" placeholder="level name, e.g. Ground"><button class="pri" onclick="confirmEx()">Confirm level</button></div>
+ <div class="mut">Only a confirmed review can set facts to CONFIRMED. Areas and widths appear only once the plan has a scale.</div></section>
+<footer>Screening and preparation tool. Not planning, legal, engineering or financial advice. Council decides applications. Confirm with a qualified planner and the relevant professionals.</footer>
+<script>
+let P=null,EX=null,MODE='view',DRAW=[],CAL=[],SEL=null,NS='http://www.w3.org/2000/svg';
+const $=id=>document.getElementById(id);
+async function api(path,opt={}){const r=await fetch(path,{headers:opt.body&&!(opt.body instanceof FormData)?{'Content-Type':'application/json'}:{},...opt,body:opt.body&&!(opt.body instanceof FormData)?JSON.stringify(opt.body):opt.body});
+ if(!r.ok){let m=await r.text();try{m=JSON.parse(m).detail||m}catch(e){}alert(typeof m==='string'?m:JSON.stringify(m));throw new Error(m)}return r.headers.get('content-type')?.includes('json')?r.json():r}
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+(async()=>{const h=await api('/api/health');$('status').textContent=`Database ok (${h.sites.toLocaleString()} sites). Vision reader: ${h.vision_available?'available':'not available (no API key): use DXF or manual tracing'}.`})();
+async function search(){const q=$('q').value.trim();if(q.length<3)return;const rs=await api('/api/sites/search?q='+encodeURIComponent(q));
+ $('results').innerHTML=rs.map(r=>`<div class="card"><b>${esc(r.address)}</b><div class="mut">${esc(r.zone_name)} · ${Math.round(r.area_m2).toLocaleString()} m² · ${r.building_count||0} buildings</div><button class="pri" onclick="openSite(${r.parcel_id})">Open</button></div>`).join('')||'<div class="mut">No match.</div>'}
+async function openSite(id){const s=await api('/api/sites/'+id);const p=s.has_property_record?await api('/api/property/'+id):await api('/api/property/'+id,{method:'POST'});loadProp(p,s)}
+function loadProp(p,s){P=p;$('s-prop').classList.remove('hidden');$('s-plans').classList.remove('hidden');
+ const st=p.site||s;$('site').innerHTML=`<b>${esc(st.address)}</b><div class="mut">Parcel ${st.parcel_id} · ${esc(st.zone_name)} · ${Math.round(st.area_m2).toLocaleString()} m² · title ${esc(st.title_type||'unknown')} · hazards ${esc((st.hazard_flags||[]).join(', ')||'none flagged')} (information only for conversions)</div><div class="mut">Evidence level: ${esc(p.evidence_level)}</div>`;
+ $('banner').innerHTML=p.banner?`<div class="banner">${esc(p.banner)}</div>`:'';
+ let h='',opts='';for(const [g,fs] of Object.entries(p.catalogue)){h+=`<h3>${esc(g)}</h3>`;for(const f of fs){opts+=`<option value="${f.field}">${esc(f.label)}</option>`;
+  h+=`<div class="fact"><div>${esc(f.label)}${f.unit?` <span class="mut">(${esc(f.unit)})</span>`:''}</div><div>${f.fact?`<span class="v">${esc(typeof f.fact.value==='object'?JSON.stringify(f.fact.value):f.fact.value)}</span> <span class="chip ${f.fact.confidence}">${f.fact.confidence}</span>`:'<span class="mut">unknown</span>'}</div>${f.fact?`<div class="mut" style="grid-column:1/3">${esc(f.fact.source)}${f.fact.note?' · '+esc(f.fact.note):''}</div>`:''}</div>`}}
+ $('facts').innerHTML=h;$('f-field').innerHTML=opts;$('csv').href=`/api/property/${p.parcel_id}/export.csv`;loadUploads()}
+async function saveFact(){const v=$('f-value').value;if(!v)return;const r=await api(`/api/property/${P.parcel_id}/facts`,{method:'PUT',body:{field:$('f-field').value,value:v,source:$('f-source').value,confidence:$('f-conf').value,note:$('f-note').value||null}});loadProp(r.property)}
+async function doUpload(){const f=$('file').files[0];if(!f)return;const fd=new FormData();fd.append('file',f);fd.append('kind',$('kind').value);await api(`/api/property/${P.parcel_id}/uploads`,{method:'POST',body:fd});$('file').value='';loadUploads()}
+async function loadUploads(){const us=await api(`/api/property/${P.parcel_id}/uploads`);$('uploads').innerHTML=us.map(u=>`<div class="card"><b>${esc(u.original_name)}</b> <span class="chip">${esc(u.detected_type)}</span> <span class="mut">${esc(u.kind)} · ${(u.size_bytes/1024).toFixed(0)} KB${u.page_count?' · '+u.page_count+' pages':''}</span>
+ <div class="row" style="margin-top:6px">${u.detected_type==='dxf'?`<button class="pri" onclick="readPlan(${u.id},'auto')">Read DXF</button>`:''}${['pdf','png','jpg'].includes(u.detected_type)?`<button class="pri" onclick="readPlan(${u.id},'manual')">Trace manually</button><button onclick="readPlan(${u.id},'vision')">AI read (needs key)</button>`:''}<button onclick="openExs(${u.id})">Open reviews</button><a href="/api/uploads/${u.id}/download">Download</a></div></div>`).join('')}
+async function readPlan(id,mode){const e=await api(`/api/uploads/${id}/extract`,{method:'POST',body:{mode}});showEx(e)}
+async function openExs(id){const l=await api(`/api/uploads/${id}/extractions`);if(!l.length){alert('No review yet: tap Read or Trace first.');return}showEx(await api('/api/extractions/'+l[0].id))}
+function mode(m){MODE=m;DRAW=[];CAL=[];$('rv-mode').textContent=m==='draw'?'Tap corners; "Close room" when done':m==='cal'?'Tap two points of a known distance':'';draw()}
+function showEx(e){EX=e;$('s-review').classList.remove('hidden');$('s-review').scrollIntoView();$('rv-warn').innerHTML=((e.model.warnings||[]).map(w=>`<div class="banner">${esc(w)}</div>`).join(''))+(e.model.unscaled?'<div class="banner">Unscaled: areas and widths are blank until the plan has a scale (use "Set scale").</div>':'')+(e.status==='human_confirmed'?'<div class="banner">Confirmed (read-only).</div>':'');mode('view')}
+function pts(poly,flip){return poly.map(p=>p[0]+','+(flip?-p[1]:p[1])).join(' ')}
+function draw(){const m=EX.model,svg=$('svg');svg.innerHTML='';const px=m.coord_space==='preview_px';let vb;
+ if(px){vb=`0 0 ${m.preview.width} ${m.preview.height}`;const im=document.createElementNS(NS,'image');im.setAttribute('href',`/api/uploads/${EX.upload_id}/preview.png?page=${EX.page}`);im.setAttribute('width',m.preview.width);im.setAttribute('height',m.preview.height);svg.appendChild(im)}
+ else{const b=m.bounds||[0,0,10,10];const w=b[2]-b[0]+2,h=b[3]-b[1]+2;vb=`${b[0]-1} ${-(b[3]+1)} ${w} ${h}`}
+ svg.setAttribute('viewBox',vb);const flip=!px;const lw=px?1:0.05;
+ for(const r of m.rooms){const pg=document.createElementNS(NS,'polygon');pg.setAttribute('points',pts(r.polygon,flip));pg.setAttribute('class','room'+(SEL===r.id?' sel':''));pg.onclick=()=>{SEL=r.id;draw();list()};svg.appendChild(pg);
+  const c=r.polygon.reduce((a,p)=>[a[0]+p[0]/r.polygon.length,a[1]+p[1]/r.polygon.length],[0,0]);const t=document.createElementNS(NS,'text');t.setAttribute('x',c[0]);t.setAttribute('y',flip?-c[1]:c[1]);t.setAttribute('text-anchor','middle');t.setAttribute('font-size',px?14:0.35);t.setAttribute('fill','#0b3a6b');t.textContent=(r.label||r.type)+(r.area_m2?' '+r.area_m2.toFixed(1)+'m²':'');svg.appendChild(t)}
+ for(const d of (m.doors||[])){if(!d.at||px)continue;const c=document.createElementNS(NS,'circle');c.setAttribute('cx',d.at[0]);c.setAttribute('cy',-d.at[1]);c.setAttribute('r',0.12);c.setAttribute('fill','#c60');svg.appendChild(c)}
+ if(DRAW.length){const pl=document.createElementNS(NS,'polyline');pl.setAttribute('points',DRAW.map(p=>p.join(',')).join(' '));pl.setAttribute('fill','none');pl.setAttribute('stroke','#c01');pl.setAttribute('stroke-width',px?2:0.05);svg.appendChild(pl)}
+ for(const p of CAL){const c=document.createElementNS(NS,'circle');c.setAttribute('cx',p[0]);c.setAttribute('cy',p[1]);c.setAttribute('r',6);c.setAttribute('fill','#c01');svg.appendChild(c)}
+ list()}
+$('svg').addEventListener('click',ev=>{if(!EX||EX.status==='human_confirmed'||EX.model.coord_space!=='preview_px')return;if(MODE==='view')return;const s=$('svg'),pt=s.createSVGPoint();pt.x=ev.clientX;pt.y=ev.clientY;const q=pt.matrixTransform(s.getScreenCTM().inverse());const p=[Math.round(q.x),Math.round(q.y)];
+ if(MODE==='draw'){DRAW.push(p);draw()}else if(MODE==='cal'){CAL.push(p);if(CAL.length===2){const m=parseFloat(prompt('Real-world distance between the two points, in metres?'));if(m>0){CALM.push({a:CAL[0],b:CAL[1],metres:m});$('rv-tools').textContent=`${CALM.length} measurement(s). Tap two more points for a cross-check, or Apply scale.`}CAL=[];}draw()}});
+let CALM=[];
+function list(){const m=EX.model,ro=EX.status==='human_confirmed';let h='';
+ if(MODE==='draw')h+=`<div class="row"><button class="pri" onclick="closeRoom()">Close room</button><button onclick="DRAW=[];draw()">Clear points</button></div>`;
+ if(MODE==='cal')h+=`<div class="row"><button class="pri" onclick="applyCal()">Apply scale (${CALM.length})</button><button onclick="stated()">Stated scale 1:…</button></div>`;
+ h+=`<table><tr><th>Room</th><th>Type</th><th>Area</th><th></th></tr>`+m.rooms.map(r=>`<tr><td><input value="${esc(r.label||'')}" ${ro?'disabled':''} onchange="setRoom('${r.id}',{label:this.value})" style="width:100%"></td><td><select ${ro?'disabled':''} onchange="setRoom('${r.id}',{type:this.value})">${EX.types.map(t=>`<option ${t===r.type?'selected':''}>${t}</option>`).join('')}</select></td><td>${r.area_m2!=null?r.area_m2.toFixed(1)+' m²':'<span class="mut">unscaled</span>'}</td><td>${ro?'':`<button class="bad" onclick="delRoom('${r.id}')">✕</button>`}</td></tr>`).join('')+'</table>';
+ if(ro)h+=`<button onclick="reopen()">Re-open to edit (new version)</button>`;if((m.corridors||[]).length)h+=`<div class="mut">Corridors: ${m.corridors.map(c=>c.room_id+' ≈ '+c.min_width_m+' m').join(', ')} (approximate)</div>`;if((m.doors||[]).length)h+=`<div class="mut">Doors: ${m.doors.map(d=>d.width_m??'width unknown').join(', ')}</div>`;$('rv-rooms').innerHTML=h}
+async function patch(ops){EX=await api('/api/extractions/'+EX.id,{method:'PATCH',body:{ops}});showEx(EX)}
+const setRoom=(id,o)=>patch([{op:'set_room',id,...o}]),delRoom=id=>confirm('Delete this room?')&&patch([{op:'delete_room',id}]);
+function closeRoom(){if(DRAW.length<3){alert('Tap at least 3 corners');return}const label=prompt('Room name (e.g. Bedroom 1)?')||'';patch([{op:'add_room',polygon:DRAW,label}])}
+async function applyCal(){if(!CALM.length)return;await api(`/api/uploads/${EX.upload_id}/calibrate`,{method:'POST',body:{method:'two_point',page:EX.page,measurements:CALM}});CALM=[];showEx(await api('/api/extractions/'+EX.id))}
+async function stated(){const d=parseFloat(prompt('Drawing scale denominator (1:100 -> 100)? Only valid if the PDF is at true paper size.'));if(d>0){await api(`/api/uploads/${EX.upload_id}/calibrate`,{method:'POST',body:{method:'stated_scale',page:EX.page,denominator:d}});showEx(await api('/api/extractions/'+EX.id))}}
+async function confirmEx(){if(!confirm('Confirm this level? Counts and (if scaled) measurements become CONFIRMED facts.'))return;const r=await api(`/api/extractions/${EX.id}/confirm`,{method:'POST',body:{evidence_level:$('ev').value,level_name:$('lvl').value||null}});showEx(r.extraction);alert(`Confirmed. ${r.facts_written.length} facts written at CONFIRMED.`);loadProp(await api('/api/property/'+P.parcel_id))}
+async function reopen(){showEx(await api(`/api/extractions/${EX.id}/reopen`,{method:'POST'}))}
+</script></body></html>

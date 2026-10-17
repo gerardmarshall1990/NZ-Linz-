@@ -1,0 +1,58 @@
+# Property Record field catalogue (MASTER_SPEC Part 3 section 1.1). Each stored fact has value, source, confidence (ESTIMATED / DOCUMENTED / CONFIRMED), method, note.
+# type: int | float | bool | text | enum | json. Unknown stays blank: there is no default for any field.
+groups:
+  rooms: [bedrooms_total, rooms_with_ensuite, shared_bathrooms, rooms_by_size_band, kitchens, laundries, lounge_dining_areas, staff_office_rooms, address_points_on_parcel]
+  building: [building_count, footprint_total_m2, footprint_largest_m2, storeys_per_building, gfa_m2, net_room_area_m2, year_built, construction_type, roof_wall_type]
+  circulation: [corridor_width_min_m, door_width_min_m, stairs_count, lifts, ramps_count, level_access_entrances, external_accessible_route]
+  fire: [sprinklers, fire_alarm, emergency_lighting, fire_rated_walls, compliance_schedule_bwof_status, previous_fire_engineer_reports]
+  services: [heating_cooling, hot_water_system, electrical_supply_size, nurse_call, cctv_security]
+  site: [parking_spaces, outdoor_space, garden_courtyard, bin_service_areas]
+  legal: [title_type, current_use, consents_on_file, known_defects, asking_price, asking_rent_per_week, lease_terms_offered]
+fields:
+  bedrooms_total: {type: int, label: Bedrooms / guest rooms (total)}
+  rooms_with_ensuite: {type: int, label: Rooms with ensuite}
+  shared_bathrooms: {type: int, label: Shared bathrooms}
+  rooms_by_size_band: {type: json, label: Rooms by size band}
+  kitchens: {type: int, label: Kitchens}
+  laundries: {type: int, label: Laundries}
+  lounge_dining_areas: {type: int, label: Lounge / dining areas}
+  staff_office_rooms: {type: int, label: Staff / office rooms}
+  address_points_on_parcel: {type: int, label: LINZ address points on the parcel (estimate input)}
+  building_count: {type: int, label: Number of buildings}
+  footprint_total_m2: {type: float, unit: m2, label: Total building footprint}
+  footprint_largest_m2: {type: float, unit: m2, label: Largest building footprint}
+  storeys_per_building: {type: json, label: Storeys per building}
+  gfa_m2: {type: float, unit: m2, label: Gross floor area}
+  net_room_area_m2: {type: float, unit: m2, label: Net room area}
+  year_built: {type: int, label: Year built}
+  construction_type: {type: text, label: Construction type}
+  roof_wall_type: {type: text, label: Roof / wall type}
+  corridor_width_min_m: {type: float, unit: m, label: Minimum corridor width}
+  door_width_min_m: {type: float, unit: m, label: Minimum door width}
+  stairs_count: {type: int, label: Stairs}
+  lifts: {type: json, label: Lifts (count, size)}
+  ramps_count: {type: int, label: Ramps}
+  level_access_entrances: {type: bool, label: Level access to entrances}
+  external_accessible_route: {type: bool, label: External accessible route}
+  sprinklers: {type: enum, values: [none, partial, full], label: Sprinklers}
+  fire_alarm: {type: enum, values: [none, detection, full], label: Fire alarm}
+  emergency_lighting: {type: bool, label: Emergency lighting}
+  fire_rated_walls: {type: enum, values: [known, unknown], label: Fire-rated walls}
+  compliance_schedule_bwof_status: {type: text, label: Compliance schedule / BWOF status}
+  previous_fire_engineer_reports: {type: bool, label: Previous fire engineer reports}
+  heating_cooling: {type: text, label: Heating / cooling}
+  hot_water_system: {type: text, label: Hot water system}
+  electrical_supply_size: {type: text, label: Electrical supply size}
+  nurse_call: {type: enum, values: [none, present], label: Nurse call}
+  cctv_security: {type: text, label: CCTV / security}
+  parking_spaces: {type: int, label: Parking spaces}
+  outdoor_space: {type: text, label: Outdoor space}
+  garden_courtyard: {type: text, label: Garden / courtyard}
+  bin_service_areas: {type: text, label: Bin and service areas}
+  title_type: {type: text, label: Title type}
+  current_use: {type: enum, values: [motel, lodge, hotel, home_and_income, house, other], label: Current use}
+  consents_on_file: {type: text, label: Current consents on file}
+  known_defects: {type: text, label: Known defects}
+  asking_price: {type: float, unit: NZD, label: Asking price}
+  asking_rent_per_week: {type: float, unit: NZD/week, label: Asking rent per week}
+  lease_terms_offered: {type: text, label: Lease terms offered}
