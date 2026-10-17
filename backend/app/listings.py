@@ -176,9 +176,10 @@ def verdict_for(listing_id: int, overrides: dict | None = None) -> dict:
         rows = c.execute("""SELECT activity, status_class, section_ref FROM analytics.rules WHERE topic = 'activity_status' AND status = 'operative' AND zone = %s AND activity ILIKE ANY (%s)""",
                          (site["zone_name"], list(ACT_PATTERNS))).fetchall() if site and site["zone_name"] else []
         tier = c.execute("SELECT confidence FROM core.rh_property_fact WHERE parcel_id = %s AND field = 'bedrooms_total'", (l["parcel_id"],)).fetchone() if l["parcel_id"] else None
+        pt = c.execute("SELECT ST_X(ST_Transform(ST_Centroid(geom), 4326)) AS lon, ST_Y(ST_Transform(ST_Centroid(geom), 4326)) AS lat FROM raw.linz_addresses WHERE address_id = %s", (l["address_id"],)).fetchone() if l["address_id"] else None
     p = scenarios.assumptions(overrides)
     v = V.verdict(_listing_json(l), site, rows, p, (tier or {}).get("confidence", "DOCUMENTED"))
-    return {"listing": _listing_json(l), **v, "source_coverage": sources()["coverage_warning"]}
+    return {"listing": _listing_json(l), **v, "lon": pt["lon"] if pt else None, "lat": pt["lat"] if pt else None, "source_coverage": sources()["coverage_warning"]}
 
 def search(filters: dict, overrides: dict | None = None) -> dict:
     with conn() as c:

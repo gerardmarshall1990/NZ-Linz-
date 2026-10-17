@@ -12,7 +12,7 @@ button{cursor:pointer}button.pri{background:var(--acc);color:#fff;border-color:v
 svg{width:100%;height:auto;max-height:70vh;background:#fff;border:1px solid var(--bd);border-radius:8px;touch-action:manipulation}.room{fill:rgba(11,92,171,.18);stroke:#0b5cab;stroke-width:1.5;vector-effect:non-scaling-stroke}.room.sel{fill:rgba(220,30,30,.25);stroke:#c01}
 table{width:100%;border-collapse:collapse;font-size:.9rem}td,th{padding:6px 4px;border-top:1px solid var(--bd);text-align:left}.hidden{display:none}footer{margin-top:30px;font-size:.78rem;color:var(--mut)}
 </style></head><body>
-<h1>Remote Conversion Pipeline</h1><div class="mut">Step 1: property intake, Property Record, plan upload, plan reader with human review. Screening tool: nothing here is an approval or a drawing for consent.</div>
+<h1>Plans and Property Record</h1><div class="mut"><a href="/">Back to the map</a></div><div class="mut">Step 1: property intake, Property Record, plan upload, plan reader with human review. Screening tool: nothing here is an approval or a drawing for consent.</div>
 <div id="status" class="mut"></div>
 
 <section id="s-search" class="card"><h2>1. Find a property</h2><div class="row"><input id="q" placeholder="Address, e.g. 303 Queen Street" style="flex:1"><button class="pri" onclick="search()">Search</button></div><div id="results"></div></section>
@@ -81,4 +81,5 @@ async function applyCal(){if(!CALM.length)return;await api(`/api/uploads/${EX.up
 async function stated(){const d=parseFloat(prompt('Drawing scale denominator (1:100 -> 100)? Only valid if the PDF is at true paper size.'));if(d>0){await api(`/api/uploads/${EX.upload_id}/calibrate`,{method:'POST',body:{method:'stated_scale',page:EX.page,denominator:d}});showEx(await api('/api/extractions/'+EX.id))}}
 async function confirmEx(){if(!confirm('Confirm this level? Counts and (if scaled) measurements become CONFIRMED facts.'))return;const r=await api(`/api/extractions/${EX.id}/confirm`,{method:'POST',body:{evidence_level:$('ev').value,level_name:$('lvl').value||null}});showEx(r.extraction);alert(`Confirmed. ${r.facts_written.length} facts written at CONFIRMED.`);loadProp(await api('/api/property/'+P.parcel_id))}
 async function reopen(){showEx(await api(`/api/extractions/${EX.id}/reopen`,{method:'POST'}))}
+{const q=new URLSearchParams(location.search).get('parcel');if(q&&/^\d+$/.test(q))openSite(+q)}
 </script></body></html>

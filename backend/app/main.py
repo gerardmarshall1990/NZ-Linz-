@@ -5,7 +5,7 @@ from typing import Literal
 from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse, Response
 from pydantic import BaseModel, Field
-from . import briefs, listings, proposal, scenarios, calibration, compliance, drawings, estimates, facts, gaps, layout, plans, uploads, vision_reader
+from . import briefs, settings, listings, proposal, scenarios, calibration, compliance, drawings, estimates, facts, gaps, layout, plans, uploads, vision_reader
 from .config import upload_dir
 from .db import conn
 
@@ -19,6 +19,9 @@ def health():
     return {"ok": True, "sites": n, "vision_available": vision_reader.available(), "footer": FOOTER}
 
 @app.get("/", response_class=HTMLResponse)
+def home(): return (STATIC / "app.html").read_text()
+
+@app.get("/plans", response_class=HTMLResponse)
 def ui(): return (STATIC / "ui.html").read_text()
 
 # ---------------- sites
@@ -27,6 +30,21 @@ def search_sites(q: str = Query(min_length=3, max_length=80)):
     with conn() as c:
         rows = c.execute("""SELECT parcel_id, address, suburb, area_m2::float AS area_m2, zone_name, building_count FROM core.sites WHERE address ILIKE %s ORDER BY address LIMIT 20""", (f"%{q.strip()}%",)).fetchall()
     return rows
+
+@app.get("/api/sites/at")
+def site_at(lat: float = Query(ge=-48, le=-34), lon: float = Query(ge=165, le=179)):
+    with conn() as c:
+        r = c.execute("""SELECT parcel_id, address, suburb, zone_name FROM core.sites WHERE ST_Intersects(geom, ST_Transform(ST_SetSRID(ST_MakePoint(%s, %s), 4326), 2193)) LIMIT 1""", (lon, lat)).fetchone()
+    if not r: raise HTTPException(404, "no parcel here (outside the loaded area or on road/water)")
+    return r
+
+@app.get("/api/map/listings")
+def map_listings(min_beds: int | None = None, max_beds: int | None = None, min_rent: float | None = None, max_rent: float | None = None, suburb: str | None = None, verdict: str | None = None):
+    r = listings.search({"min_beds": min_beds, "max_beds": max_beds, "min_rent": min_rent, "max_rent": max_rent, "suburb": suburb, "verdict": verdict})
+    feats = [{"type": "Feature", "geometry": {"type": "Point", "coordinates": [o["lon"], o["lat"]]},
+              "properties": {"id": o["listing"]["id"], "verdict": o["verdict"], "beds": o["listing"]["bedrooms"], "rent": o["listing"]["rent_per_week"], "address": o["listing"]["raw_address"],
+                             "confidence": o["confidence"], "parcel_id": o["listing"]["parcel_id"], "match": o["listing"]["match_confidence"]}} for o in r["listings"] if o["lon"] is not None]
+    return {"type": "FeatureCollection", "features": feats, "verdict_counts": r["verdict_counts"], "not_on_map": r["count"] - len(feats), "source_coverage": r["source_coverage"]}
 
 @app.get("/api/sites/{parcel_id}")
 def get_site(parcel_id: int):
@@ -270,3 +288,20 @@ class SearchIn(BaseModel):
 
 @app.post("/api/listings/search")
 def listing_search(body: SearchIn): return listings.search(body.filters, body.assumptions)
+
+# ---------------- My inputs (assumptions and rates entered in the app)
+@app.get("/api/settings")
+def get_settings(): return settings.view()
+
+class AssumptionsIn(BaseModel):
+    values: dict
+
+@app.put("/api/settings/assumptions")
+def put_assumptions(body: AssumptionsIn): return settings.set_assumptions(body.values)
+
+class RatesIn(BaseModel):
+    lines: dict | None = None
+    pct: dict | None = None
+
+@app.put("/api/settings/rates")
+def put_rates(body: RatesIn): return settings.set_rates(body.lines, body.pct)

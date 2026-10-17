@@ -62,6 +62,7 @@ app-db:
 	$(PSQL) -f db/sql/80_rh_property.sql
 	$(PSQL) -f db/sql/90_rh_step2.sql
 	$(PSQL) -f db/sql/95_listings.sql
+	$(PSQL) -f db/sql/96_settings.sql
 	python3 scripts/load_rh_requirements.py
 
 app:
