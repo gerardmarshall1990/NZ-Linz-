@@ -24,8 +24,8 @@ def main():
     dsn = f"host={os.environ.get('PGHOST','localhost')} dbname={os.environ['POSTGRES_DB']} user={os.environ['POSTGRES_USER']} password={os.environ['POSTGRES_PASSWORD']}"
     out = ["# Stage 3 gate: key standards for the four main residential zones", "",
            "Generated from `analytics.rules` by `scripts/report_rules_gate.py`. Source: operative Auckland Unitary Plan (July 2026), official chapter PDFs",
-           "from unitaryplan.aucklandcouncil.govt.nz. Every numeric value below was checked by the loader against a verbatim quote from the extracted plan text.",
-           "Plan version: AUP fully operative 23 July 2026. PC120 (proposed) is NOT applied; sections marked † carry a PC 120 margin annotation in the plan.", ""]
+           "from unitaryplan.aucklandcouncil.govt.nz. Every numeric value below was matched by the loader to a verbatim quote in the extracted plan text. **None is owner-verified**: that needs your check (see docs/key_standards_check.html).",
+           "Plan version: AUP fully operative 23 July 2026 (operative rows only; PC120 proposed rows are stored separately). PC120 (proposed) is NOT applied; sections marked † carry a PC 120 margin annotation in the plan.", ""]
     with psycopg.connect(dsn) as con, con.cursor() as cur:
         cur.execute("SELECT count(*) FROM analytics.rules WHERE evaluable AND topic <> 'activity_status'"); n_eval = cur.fetchone()[0]
         for zone, code in ZONES:
@@ -33,16 +33,16 @@ def main():
             i = 0
             # dwellings per site from the activity table
             cur.execute("SELECT r.parameter, r.activity, r.value_text, r.section_ref, c.page_start, r.notes FROM analytics.rules r JOIN analytics.rule_text_chunks c ON c.id = r.chunk_id "
-                        "WHERE r.topic = 'activity_status' AND r.zone = %s AND (r.activity ILIKE '%%dwelling%%per site%%' OR r.activity ILIKE 'Dwellings%%') ORDER BY r.id", (zone,))
+                        "WHERE r.status = 'operative' AND r.topic = 'activity_status' AND r.zone = %s AND (r.activity ILIKE '%%dwelling%%per site%%' OR r.activity ILIKE 'Dwellings%%') ORDER BY r.id", (zone,))
             for par, act, st, sec, pg, notes in cur.fetchall():
                 i += 1; out.append(f"| {i} | Activity: {act} | **{st}** | {sec} | {pg} | {act} | activity status; {notes or ''} |".replace("None", ""))
             for label, topic, param in KEY:
                 cur.execute("SELECT r.value_num, r.value_text, r.unit, r.section_ref, c.page_start, r.quote, r.notes, c.pc120_flagged FROM analytics.rules r "
-                            "LEFT JOIN analytics.rule_text_chunks c ON c.id = r.chunk_id WHERE r.zone = %s AND r.topic = %s AND r.parameter = %s", (zone, topic, param))
+                            "LEFT JOIN analytics.rule_text_chunks c ON c.id = r.chunk_id WHERE r.status = 'operative' AND r.zone = %s AND r.topic = %s AND r.parameter = %s", (zone, topic, param))
                 row = cur.fetchone()
                 if param.startswith("min_net_site_area_vacant"):
                     cur.execute("SELECT r.value_num, r.value_text, r.unit, r.section_ref, c.page_start, r.quote, r.notes, c.pc120_flagged FROM analytics.rules r "
-                                "LEFT JOIN analytics.rule_text_chunks c ON c.id = r.chunk_id WHERE r.topic = 'subdivision' AND r.parameter = %s AND r.applies_if->>'zone_code' = (SELECT code::text FROM core.zone_lookup WHERE zone_name = %s OR zone_name = replace(%s,'Buildings','Building'))", (param, zone, zone))
+                                "LEFT JOIN analytics.rule_text_chunks c ON c.id = r.chunk_id WHERE r.status = 'operative' AND r.topic = 'subdivision' AND r.parameter = %s AND r.applies_if->>'zone_code' = (SELECT code::text FROM core.zone_lookup WHERE zone_name = %s OR zone_name = replace(%s,'Buildings','Building'))", (param, zone, zone))
                     row = cur.fetchone()
                 i += 1
                 if row is None: out.append(f"| {i} | {label} | not in this zone's standards | - | - | - | no such standard in {code}.6 |"); continue

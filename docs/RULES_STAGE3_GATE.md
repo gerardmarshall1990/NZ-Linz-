@@ -1,8 +1,8 @@
 # Stage 3 gate: key standards for the four main residential zones
 
 Generated from `analytics.rules` by `scripts/report_rules_gate.py`. Source: operative Auckland Unitary Plan (July 2026), official chapter PDFs
-from unitaryplan.aucklandcouncil.govt.nz. Every numeric value below was checked by the loader against a verbatim quote from the extracted plan text.
-Plan version: AUP fully operative 23 July 2026. PC120 (proposed) is NOT applied; sections marked † carry a PC 120 margin annotation in the plan.
+from unitaryplan.aucklandcouncil.govt.nz. Every numeric value below was matched by the loader to a verbatim quote in the extracted plan text. **None is owner-verified**: that needs your check (see docs/key_standards_check.html).
+Plan version: AUP fully operative 23 July 2026 (operative rows only; PC120 proposed rows are stored separately). PC120 (proposed) is NOT applied; sections marked † carry a PC 120 margin annotation in the plan.
 
 ## Residential - Single House Zone (H3)
 

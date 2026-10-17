@@ -1,0 +1,553 @@
+# PROPOSED rules from Plan Change 120 (status: proposed, plan_change_id: PC120). NOT in force. Never merged with operative rows.
+# PC120: notified 3 Nov 2025; partially withdrawn and amended 27 Aug 2026; submissions closed 24 Sep 2026 (hearings to follow); some rules had immediate legal effect (s86B(3)).
+# evidence: {doc, ref} = section of Council's PC120 plan-text PDF (data/pc120/sections.jsonl proposed reading) or {sheet} = Council information sheet text. Quotes are verified by scripts/load_rules.py.
+- zone_code: 18
+  chapter: H4
+  topic: windows
+  parameter: street_glazing_min_pct
+  operator: '>='
+  value: 20
+  unit: '% of relevant facade'
+  standard_ref: H4.6.17 (proposed)
+  evidence:
+    sheet: info_sheet_11_MHS
+  quote: A requirement for 20% glazing required facing the street
+  supersedes_parameter: null
+  effect: new
+  note: 'evidence is Council''s information sheet: the PC120 plan text for this standard is missing from the PDF text layer; dwellings facing street, public open space or private vehicle/pedestrian access'
+  applies_if: {}
+- zone_code: 18
+  chapter: H4
+  topic: deep_soil
+  parameter: deep_soil_min_pct_of_site_area
+  operator: '>='
+  value: 10
+  unit: '% of site area'
+  standard_ref: H4.6.18 (proposed)
+  evidence:
+    doc: notified
+    ref: H4.6.18
+  quote: must provide a deep soil area of a minimum of 10 per cent of the site area
+  supersedes_parameter: null
+  effect: new
+  note: null
+  applies_if:
+    site_area: '> 200 m2'
+- zone_code: 18
+  chapter: H4
+  topic: deep_soil
+  parameter: deep_soil_min_area_site_200_600
+  operator: ≥
+  value: 20
+  unit: m2
+  standard_ref: H4.6.18 (proposed)
+  evidence:
+    doc: notified
+    ref: H4.6.18
+  quote: 200m2 – 600m2 20m2 2.5m
+  supersedes_parameter: null
+  effect: new
+  note: null
+  applies_if:
+    site_area: 200-600 m2
+    min_dimension_m: 2.5
+    canopy: 1 small canopy tree per 200 m2
+- zone_code: 18
+  chapter: H4
+  topic: deep_soil
+  parameter: deep_soil_min_area_site_601_1500
+  operator: ≥
+  value: 30
+  unit: m2
+  standard_ref: H4.6.18 (proposed)
+  evidence:
+    doc: notified
+    ref: H4.6.18
+  quote: 601m2 – 1,500m2 30m2 3m
+  supersedes_parameter: null
+  effect: new
+  note: null
+  applies_if:
+    site_area: 601-1,500 m2
+    min_dimension_m: 3
+    canopy: 1 medium canopy tree per 300 m2
+- zone_code: 18
+  chapter: H4
+  topic: deep_soil
+  parameter: deep_soil_min_area_site_1501_plus
+  operator: ≥
+  value: 50
+  unit: m2
+  standard_ref: H4.6.18 (proposed)
+  evidence:
+    doc: notified
+    ref: H4.6.18
+  quote: 1,501m2 or more 50m2 4m
+  supersedes_parameter: null
+  effect: new
+  note: null
+  applies_if:
+    site_area: '>= 1,501 m2'
+    min_dimension_m: 4
+    canopy: 1 large canopy tree or 2 medium canopy trees per 500 m2
+- zone_code: 18
+  chapter: H4
+  topic: buffer
+  parameter: safety_privacy_buffer_min
+  operator: '>='
+  value: 1
+  unit: m
+  standard_ref: H4.6.19 (proposed)
+  evidence:
+    sheet: info_sheet_11_MHS
+  quote: a 1m space is required between dwellings and the access
+  supersedes_parameter: null
+  effect: new
+  note: 'evidence is Council''s information sheet: the PC120 plan text for this standard is missing from the PDF text layer'
+  applies_if: {}
+- zone_code: 18
+  chapter: H4
+  topic: outlook
+  parameter: outlook_living_ground_floor_depth_where_fence_defined
+  operator: '>='
+  value: 5
+  unit: m
+  standard_ref: H4.6.11 (proposed, unnumbered in PC120 text)
+  evidence:
+    doc: notified
+    ref: H4.6
+  quote: outlook depth may be reduced to 5m
+  supersedes_parameter: outlook_living_depth_min
+  effect: changed
+  note: applies where the principal living room outlook is on the ground floor and defined by a boundary fence
+  applies_if: {}
+- zone_code: 18
+  chapter: H4
+  topic: outdoor_living
+  parameter: communal_ols_min_area_per_five_dwellings
+  operator: '>='
+  value: 10
+  unit: m2 per 5 dwellings
+  standard_ref: H4.6.13(3) (proposed)
+  evidence:
+    doc: notified
+    ref: H4.6
+  quote: is at least 10m2 for every five dwellings it serves
+  supersedes_parameter: null
+  effect: new
+  note: communal outdoor living space; minimum dimension 4m
+  applies_if:
+    development: 20 or more dwellings
+- zone_code: 18
+  chapter: H4
+  topic: activity_status
+  parameter: four_or_more_dwellings_all_standards_apply
+  operator: '='
+  value: RD
+  unit: null
+  standard_ref: H4.4.1 (A4) (proposed)
+  evidence:
+    sheet: info_sheet_11_MHS
+  quote: all standards would apply to 4 or more dwellings
+  supersedes_parameter: null
+  effect: changed
+  note: status stays restricted discretionary; PC120 makes every zone standard apply (operative A4 applies height, HIRB, alternative HIRB and yards only)
+  applies_if:
+    activity: Four or more dwellings per site
+- zone_code: 60
+  chapter: H5
+  topic: windows
+  parameter: street_glazing_min_pct
+  operator: '>='
+  value: 20
+  unit: '% of relevant facade'
+  standard_ref: H5.6.18 (proposed)
+  evidence:
+    doc: amended_mhu
+    ref: H5.6.18
+  quote: minimum of 20 per cent of the relevant façade in glazing
+  supersedes_parameter: null
+  effect: new
+  note: null
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: deep_soil
+  parameter: deep_soil_min_pct_of_site_area
+  operator: '>='
+  value: 10
+  unit: '% of site area'
+  standard_ref: H5.6.19 (proposed)
+  evidence:
+    doc: amended_mhu
+    ref: H5.6.19
+  quote: must provide a deep soil area of a minimum of 10 per cent of the site area
+  supersedes_parameter: null
+  effect: new
+  note: null
+  applies_if:
+    site_area: '> 200 m2'
+- zone_code: 60
+  chapter: H5
+  topic: deep_soil
+  parameter: deep_soil_min_area_site_200_600
+  operator: ≥
+  value: 20
+  unit: m2
+  standard_ref: H5.6.19 (proposed)
+  evidence:
+    doc: amended_mhu
+    ref: H5.6.19
+  quote: 200m2 – 600m2 20m2 2.5m
+  supersedes_parameter: null
+  effect: new
+  note: null
+  applies_if:
+    site_area: 200-600 m2
+    min_dimension_m: 2.5
+    canopy: 1 small canopy tree per 200 m2
+- zone_code: 60
+  chapter: H5
+  topic: deep_soil
+  parameter: deep_soil_min_area_site_601_1500
+  operator: ≥
+  value: 30
+  unit: m2
+  standard_ref: H5.6.19 (proposed)
+  evidence:
+    doc: amended_mhu
+    ref: H5.6.19
+  quote: 601m2 – 1,500m2 30m2 3m
+  supersedes_parameter: null
+  effect: new
+  note: null
+  applies_if:
+    site_area: 601-1,500 m2
+    min_dimension_m: 3
+    canopy: 1 medium canopy tree per 300 m2
+- zone_code: 60
+  chapter: H5
+  topic: deep_soil
+  parameter: deep_soil_min_area_site_1501_plus
+  operator: ≥
+  value: 50
+  unit: m2
+  standard_ref: H5.6.19 (proposed)
+  evidence:
+    doc: amended_mhu
+    ref: H5.6.19
+  quote: 1,501m2 or more 50m2 4m
+  supersedes_parameter: null
+  effect: new
+  note: null
+  applies_if:
+    site_area: '>= 1,501 m2'
+    min_dimension_m: 4
+    canopy: 1 large canopy tree or 2 medium canopy trees per 500 m2
+- zone_code: 60
+  chapter: H5
+  topic: buffer
+  parameter: safety_privacy_buffer_min
+  operator: '>='
+  value: 1
+  unit: m
+  standard_ref: H5.6.20 (proposed)
+  evidence:
+    doc: amended_mhu
+    ref: H5.6.20
+  quote: A minimum 1m buffer area must be provided between a dwelling and private vehicle access
+  supersedes_parameter: null
+  effect: new
+  note: null
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: outlook
+  parameter: outlook_living_ground_floor_depth_where_fence_defined
+  operator: '>='
+  value: 5
+  unit: m
+  standard_ref: H5.6.12(2)(a)(ii) (proposed)
+  evidence:
+    doc: amended_mhu
+    ref: H5.6.12
+  quote: outlook depth may be reduced to 5m
+  supersedes_parameter: outlook_living_depth_min
+  effect: changed
+  note: null
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: outdoor_living
+  parameter: communal_ols_min_area_per_five_dwellings
+  operator: '>='
+  value: 10
+  unit: m2 per 5 dwellings
+  standard_ref: H5.6.14(3) (proposed)
+  evidence:
+    doc: amended_mhu
+    ref: H5.6.14
+  quote: is at least 10m2 for every five dwellings it serves
+  supersedes_parameter: null
+  effect: new
+  note: null
+  applies_if:
+    development: 20 or more dwellings
+- zone_code: 60
+  chapter: H5
+  topic: outdoor_living
+  parameter: communal_ols_min_dimension
+  operator: '>='
+  value: 4
+  unit: m
+  standard_ref: H5.6.14(3) (proposed)
+  evidence:
+    doc: amended_mhu
+    ref: H5.6.14
+  quote: is a minimum dimension of 4m
+  supersedes_parameter: null
+  effect: new
+  note: null
+  applies_if:
+    development: 20 or more dwellings
+- zone_code: 60
+  chapter: H5
+  topic: activity_status
+  parameter: four_or_more_dwellings_all_standards_apply
+  operator: '='
+  value: RD
+  unit: null
+  standard_ref: H5.4.1 (A4) (proposed)
+  evidence:
+    sheet: info_sheet_10_MHU
+  quote: All standards would apply to 4 or more dwellings
+  supersedes_parameter: null
+  effect: changed
+  note: status stays restricted discretionary; PC120 makes every zone standard apply
+  applies_if:
+    activity: Four or more dwellings per site
+- zone_code: 8
+  chapter: H6
+  topic: height
+  parameter: building_height_max
+  operator: <=
+  value: 22
+  unit: m
+  standard_ref: H6.6.5 (proposed)
+  evidence:
+    sheet: info_sheet_09_THAB
+  quote: from 5 storeys (16m) to 6 storeys (22m)
+  supersedes_parameter: building_height_max
+  effect: changed
+  note: the PC120 plan text line for this number is damaged in the PDF text layer; value taken from Council's information sheet 09; confirm in the PC120 text
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: height
+  parameter: building_height_max_height_variation_control_10_storeys
+  operator: <=
+  value: 34.5
+  unit: m
+  standard_ref: H6.6.5 (proposed)
+  evidence:
+    sheet: info_sheet_09_THAB
+  quote: 10 storeys (34.5m)
+  supersedes_parameter: null
+  effect: new
+  note: null
+  applies_if:
+    where: Height Variation Control on planning maps
+- zone_code: 8
+  chapter: H6
+  topic: height
+  parameter: building_height_max_height_variation_control_15_storeys
+  operator: <=
+  value: 50
+  unit: m
+  standard_ref: H6.6.5 (proposed)
+  evidence:
+    sheet: info_sheet_09_THAB
+  quote: 15 storeys (50m)
+  supersedes_parameter: null
+  effect: new
+  note: null
+  applies_if:
+    where: Height Variation Control on planning maps
+- zone_code: 8
+  chapter: H6
+  topic: height_in_relation_to_boundary
+  parameter: hirb_angle_proposed
+  operator: '='
+  value: 60
+  unit: deg
+  standard_ref: H6.6.6(1) (proposed)
+  evidence:
+    doc: amended_thab
+    ref: H6.6.6
+  quote: 60-degree recession plane measured from a point 20m vertically above ground level along the side boundaries
+  supersedes_parameter: hirb_angle
+  effect: changed
+  note: null
+  applies_if:
+    within: first 21.5m from the frontage, sites without a Height Variation Control above 22m
+- zone_code: 8
+  chapter: H6
+  topic: height_in_relation_to_boundary
+  parameter: hirb_start_height_first_21_5m
+  operator: '='
+  value: 20
+  unit: m
+  standard_ref: H6.6.6(1) (proposed)
+  evidence:
+    doc: amended_thab
+    ref: H6.6.6
+  quote: 60-degree recession plane measured from a point 20m vertically above ground level along the side boundaries
+  supersedes_parameter: hirb_start_height
+  effect: changed
+  note: null
+  applies_if:
+    within: first 21.5m from the frontage
+- zone_code: 8
+  chapter: H6
+  topic: height_in_relation_to_boundary
+  parameter: hirb_start_height_beyond_21_5m_and_rear_sites
+  operator: '='
+  value: 8
+  unit: m
+  standard_ref: H6.6.6(1)(b) (proposed)
+  evidence:
+    doc: amended_thab
+    ref: H6.6.6
+  quote: 60-degree recession plane measured from a point 8m vertically above ground level along the side and rear boundaries
+  supersedes_parameter: null
+  effect: new
+  note: null
+  applies_if:
+    beyond: 21.5m from the frontage, and rear sites
+- zone_code: 8
+  chapter: H6
+  topic: outlook
+  parameter: outlook_living_depth_min_above_12_5m
+  operator: '>='
+  value: 8
+  unit: m
+  standard_ref: H6.6.13(2)(a)(ii) (proposed)
+  evidence:
+    doc: amended_thab
+    ref: H6.6.13
+  quote: for parts of buildings more than 12.5m above ground level where the minimum dimension is 8m depth and 4m in width
+  supersedes_parameter: null
+  effect: new
+  note: null
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: outlook
+  parameter: outlook_living_ground_floor_depth_where_fence_defined
+  operator: '>='
+  value: 5
+  unit: m
+  standard_ref: H6.6.13(2)(a)(iii) (proposed)
+  evidence:
+    doc: amended_thab
+    ref: H6.6.13
+  quote: outlook depth may be reduced to 5m
+  supersedes_parameter: outlook_living_depth_min
+  effect: changed
+  note: null
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: windows
+  parameter: street_glazing_min_pct
+  operator: '>='
+  value: 20
+  unit: '% of relevant facade'
+  standard_ref: H6.6.19 (proposed)
+  evidence:
+    doc: amended_thab
+    ref: H6.6.19
+  quote: minimum of 20 per cent of the relevant façade in glazing
+  supersedes_parameter: null
+  effect: new
+  note: null
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: deep_soil
+  parameter: deep_soil_min_pct_of_site_area
+  operator: '>='
+  value: 10
+  unit: '% of site area'
+  standard_ref: H6.6.20 (proposed)
+  evidence:
+    doc: amended_thab
+    ref: H6.6.20
+  quote: must provide a deep soil area of a minimum of 10 per cent of the site area
+  supersedes_parameter: null
+  effect: new
+  note: null
+  applies_if:
+    site_area: '> 200 m2'
+- zone_code: 8
+  chapter: H6
+  topic: buffer
+  parameter: safety_privacy_buffer_min
+  operator: '>='
+  value: 1
+  unit: m
+  standard_ref: H6.6.21 (proposed)
+  evidence:
+    sheet: info_sheet_09_THAB
+  quote: a 1m space is required between dwellings and the access
+  supersedes_parameter: null
+  effect: new
+  note: 'evidence is Council''s information sheet: the PC120 plan text for this standard is missing from the PDF text layer'
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: activity_status
+  parameter: dwellings_all_standards_apply
+  operator: '='
+  value: RD
+  unit: null
+  standard_ref: H6.4.1 (A3) (proposed)
+  evidence:
+    sheet: info_sheet_09_THAB
+  quote: standards would apply to all dwellings
+  supersedes_parameter: null
+  effect: changed
+  note: status stays restricted discretionary
+  applies_if:
+    activity: Dwellings
+- zone_code: 19
+  chapter: H3
+  topic: landscaping
+  parameter: landscaped_area_quality
+  operator: '='
+  value: natural grass, plants and trees
+  unit: null
+  standard_ref: H3.6.11 (proposed)
+  evidence:
+    sheet: info_sheet_12_SHZ
+  quote: landscaped areas to comprise of natural grass, plants and trees
+  supersedes_parameter: landscaped_min_pct
+  effect: changed
+  note: percentage (40%) not stated as changed
+  applies_if: {}
+- zone_code: 19
+  chapter: H3
+  topic: wastewater
+  parameter: combined_wastewater_network_control_applies
+  operator: '='
+  value: mapped areas only
+  unit: null
+  standard_ref: H3.6.3A (proposed)
+  evidence:
+    sheet: info_sheet_12_SHZ
+  quote: A connection to a separated stormwater pipe must be available
+  supersedes_parameter: null
+  effect: new
+  note: applies to dwellings, minor dwellings, supported residential care up to 10, boarding houses, care centres, additions
+  applies_if:
+    where: mapped Infrastructure - Combined Wastewater Network Control areas

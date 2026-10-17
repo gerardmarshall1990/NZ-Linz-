@@ -19,7 +19,7 @@ The PDFs state "Auckland Unitary Plan July 2026"; Council: plan fully operative 
 paragraphs, table cells and list numbers (62 pages badly, others partly). 3. `build_rule_chunks.py` splits by bold headings, uses OCR to repair gaps, numbers
 unnumbered standards by position (H4 only) and validates that numbering against the chapter's own cross-references. 4. `extract_activity_tables.py` reads activity
 tables by column position; row ids must be sequential. 5. `config/rules_seed/*.yaml` hold the numeric standards; **`load_rules.py` refuses to load any rule whose `quote`
-does not occur verbatim in the extracted text for its section** (all 156 passed). 6. `report_rules_gate.py` writes `docs/RULES_STAGE3_GATE.md` for your spot-check.
+does not occur verbatim in the extracted text for its section** (all passed). This is *quote-matching*, not verification: **no numeric rule is owner-verified** until the owner confirms it from `docs/key_standards_check.html`. 6. `report_rules_gate.py` writes `docs/RULES_STAGE3_GATE.md` for your spot-check.
 Edit values only in the YAML, then `make rules`. Tests: `make test` (63 tests, run as the read-only `ai_readonly` role).
 
 ## Findings worth knowing
@@ -31,3 +31,10 @@ Edit values only in the YAML, then `make rules`. Tests: `make test` (63 tests, r
 ## Not covered yet
 Precinct chapters (I), schedules (L), designations (K), appendices (M), H19 rural zone activity tables (multi-zone chapter), H7/H23/H26, Auckland-wide E27 (transport, parking, accessways)
 and E36 (hazards) numeric standards (their text is searchable but not seeded), overlay numeric standards, Building Code/Building Act (MBIE), embeddings (no embedding provider key; the `embedding` column is empty, search is full-text).
+
+
+## Operative vs proposed (decision 16) and extraction quality (decision 17)
+- `analytics.rules.status` = `operative` (from the operative AUP chapters) or `proposed` (from Council's PC120 documents, `plan_change_id = 'PC120'`). They are never merged; a proposed row points to the operative rule it supersedes (`supersedes_rule_id`). `pc120_effect` on operative rows: unchanged / changed / new / to_check / not_assessed.
+- Extraction quality per numeric rule: `text_layer_match`, `ocr_match`, `ocr_confidence`, `extraction_method` (`text_layer+ocr`, `text_layer`, `ocr_only`, `none`), `quote_page`. 113 agree in both, 15 text layer only, **18 OCR only** (mostly Terrace Housing and Apartments), 2 not cleanly matched (coastal protection yard, table layout).
+- `docs/key_standards_check.html` shows a highlighted page crop beside each key value for the four residential zones; the owner ticks Correct / Wrong / Unsure and sends the answers; `scripts/apply_owner_review.py` (dry run by default) records them. Only the owner's answers set `owner_verified`.
+- Pipeline: `make rules` (downloads, OCR, chunking, PC120 extraction, loading, extraction check, gate report, check page).

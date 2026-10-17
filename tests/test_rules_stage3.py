@@ -14,11 +14,11 @@ for l in (ROOT / ".env").read_text().splitlines():
 def cur():
     # the read-only agent role: proves the corpus is readable by `ai_readonly`
     dsn = f"host=localhost dbname={os.environ['POSTGRES_DB']} user=ai_readonly password={os.environ['AI_READONLY_PASSWORD']}"
-    with psycopg.connect(dsn) as con, con.cursor() as c:
+    with psycopg.connect(dsn, autocommit=True) as con, con.cursor() as c:
         yield c
 
 def val(cur, zone, param):
-    cur.execute("SELECT value_num FROM analytics.rules WHERE zone = %s AND parameter = %s", (zone, param)); r = cur.fetchall()
+    cur.execute("SELECT value_num FROM analytics.rules WHERE zone = %s AND parameter = %s AND status = 'operative'", (zone, param)); r = cur.fetchall()
     assert len(r) == 1, f"{zone} {param}: {len(r)} rows"; return float(r[0][0])
 
 SHZ, MHS, MHU, THAB = ("Residential - Single House Zone", "Residential - Mixed Housing Suburban Zone", "Residential - Mixed Housing Urban Zone",
@@ -38,7 +38,7 @@ EXPECTED = [  # (zone, parameter, value)
 @pytest.mark.parametrize("zone,param,expected", EXPECTED)
 def test_numeric_standard(cur, zone, param, expected):
     if param.startswith("min_net_site_area"):
-        cur.execute("SELECT value_num FROM analytics.rules WHERE topic = 'subdivision' AND parameter = %s AND applies_if->>'zone_code' = "
+        cur.execute("SELECT value_num FROM analytics.rules WHERE status = 'operative' AND topic = 'subdivision' AND parameter = %s AND applies_if->>'zone_code' = "
                     "(SELECT code::text FROM core.zone_lookup WHERE zone_name = %s OR zone_name = replace(%s, 'Buildings', 'Building'))", (param, zone, zone))
         r = cur.fetchall(); assert len(r) == 1; assert float(r[0][0]) == expected
     else:
@@ -53,7 +53,7 @@ ACTIVITY = [  # (zone, activity text prefix, status)
 
 @pytest.mark.parametrize("zone,prefix,status", ACTIVITY)
 def test_activity_status(cur, zone, prefix, status):
-    cur.execute("SELECT value_text FROM analytics.rules WHERE topic = 'activity_status' AND zone = %s AND activity ILIKE %s ORDER BY id LIMIT 1", (zone, prefix + "%"))
+    cur.execute("SELECT value_text FROM analytics.rules WHERE status = 'operative' AND topic = 'activity_status' AND zone = %s AND activity ILIKE %s ORDER BY id LIMIT 1", (zone, prefix + "%"))
     r = cur.fetchone(); assert r and r[0] == status
 
 SEARCH = [  # (query, zone filter, expected section_ref within top 3)
@@ -72,7 +72,9 @@ def test_search_rules_returns_citation(cur, q, zone, ref):
     for r in rows: assert r[1].startswith("https://unitaryplan.aucklandcouncil.govt.nz/") and r[2] and r[3]
 
 def test_every_numeric_rule_has_provenance(cur):
-    cur.execute("SELECT count(*) FROM analytics.rules WHERE topic NOT IN ('activity_status','standard_text') AND (quote IS NULL OR source_url IS NULL OR last_verified IS NULL OR section_ref IS NULL OR chunk_id IS NULL OR plan_version_id IS NULL)")
+    cur.execute("SELECT count(*) FROM analytics.rules WHERE status = 'operative' AND topic NOT IN ('activity_status','standard_text') AND (quote IS NULL OR source_url IS NULL OR last_verified IS NULL OR section_ref IS NULL OR chunk_id IS NULL OR plan_version_id IS NULL)")
+    assert cur.fetchone()[0] == 0
+    cur.execute("SELECT count(*) FROM analytics.rules WHERE status = 'proposed' AND (quote IS NULL OR evidence_doc IS NULL OR plan_change_id IS NULL OR source_url IS NULL OR last_verified IS NULL)")
     assert cur.fetchone()[0] == 0
 
 def test_plan_version_recorded(cur):
@@ -89,11 +91,11 @@ def test_maori_numeric(cur, zone, param, expected):
 
 def test_maori_purpose_dwelling_activity_statuses(cur):
     for prefix, st in (("Up to three dwellings per site", "P"), ("Four or more dwellings per site", "RD"), ("Marae", "P")):
-        cur.execute("SELECT value_text FROM analytics.rules WHERE topic = 'activity_status' AND zone = 'Special Purpose - Māori Purpose Zone' AND activity ILIKE %s ORDER BY id LIMIT 1", (prefix + "%",))
+        cur.execute("SELECT value_text FROM analytics.rules WHERE status = 'operative' AND topic = 'activity_status' AND zone = 'Special Purpose - Māori Purpose Zone' AND activity ILIKE %s ORDER BY id LIMIT 1", (prefix + "%",))
         assert cur.fetchone()[0] == st
 
 def test_e20_papakainga_statuses(cur):
-    cur.execute("SELECT parameter, value_text FROM analytics.rules WHERE zone = 'Māori land (Auckland-wide, E20)' AND topic = 'activity_status'")
+    cur.execute("SELECT parameter, value_text FROM analytics.rules WHERE status = 'operative' AND zone = 'Māori land (Auckland-wide, E20)' AND topic = 'activity_status'")
     got = dict(cur.fetchall()); assert got["A1"] == "P" and got["A2"] == "RD" and got["A3"] == "P" and got["A4"] == "RD" and got["A6"] == "NC"
 
 def test_rest_home_definition_searchable(cur):
@@ -107,3 +109,27 @@ def test_maori_land_search(cur):
 def test_read_only_role_cannot_write(cur):
     with pytest.raises(psycopg.errors.Error):
         cur.execute("DELETE FROM analytics.rules")
+
+
+# ---- decision 16/17: operative vs proposed, never merged; nothing owner-verified by the tool
+def test_proposed_and_operative_are_separate(cur):
+    cur.execute("SELECT count(*) FROM analytics.rules WHERE (status = 'proposed') <> (plan_change_id IS NOT NULL)"); assert cur.fetchone()[0] == 0
+    cur.execute("SELECT count(*) FROM analytics.rules WHERE status = 'proposed' AND plan_version_id = (SELECT id FROM analytics.plan_versions WHERE plan_name = 'Auckland Unitary Plan')"); assert cur.fetchone()[0] == 0
+
+def test_thab_height_operative_16_and_proposed_22_both_present(cur):
+    assert val(cur, THAB, "building_height_max") == 16
+    cur.execute("SELECT value_num, plan_change_id FROM analytics.rules WHERE status = 'proposed' AND zone = %s AND parameter = 'building_height_max'", (THAB,))
+    r = cur.fetchall(); assert r == [(22, "PC120")] or [(float(x[0]), x[1]) for x in r] == [(22.0, "PC120")]
+
+def test_proposed_rule_links_to_operative_rule_it_supersedes(cur):
+    cur.execute("SELECT count(*) FROM analytics.rules p JOIN analytics.rules o ON o.id = p.supersedes_rule_id WHERE p.status = 'proposed' AND o.status = 'operative' AND p.zone = o.zone"); assert cur.fetchone()[0] >= 6
+
+def test_every_operative_numeric_rule_has_pc120_effect(cur):
+    cur.execute("SELECT count(*) FROM analytics.rules WHERE status = 'operative' AND topic NOT IN ('activity_status','standard_text') AND pc120_effect IS NULL"); assert cur.fetchone()[0] == 0
+
+def test_extraction_quality_recorded_and_nothing_owner_verified(cur):
+    cur.execute("SELECT count(*) FROM analytics.rules WHERE status = 'operative' AND topic NOT IN ('activity_status','standard_text') AND quote IS NOT NULL AND extraction_method IS NULL"); assert cur.fetchone()[0] == 0
+    cur.execute("SELECT count(*) FROM analytics.rules WHERE owner_verified"); assert cur.fetchone()[0] == 0, "only the owner may verify (decision 17)"
+
+def test_sites_depend_on_pc120_flag(cur):
+    cur.execute("SELECT count(*) FROM analytics.v_site_plan_status WHERE verdict_dependency = 'depends on PC120'"); assert cur.fetchone()[0] > 400000

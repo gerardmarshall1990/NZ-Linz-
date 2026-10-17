@@ -20,8 +20,16 @@ CREATE TABLE analytics.rules (
   zone text, overlay text, activity text, topic text NOT NULL, parameter text NOT NULL, operator text, value_num numeric, value_text text, unit text,
   applies_if jsonb NOT NULL DEFAULT '{}', status_class text CHECK (status_class IN ('permitted','controlled','restricted_discretionary','discretionary','non_complying','prohibited','standard')),
   standard_ref text, section_ref text NOT NULL, chunk_id int REFERENCES analytics.rule_text_chunks(id), quote text, rule_text text,
-  source_url text NOT NULL, last_verified date NOT NULL, evaluable boolean NOT NULL DEFAULT false, notes text);
+  source_url text NOT NULL, last_verified date NOT NULL, evaluable boolean NOT NULL DEFAULT false, notes text,
+  -- operative vs proposed (decision 16): never merged. Operative rows come from the operative AUP chapters; proposed rows from the plan change's own documents.
+  status text NOT NULL DEFAULT 'operative' CHECK (status IN ('operative','proposed')), plan_change_id text,
+  supersedes_rule_id int REFERENCES analytics.rules(id), pc120_effect text CHECK (pc120_effect IN ('unchanged','changed','new','to_check','not_assessed')),
+  pc120_evidence text, evidence_doc text,
+  -- extraction quality (decision 17): nothing is owner-verified until the owner says so
+  extraction_method text, text_layer_match boolean, ocr_match boolean, ocr_confidence numeric, quote_page int,
+  owner_verified boolean NOT NULL DEFAULT false, owner_verified_at timestamptz, owner_review text);
 CREATE INDEX rules_zone_topic_idx ON analytics.rules (zone, topic);
+CREATE INDEX rules_status_idx ON analytics.rules (status, plan_change_id);
 
 -- Full-text search with citations. rank = ts_rank_cd; zone_filter matches the chapter title (e.g. 'H4' or 'Mixed Housing Suburban').
 CREATE OR REPLACE FUNCTION analytics.search_rules(q text, zone_filter text DEFAULT NULL, lim int DEFAULT 8)

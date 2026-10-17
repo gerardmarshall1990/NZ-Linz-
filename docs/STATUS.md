@@ -1,16 +1,24 @@
-# Status (2026-10-17)
+# Status (last updated 2026-10-17)
 
-## Done
-- Stage 1 LINZ ingest, Stage 2 `core.sites` (559,528 Auckland parcels with zone, overlays, hazards, buildings, amenity distances incl. AT bus stops): passed.
-- Plan currency: zone layer = operative AUP (fully operative 23 Jul 2026). PC120 is proposed and differs from the operative zone for 40.6% of sites; flagged per site. See docs/PLAN_CURRENCY.md.
-- Stage 3 rules corpus: 99 official AUP chapter PDFs -> 2,166 citable chunks, 1,328 structured rules (156 numeric standards each verified against a verbatim quote, 965 activity-table rows, 207 text-only), `analytics.search_rules`, 63 passing tests. Gate table for your spot-check: docs/RULES_STAGE3_GATE.md.
-- Manual sources folder + loader (docs/sources_manual/) ready for HealthCERT, Ngā Paerewa, council forms, TPK files.
+**Priority (docs/BUILD_NOW.md):** Part 7 Remote Conversion Pipeline is the main product; then 1) rest home finder, 2) development site finder, 3) Māori land finder. Everything else is LATER.
 
-## Waiting on you
-1. Spot-check docs/RULES_STAGE3_GATE.md (15 standards x 4 zones against the Council plan) and tell me anything wrong.
-2. SPEC_RESTHOME_TOOL.md was never uploaded (only CLAUDE.md and SPEC_SITE_FLOW.md): please attach it.
-3. HealthCERT list / Ngā Paerewa PDF into docs/sources_manual/ (see README there) or attach them in chat.
-4. download.geofabrik.de is still blocked (OSM motel tags skipped as instructed); Watercare licence decision (SPEC 0.9); 10+ known-outcome parcels for the regression suite.
+| # | Step | Status | Last updated | Blockers / notes |
+|---|---|---|---|---|
+| 1 | Stage 1 LINZ ingest | done | 2026-10-16 | LINZ key must still be rotated (BLOCKERS 15) |
+| 2 | Stage 2 Council layers, `core.sites` (559,528 sites) | done | 2026-10-16 | no rating values published; slope not done |
+| 3 | Stage 3 rules corpus | **built; awaiting owner spot-check** | 2026-10-17 | 99 AUP chapters, 2,166 chunks, 1,361 rules (operative + 33 proposed PC120); 69 tests pass; nothing owner-verified (BLOCKERS 4) |
+| 3a | Rules corrections (decisions 16-18): operative/proposed, OCR confidence, key standards check page; plan currency | done | 2026-10-17 | `docs/key_standards_check.html` sent to owner; 18 values are OCR-only |
+| 3b | **Part 7 Remote Conversion Pipeline** | step 1 starting | 2026-10-17 | plan reader vision needs ANTHROPIC_API_KEY (BLOCKERS 3); engineer preferences missing (BLOCKERS 7) |
+| 4 | Feeds register, BLOCKERS, `make feeds-status` | done | 2026-10-17 | |
+| 3c | Scale layers (Part 8) | LATER | | after Part 7 steps 1-4 and owner go |
+| 5 | Slope for candidate parcels | not started | | before layout engine; open DEM/contours, record source and date |
+| 6 | Stage 4 Māori land + rest home provider layers | not started | | HealthCERT list is manual (BLOCKERS 5) |
+| 7 | Stage 5 agent, Stage 6 calculators | LATER (agent) / needed for development finder (calculators) | | agent needs API key |
+| 8-9 | Rules engine, layout, financial engine; Site Panel UI | not started | | development site finder |
+| 10 | Rest home tool (Part 3) | part of Part 7 | | bed rules need Ngā Paerewa PDF (BLOCKERS 6) |
+| 10b | Listings-to-offer (Part 6) | not started | | Trade Me terms and realestate.co.nz (BLOCKERS 1-2) |
+| 9 | Best Use tab (Part 9) | LATER | | after rest home pipeline and development flow |
+| 11-16 | Services, floor plan extras, flags, bulk screening, consent packs, docs | LATER | | |
 
-## Next
-Stage 4: Māori land cross-check (LINZ 'Maori' parcels vs Te Puni Kōkiri / Māori Land Court public data, report the gap) and the rest home layer from the manual HealthCERT file; then Stage 5 agent, Stage 6 calculators; slope (candidate parcels only) before the layout engine.
+Environment: PostgreSQL 16 + PostGIS via apt in the sandbox (`scripts/db_up.sh`); `make backup` writes to `backups/` (sandbox-local, gitignored). `make bootstrap` is not built yet: rebuild order today is `make refresh` (LINZ, Council, plan changes, AT stops, core, rules).
+Next: Part 7 step 1: property intake, Property Record, plan upload, plan reader with human review.

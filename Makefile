@@ -1,4 +1,4 @@
-.PHONY: up down refresh refresh-linz refresh-auckland core backup manual rules test
+.PHONY: up down refresh refresh-linz refresh-auckland core backup manual rules test feeds feeds-status check-page
 SHELL := /bin/bash
 PSQL = set -a; . ./.env; set +a; PGPASSWORD=$$POSTGRES_PASSWORD psql -h $${PGHOST:-localhost} -U $$POSTGRES_USER -d $$POSTGRES_DB -v ON_ERROR_STOP=1 -q
 
@@ -36,9 +36,19 @@ rules:
 	python3 -I scripts/ocr_aup.py
 	python3 -I scripts/build_rule_chunks.py
 	python3 -I scripts/extract_activity_tables.py
+	python3 -I scripts/ingest_pc120.py
+	python3 -I scripts/extract_pc120.py
 	python3 scripts/load_rule_chunks.py
 	python3 scripts/load_rules.py
+	python3 scripts/check_extraction.py
 	python3 scripts/report_rules_gate.py
+	python3 scripts/build_key_standards_check.py
 
 test:
 	python3 -m pytest tests -q
+
+feeds:
+	$(PSQL) -f db/sql/70_feeds.sql
+
+feeds-status:
+	@python3 scripts/feeds_status.py
