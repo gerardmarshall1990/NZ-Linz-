@@ -18,7 +18,7 @@
 | 14 | Lawyer review of outreach process, offer letters and JV terms sheets (before any flag is flipped) | Owner | open |
 | 15 | Rotate the LINZ key (old key was in git history; history is now cleaned) | Owner | open |
 | 16 | 10+ known-outcome regression parcels (or approve sourcing from Council's published decisions) | Owner | open |
-| 17 | Where to keep user-data backups off the sandbox (`make backup` output is sandbox-local; options in docs/BACKUP.md). Also set BACKUP_PASSPHRASE | Owner | open |
+| 17 | Backups: create a PRIVATE GitHub repo `nz-linz-private-backups` (I cannot: 403) and tell me; set `BACKUP_PASSPHRASE` as an environment variable in the cloud environment settings (steps in docs/BACKUP.md; never in chat); plans and uploads need a separate route (docs/BACKUP.md) | Owner | open |
 | 18 | www.building.govt.nz sits behind a bot challenge (not bypassed). Drop into `docs/sources_manual/standards/`: Building Code Acceptable Solutions C/AS (fire), D1/AS1 (access), F6/F7, G1 to G3; Ngā Paerewa NZS 8134:2021; MBIE change-of-use guidance. Until then every numeric requirement is blank and the compliance engine says UNKNOWN or NEEDS_PROFESSIONAL | Owner | open |
 | 19 | Fill `config/bed_rules.yaml` regulatory values (min resident room area, ensuite ratio, double occupancy, communal area per bed) from Ngā Paerewa, with clause and date | Owner / me once the PDF is supplied | open |
 | 20 | Fill `config/deal_assumptions.yaml` blanks (roster coverage, clinical lead, manager, cook/cleaner, utilities, insurance, supplies, repairs, compliance, other opex, stabilised occupancy, fill ramp, pre-opening, working capital, cost of capital, target and minimum profit, cash limit) and `config/rates.yaml` with QS rates | Owner | open |
