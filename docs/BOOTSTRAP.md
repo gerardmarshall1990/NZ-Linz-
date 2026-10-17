@@ -1,0 +1,28 @@
+# make bootstrap: rebuild every regenerable layer from the original sources
+
+`make bootstrap` (script `scripts/bootstrap.sh`) rebuilds the database named in `.env` from the public sources, in this order, with a timing per step in `bootstrap_timings.log`:
+`init_db` (database, extensions, schemas, read-only role) → `ingest_linz` → `ingest_auckland` (Council layers, plan-change summaries, AT stops) → `core_sites` → `rules_corpus` (AUP and PC120 PDFs, OCR, chunks, rules, checks) → `owner_review_log` (replay your rule answers) → `feeds_register` → `app_tables_roles` (app role, rest home tables, requirement slots) → `manual_sources` (files you dropped in `docs/sources_manual/`, if any).
+Needs: `.env` with `LINZ_API_KEY` and the database passwords. No other manual step remains (two were found and removed by the proof below).
+
+## Proof on a slice (rule: do not repeat the full rebuild)
+Slice mode: `SLICE_BBOX=minE,minN,maxE,maxN` (EPSG:2193) in `.env` loads only that rectangle (cache under `data/slice`). Proof run: a clean clone of the repository, an empty database and empty cache, a Devonport / Narrow Neck / Bayswater rectangle with 4,609 parcels.
+| Step | Time |
+|---|---|
+| init_db | 1 s |
+| ingest_linz | 4 s |
+| ingest_auckland | 28 s |
+| core_sites | 92 s |
+| rules_corpus | 199 s (OCR results and PDFs were already cached from the earlier attempts; see the estimate below) |
+| owner_review_log, feeds, app tables, manual | 1 s |
+| **Total** | **325 s** |
+
+Row counts against the main database (centre-in-rectangle for geometry tables): all LINZ and Council raw tables, `core.sites` (4,609 = 4,609), all analytics tables equal: 1,361 rules (1,328 operative, 33 proposed), 2,166 text chunks, 99 source documents, 4 plan versions, 17 requirement slots, and an identical checksum of every operative rule's zone, parameter and numeric value. Differences, all explained: 3 parcels changed upstream at LINZ since the main load (one subdivided into two: 2 new, 1 gone) and 5 parcel areas edited upstream; 7 parcels crossing the rectangle edge have fewer buildings or one fewer overlay (their features lie outside the rectangle); distance-to-hospital and distance-to-rail differ in slice mode because the nearest facility can lie outside the rectangle; the plan-change attribute tables hold only the slice's rows (every one of them exists in main).
+
+## Defects the proof found (all fixed in the repository)
+1. `ocr_aup.py` let tesseract use 4 OpenMP threads per process: 4 workers on 4 cores stalled for 20+ minutes on one page. Now one thread per process.
+2. PC120 info sheets were extracted in column-interleaving layout mode (the earlier fix had been done by hand on the main database), so the quote checks failed. Now reading order.
+3. A Council layer with no features in the extent left no table and crashed the core step. Now an empty table with the layer's own columns.
+4. **The Council property pick per parcel was arbitrary when property polygons overlap** (an unordered UPDATE ... FROM). Two builds disagreed on about 9% of parcels in the slice (411 of 4,607), which moved the PC120 flags on about 12. Now deterministic (smallest polygon, then lowest id), and overlay lists are sorted. **The main database was built before this fix**: re-running `db/sql/30_sites_enrich.sql` and `50_plan_versions.sql` on it will settle those flags (not done: awaiting your go, since you asked me not to touch the main database).
+
+## Full-run estimate (not re-run, by instruction)
+Measured from scratch on live sources: LINZ ingest 4,119 s (69 min) and Council layers 4,507 s (75 min). Not measured on a clean full run: core build (the earlier full build took on the order of an hour; per-parcel scaling from the slice is unreliable because overlay joins dominate) and the rules step (first-time OCR of 99 chapters on 4 cores after the thread fix: tens of minutes, unmeasured). Plan for roughly 3.5 to 5 hours end to end, mostly download time. Free disk needed: about 14 GB (6.6 GB downloads, 6.3 GB database, working space).
