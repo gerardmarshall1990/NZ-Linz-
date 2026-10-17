@@ -1,0 +1,14 @@
+# Bed yield rules (MASTER_SPEC Part 3 section 3). REGULATORY values are blank on purpose: they must come from Ngā Paerewa NZS 8134:2021 / Ministry of Health guidance,
+# which cannot be fetched by script (see BLOCKERS: standards PDF is a manual file). Blank = rule not applied, and every option says so.
+# Fill a value ONLY with its clause reference and the date you checked it.
+regulatory:
+  min_resident_room_m2: {value: null, clause: null, last_verified: null}      # minimum clear floor area of a single resident room
+  ensuite_required: {value: null, clause: null, last_verified: null}          # "per_room" | "per_n_rooms:N" | "none"
+  double_occupancy_allowed: {value: null, clause: null, last_verified: null}  # true | false (blank is treated as false: one resident per room)
+  communal_area_per_bed_m2: {value: null, clause: null, last_verified: null}
+# Design assumptions (mine, editable; NOT regulation). Rooms every rest home needs; the engine sacrifices a resident room when one is missing.
+design:
+  required_roles: [office, lounge, kitchen, laundry, store]   # office = nurse station / staff office
+  adjacency_distance_m: 0.3        # rooms closer than this are treated as sharing a wall (hand-traced plans do not meet exactly)
+  min_shared_wall_m: 0.5           # shared wall length for "adjacent"
+  target_beds: 50                  # single-consent target (spec 3.5); below this the option is flagged below_target

@@ -58,8 +58,10 @@ feeds-status:
 	@python3 scripts/feeds_status.py
 
 app-db:
-	$(PSQL) -f db/sql/80_rh_property.sql
 	bash scripts/create_app_role.sh
+	$(PSQL) -f db/sql/80_rh_property.sql
+	$(PSQL) -f db/sql/90_rh_step2.sql
+	python3 scripts/load_rh_requirements.py
 
 app:
 	python3 -m uvicorn backend.app.main:app --host 0.0.0.0 --port 8000

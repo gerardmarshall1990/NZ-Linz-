@@ -1,0 +1,22 @@
+# Requirement slots for the compliance engine (MASTER_SPEC Part 3 section 4). Loaded into analytics.rh_requirements by scripts/load_rh_requirements.py.
+# Numeric thresholds and clause numbers are NOT filled in: the official documents (Building Code Acceptable Solutions, Ngā Paerewa) sit behind bot challenges
+# (www.building.govt.nz, www.health.govt.nz) and are not bypassed. Drop the PDFs in docs/sources_manual/standards/; then fill `value`, `clause`, `source_url`, `last_verified` here.
+# check: how the engine tests it from the Property Record / plan model. Blank value => status is UNKNOWN or NEEDS_PROFESSIONAL, never PASS.
+requirements:
+  - {id: corridor_width, topic: Circulation, check: min_numeric, fact: corridor_width_min_m, operator: ">=", unit: m, value: null, clause: null, source: "Building Code D1 (Acceptable Solution) / Ngā Paerewa", signs_off: "designer / fire engineer", evidence: "calibrated plan or measured corridor"}
+  - {id: door_width, topic: Circulation, check: min_numeric, fact: door_width_min_m, operator: ">=", unit: m, value: null, clause: null, source: "Building Code D1 / Ngā Paerewa", signs_off: designer, evidence: "calibrated plan or measured doors"}
+  - {id: ensuite_per_resident_room, topic: Resident rooms, check: ensuite_per_room, value: null, clause: null, source: "Ngā Paerewa physical environment", signs_off: "designer / auditor (DAA)", evidence: "confirmed plan"}
+  - {id: min_resident_room_area, topic: Resident rooms, check: room_area, operator: ">=", unit: m2, value: null, clause: null, source: "Ngā Paerewa physical environment", signs_off: "designer / auditor (DAA)", evidence: "calibrated plan"}
+  - {id: exits_and_escape, topic: Fire, check: professional, value: null, clause: null, source: "Building Code C clauses / FENZ", signs_off: "fire engineer", evidence: "exit and escape route survey"}
+  - {id: fire_risk_group, topic: Fire, check: professional, value: null, clause: null, source: "Building Code C clauses (risk group for care-type sleeping use)", signs_off: "fire engineer", evidence: "fire engineering brief"}
+  - {id: sprinklers_alarm, topic: Fire, check: presence_then_professional, facts: [sprinklers, fire_alarm], value: null, clause: null, source: "Building Code C / F7", signs_off: "fire engineer", evidence: "existing system records"}
+  - {id: emergency_lighting, topic: Fire, check: presence_then_professional, facts: [emergency_lighting], value: null, clause: null, source: "Building Code F6", signs_off: "fire engineer / electrician", evidence: "inspection"}
+  - {id: lift_levels, topic: Access, check: lift, value: null, clause: null, source: "Building Code D1 / D2", signs_off: "designer / lift engineer", evidence: "plans of all levels"}
+  - {id: level_access, topic: Access, check: presence_then_professional, facts: [level_access_entrances, external_accessible_route], value: null, clause: null, source: "Building Code D1", signs_off: designer, evidence: "site survey or photos"}
+  - {id: kitchen_laundry_communal, topic: Services and rooms, check: roles_present, value: null, clause: null, source: "Building Code G1 G2 G3 / Ngā Paerewa", signs_off: designer, evidence: "confirmed plan"}
+  - {id: communal_area_per_bed, topic: Resident rooms, check: communal_area, operator: ">=", unit: m2_per_bed, value: null, clause: null, source: "Ngā Paerewa physical environment", signs_off: "designer / auditor (DAA)", evidence: "calibrated plan"}
+  - {id: nurse_call, topic: Services and rooms, check: professional, value: null, clause: null, source: "Ngā Paerewa", signs_off: "electrical / services engineer", evidence: "existing system records"}
+  - {id: structure, topic: Structure, check: professional, value: null, clause: null, source: "Building Code B1 / B2, Building Act s112 and s115", signs_off: "structural engineer", evidence: "structural drawings or investigation"}
+  - {id: change_of_use, topic: Building Act, check: professional, value: null, clause: null, source: "Building Act 2004 change of use provisions (not yet loaded)", signs_off: "designer / council", evidence: "change of use assessment"}
+  - {id: compliance_schedule, topic: Building Act, check: fact_present, fact: compliance_schedule_bwof_status, value: null, clause: null, source: "Building Act 2004 compliance schedule / BWOF", signs_off: "IQP / owner", evidence: "current BWOF"}
+  - {id: unit_title, topic: Deal-breakers, check: unit_title, value: null, clause: null, source: "LINZ title type", signs_off: "lawyer", evidence: "title"}

@@ -5,7 +5,7 @@ from typing import Literal
 from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse, Response
 from pydantic import BaseModel, Field
-from . import calibration, estimates, facts, plans, uploads, vision_reader
+from . import briefs, calibration, compliance, drawings, estimates, facts, gaps, layout, plans, uploads, vision_reader
 from .config import upload_dir
 from .db import conn
 
@@ -153,3 +153,51 @@ def do_confirm(eid: int, body: ConfirmIn): return plans.confirm(eid, body.eviden
 
 @app.post("/api/extractions/{eid}/reopen")
 def do_reopen(eid: int): return plans.reopen(eid)
+
+# ---------------- step 2: evidence gaps, layout options, compliance, briefs, drawings
+class GapIn(BaseModel):
+    status: Literal["NEEDS_PROFESSIONAL", "REQUESTED", "RECEIVED", "NOT_RELEVANT"]
+    note: str | None = None
+
+@app.get("/api/property/{parcel_id}/gaps")
+def read_gaps(parcel_id: int): return gaps.compute(parcel_id)
+
+@app.put("/api/property/{parcel_id}/gaps/{key}")
+def put_gap(parcel_id: int, key: str, body: GapIn): return gaps.set_status(parcel_id, key, body.status, body.note)
+
+@app.post("/api/property/{parcel_id}/layouts")
+def make_layouts(parcel_id: int): facts.get_property(parcel_id); return layout.generate(parcel_id)
+
+@app.get("/api/property/{parcel_id}/layouts")
+def read_layouts(parcel_id: int): return layout.list_options(parcel_id)
+
+@app.get("/api/layouts/{oid}")
+def read_layout(oid: int): return layout.get_option(oid)
+
+@app.get("/api/layouts/{oid}/drawing.dxf")
+def layout_dxf(oid: int, level: int = 0):
+    return Response(drawings.dxf(oid, level), media_type="application/dxf", headers={"Content-Disposition": f'attachment; filename="option{oid}_DRAFT.dxf"'})
+
+@app.get("/api/layouts/{oid}/drawing.pdf")
+def layout_pdf(oid: int, level: int = 0):
+    return Response(drawings.pdf(oid, level), media_type="application/pdf", headers={"Content-Disposition": f'attachment; filename="option{oid}_DRAFT.pdf"'})
+
+@app.post("/api/property/{parcel_id}/compliance")
+def run_compliance(parcel_id: int, option_id: int | None = None): facts.get_property(parcel_id); return compliance.run(parcel_id, option_id)
+
+class BriefIn(BaseModel):
+    option_id: int
+    kind: Literal["fire", "structural", "accessibility", "services"]
+
+@app.post("/api/property/{parcel_id}/briefs")
+def make_brief(parcel_id: int, body: BriefIn): facts.get_property(parcel_id); return briefs.build(parcel_id, body.option_id, body.kind)
+
+@app.get("/api/property/{parcel_id}/briefs")
+def list_briefs(parcel_id: int):
+    with conn() as c: return [{**r, "created_at": r["created_at"].isoformat()} for r in c.execute("SELECT id, option_id, kind, created_at FROM core.rh_brief WHERE parcel_id = %s ORDER BY id DESC", (parcel_id,)).fetchall()]
+
+@app.get("/api/briefs/{bid}", response_class=PlainTextResponse)
+def read_brief(bid: int):
+    with conn() as c: r = c.execute("SELECT body_md FROM core.rh_brief WHERE id = %s", (bid,)).fetchone()
+    if not r: raise HTTPException(404, "no such brief")
+    return PlainTextResponse(r["body_md"], media_type="text/markdown")
