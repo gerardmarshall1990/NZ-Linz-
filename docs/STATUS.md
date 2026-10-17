@@ -10,6 +10,7 @@
 | 3a | Rules corrections (decisions 16-18): operative/proposed, OCR confidence, key standards check page; plan currency | done | 2026-10-17 | `docs/key_standards_check.html` sent to owner; 18 values are OCR-only |
 | 3b | **Part 7 Remote Conversion Pipeline** | steps 1-2 built and tested (step 2: evidence gaps, 3 layout options, DXF/PDF drawings, compliance checks, 4 briefs); steps 3-5 not started | 2026-10-17 | plan reader vision needs ANTHROPIC_API_KEY (BLOCKERS 3); engineer preferences missing (BLOCKERS 7) |
 | 4 | Feeds register, BLOCKERS, `make feeds-status` | done | 2026-10-17 | |
+| 3d | Economics engine + Offer Builder (Part 6.4 worked example tested), retrofit cost engine (rates blank), proposal pack | built, 22 tests | 2026-10-17 | `docs/ECONOMICS.md`; needs your inputs: deal assumptions, QS rates (BLOCKERS 20) |
 | 3c | Scale layers (Part 8) | LATER | | after Part 7 steps 1-4 and owner go |
 | 5 | Slope for candidate parcels | not started | | before layout engine; open DEM/contours, record source and date |
 | 6 | Stage 4 Māori land + rest home provider layers | not started | | HealthCERT list is manual (BLOCKERS 5) |

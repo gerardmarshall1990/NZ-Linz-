@@ -11,7 +11,7 @@ def quantities(option: dict, checks: dict | None, facts: dict) -> dict:
     """Quantity per rate line, each with where it came from. None = cannot be derived (an allowance line applies instead)."""
     rooms = [a for lv in option["levels"] for a in lv["rooms"]]
     convert = [a for a in rooms if a["action"] == "convert"]
-    new_ens = sum(1 for a in rooms for i in a["items"] if "ensuite" in i) + sum(1 for a in rooms if a["action"] == "convert" and a["becomes"] == "ensuite")
+    new_ens = sum(1 for a in rooms if any("ensuite" in i for i in a["items"]) or (a["action"] == "convert" and a["becomes"] == "ensuite"))   # once per room
     beds_rooms = option["resident_rooms"]
     communal = sum(1 for a in rooms if a["type"] in ("lounge", "dining", "kitchen", "laundry", "office"))
     by = {c["id"]: c for c in (checks or {}).get("checks", [])}

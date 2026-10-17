@@ -18,7 +18,7 @@ def test_worked_example_exact():
     assert "excludes the conversion period" in jv["operator"]["excludes_note_for_simple_payback"]
     assert jv["owner"]["cases"]["occ_60"] == 1500                               # owner's take if occupancy is 60%
     assert jv["owner"]["cases"]["n_lower"] == 1750                              # and if N is 30% lower
-    assert "Lawyer review required" in r["banner"] and "guarantee" not in str(r).replace("not guaranteed", "").lower()
+    assert "Lawyer review required" in r["banner"] and "guarantee" not in str(r).lower() and "assured" not in str(r).lower()
 
 def test_worked_example_full_timeline_beside_it():
     # a 1,000/wk payment to the owner over the 24-week target timeline adds 24,000 to cash required

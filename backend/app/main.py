@@ -5,7 +5,7 @@ from typing import Literal
 from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse, Response
 from pydantic import BaseModel, Field
-from . import briefs, calibration, compliance, drawings, estimates, facts, gaps, layout, plans, uploads, vision_reader
+from . import briefs, proposal, scenarios, calibration, compliance, drawings, estimates, facts, gaps, layout, plans, uploads, vision_reader
 from .config import upload_dir
 from .db import conn
 
@@ -201,3 +201,42 @@ def read_brief(bid: int):
     with conn() as c: r = c.execute("SELECT body_md FROM core.rh_brief WHERE id = %s", (bid,)).fetchone()
     if not r: raise HTTPException(404, "no such brief")
     return PlainTextResponse(r["body_md"], media_type="text/markdown")
+
+# ---------------- economics, retrofit cost, Offer Builder
+class EconIn(BaseModel):
+    option_id: int
+    assumptions: dict | None = None
+    retrofit_total: float | None = None
+
+@app.post("/api/property/{parcel_id}/retrofit")
+def post_retrofit(parcel_id: int, option_id: int): facts.get_property(parcel_id); return scenarios.retrofit_cost(parcel_id, option_id)
+
+@app.post("/api/property/{parcel_id}/economics")
+def post_economics(parcel_id: int, body: EconIn): facts.get_property(parcel_id); return scenarios.economics_run(parcel_id, body.option_id, body.assumptions, body.retrofit_total)
+
+class OfferIn(BaseModel):
+    option_id: int
+    asking_rent: float
+    current_net: float | None = None
+    terms: dict
+    assumptions: dict | None = None
+    retrofit: dict | float | None = None
+    allowance_pct: float | None = None
+    timeline: dict | None = None
+    downside: dict | None = None
+
+@app.post("/api/property/{parcel_id}/offers")
+def post_offer(parcel_id: int, body: OfferIn):
+    facts.get_property(parcel_id); d = body.model_dump(); return scenarios.offer_run(parcel_id, d.pop("option_id"), d)
+
+@app.get("/api/property/{parcel_id}/scenarios")
+def list_scenarios(parcel_id: int, kind: str | None = None):
+    with conn() as c:
+        return [{**r, "created_at": r["created_at"].isoformat()} for r in c.execute("SELECT id, option_id, kind, confidence, created_at FROM core.rh_scenario WHERE parcel_id = %s AND (%s::text IS NULL OR kind = %s) ORDER BY id DESC", (parcel_id, kind, kind)).fetchall()]
+
+@app.get("/api/scenarios/{sid}/proposal")
+def get_proposal(sid: int, mode: Literal["fixed", "jv", "hybrid"]): return proposal.build(sid, mode)
+
+@app.get("/api/scenarios/{sid}/proposal.pdf")
+def get_proposal_pdf(sid: int, mode: Literal["fixed", "jv", "hybrid"]):
+    return Response(proposal.pdf(proposal.build(sid, mode)["markdown"]), media_type="application/pdf", headers={"Content-Disposition": f'attachment; filename="proposal_{sid}_{mode}.pdf"'})

@@ -197,7 +197,8 @@ def run_offer(inp: dict) -> dict:
         # break-even occupancy for each party (solved numerically)
         if base_fn:   # break-even needs the real cost structure (fixed staffing); the proportional approximation would say zero
             out["break_even_occupancy"] = {"operator_zero_profit": solve_occupancy(lambda o: Nb(o) - owner_fn(Nb(o)), 0.0, 1.0),
-                                           "owner_equals_current": solve_occupancy(lambda o: owner_fn(Nb(o)), cur_used, 1.0)}
+                                           "owner_equals_current": solve_occupancy(lambda o: owner_fn(Nb(o)), cur_used, 1.0),
+                                           "note": "None = not reached even at 100% occupancy"}
         else: out["break_even_occupancy"] = {"needs_input": ["operating model (N as a function of occupancy)"]}
         if cash["peak_cash"] is not None and inp.get("cash_limit") is not None and required > inp["cash_limit"]: mflags.append({"level": "red", "text": "cash required is above your stated cash limit"})
         out["flags"] = mflags; out["terms"] = t
@@ -240,7 +241,7 @@ def run_offer(inp: dict) -> dict:
     return {"needs_input": [], "confidence": _tier(inp.get("confidence", {}).get("N"), inp.get("confidence", {}).get("C")), "modes": modes, "ranking": ranked,
             "range": {"retrofit": {"low": C("low"), "base": C("base"), "high": C("high")}, "N": {"low": N("low"), "base": N("base"), "high": N("high")}},
             "assumptions": ["N is the weekly net operating profit at the stabilised occupancy; below that it is " + ("taken from the operating model (fixed staffing)." if base_fn else "scaled in proportion to occupancy, which flatters low occupancy because staffing is fixed."),
-                            f"Downside cases: occupancy {ds['occupancy']:.0%}, and N lower by {ds['n_haircut']:.0%}.", "Weeks per year = 52. Projections are illustrative, not guaranteed.", f"Conversion period = {conv} weeks (consent {weeks_conv['consent']}, works {weeks_conv['works']}, audit and sign-off {weeks_conv['audit']})."],
+                            f"Downside cases: occupancy {ds['occupancy']:.0%}, and N lower by {ds['n_haircut']:.0%}.", "Weeks per year = 52. Projections are illustrative and may be wrong.", f"Conversion period = {conv} weeks (consent {weeks_conv['consent']}, works {weeks_conv['works']}, audit and sign-off {weeks_conv['audit']})."],
             "banner": "Lawyer review required. Illustrative projections from the stated assumptions; no outcome is promised.",
             "legal_flags": "A profit share or JV can change legal, tax, liability, lender and insurer treatment. Questions for a lawyer and an accountant: lease with a profit-share rent, a JV entity, or a management agreement; the operator must be the certified legal entity; the owner's lender and insurer may need to consent. This tool recommends no structure.",
             "flags": flags}
