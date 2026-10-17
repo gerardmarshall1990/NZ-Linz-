@@ -106,7 +106,7 @@ async function runOffer(){const n=id=>$(id).value===''?null:+$(id).value;const f
   +kv('Payback (stabilised only)',p.payback_weeks_stabilised_only?Math.round(p.payback_weeks_stabilised_only)+' weeks':'n/a')+kv('Payback (full timeline, from lease start)',p.payback_weeks_full_timeline_from_lease_start?p.payback_weeks_full_timeline_from_lease_start+' weeks':'not within 3 years')
   +`<div class="mut">${esc(p.excludes_note_for_simple_payback)}</div>`+m.flags.filter(x=>x.level!=='info').map(x=>`<div class="banner ${x.level==='red'?'red':''}">${esc(x.text)}</div>`).join('')
   +`<div class="row" style="margin-top:6px"><a href="/api/scenarios/${r.scenario_id}/proposal.pdf?mode=${k}">Proposal pack PDF</a></div></div>`});
- Object.entries(r.modes||{}).filter(([k,m])=>m.blocked).forEach(([k,m])=>h+=`<div class="banner">${esc(k)} blocked: ${esc(m.needs_input.join(', '))}</div>`);
+ Object.entries(r.modes||{}).filter(([k,m])=>m.blocked).forEach(([k,m])=>h+=`<div class="banner">${esc(k)} blocked: ${esc(m.note||m.needs_input.join(', '))}</div>`);
  h+=(r.assumptions||[]).map(a=>`<div class="mut">${esc(a)}</div>`).join('')+`<div class="banner">${esc(r.banner||'')}</div><div class="mut">${esc(r.legal_flags||'')}</div>`;$('oo').innerHTML=h}
 async function rInputs(){const s=await api('/api/settings');const A=s.assumptions;const names=Object.keys(A).filter(k=>k!=='care_level');
  $('panel').innerHTML=`<h3 style="margin-top:0">My inputs</h3><div class="mut">Your figures, not facts. Blank means not set: anything that depends on it says "needs input". Nothing is guessed.</div><div class="banner">${s.blank_assumptions.length} blank: ${esc(s.blank_assumptions.join(', '))}</div>`

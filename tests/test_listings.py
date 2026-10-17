@@ -195,7 +195,8 @@ def test_offer_from_listing_screening(client, addrs):
     r = client.post(f"/api/listings/{lid}/offer", json={"terms": terms, "assumptions": ov}).json()
     assert set(r["modes"]) == {"fixed", "jv", "hybrid"} and r["beds"] == 14 and r["basis"].startswith("screening")
     assert any("allowances" in f["text"] and f["level"] == "red" for f in r["flags"])                    # all of the screening retrofit is an allowance: red banner
-    assert r["modes"]["fixed"]["owner"]["weekly_at_stabilisation"] <= r["walk_away_rent_per_week"] + 1e-9
+    fx = r["modes"]["fixed"]
+    assert (fx.get("blocked") and r["walk_away_rent_per_week"] <= 0) or fx["owner"]["weekly_at_stabilisation"] <= r["walk_away_rent_per_week"] + 1e-9
     assert r["range"]["retrofit"]["base"] == 14 * INPUTS["retrofit_cost_per_bed_screening"] and r["range"]["retrofit"]["low"] == pytest.approx(0.8 * r["range"]["retrofit"]["base"])
     assert "Lawyer review required" in r["banner"]
     pdf = client.get(f"/api/scenarios/{r['scenario_id']}/proposal.pdf", params={"mode": "jv"}); assert pdf.content.startswith(b"%PDF")

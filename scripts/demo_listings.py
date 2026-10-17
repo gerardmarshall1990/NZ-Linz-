@@ -50,7 +50,7 @@ try:
     show("VERDICTS WITH YOUR SAVED INPUTS (nothing entered yet, so nothing is guessed):")
     print("\nNow the same listings with ILLUSTRATIVE DEMO INPUTS (my placeholders to show how verdicts look; NOT your numbers, NOT saved to your account afterwards):")
     # save the demo inputs only for the screenshots, then remove them again
-    cl.put("/api/settings/assumptions", json={"values": DEMO, "flags": {k: "estimate" for k in DEMO}, "notes": {k: "DEMO placeholder" for k in DEMO}})
+    if not os.environ.get("DEMO_REAL"): cl.put("/api/settings/assumptions", json={"values": DEMO, "flags": {k: "estimate" for k in DEMO}, "notes": {k: "DEMO placeholder" for k in DEMO}})
     res = show("VERDICTS WITH DEMO INPUTS:")
     ids = {o["listing"]["raw_address"]: o["listing"]["id"] for o in res["listings"]}
     terms = {"multiple": 1.5, "s": 0.4, "floor": 800, "s_h": 0.3, "threshold": 1500, "conversion_payment_per_week": 500}

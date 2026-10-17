@@ -20,5 +20,7 @@ const { chromium } = require('/opt/node-tools/node_modules/playwright');
   await page.click('#panel button.pri'); await page.waitForSelector('#oo .card', { timeout: 20000 });
   await page.locator('#oo').scrollIntoViewIfNeeded(); await page.waitForTimeout(500);
   await page.screenshot({ path: out + '/3_offer_builder.png', fullPage: true });
+  await page.click('button[data-t=ph]'); await page.waitForSelector('#panel .card'); await page.locator('#panel').scrollIntoViewIfNeeded(); await page.waitForTimeout(500);
+  await page.screenshot({ path: out + '/4_placeholders.png', fullPage: true });
   console.log('OK'); await browser.close();
 })().catch(e => { console.log('FAIL: ' + e.message); process.exit(1); });

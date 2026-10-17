@@ -206,6 +206,7 @@ def run_offer(inp: dict) -> dict:
     # A. fixed rent
     if terms.get("multiple") is not None:
         if wa is None: modes["fixed"] = {"needs_input": ["walk_away_rent (needs the operating inputs, retrofit cost, lease term, cost of capital and minimum profit)"], "blocked": True}
+        elif wa <= 0: modes["fixed"] = {"needs_input": [], "blocked": True, "note": f"no positive rent works: at ${wa:,.0f}/wk the walk-away rent is zero or negative, so no fixed rent is offered", "flags": [{"level": "red", "text": "no positive fixed rent works for this deal"}]}
         else:
             rent = min(terms["multiple"] * R0, wa); t = {"rent": rent, "rent_free_weeks": terms.get("rent_free_weeks")}
             m = finish("fixed", t, rent, lambda n: rent)

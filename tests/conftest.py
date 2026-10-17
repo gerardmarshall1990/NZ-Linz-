@@ -33,6 +33,7 @@ def protect_the_owners_saved_inputs():
     hist = c.execute("SELECT key, old_value, new_value, changed_at FROM core.user_setting_history ORDER BY id").fetchall()
     snap = os.path.join(os.path.dirname(__file__), "..", "backups", "user_settings_snapshot.json")
     os.makedirs(os.path.dirname(snap), exist_ok=True)
+    c.execute("DELETE FROM core.user_setting"); c.execute("DELETE FROM core.user_setting_history")      # tests start from pristine (blank) inputs; the owner's are put back below
     json.dump({"settings": [[r[0], r[1], str(r[2]), r[3]] for r in rows], "history": [[h[0], h[1], h[2], str(h[3])] for h in hist]}, open(snap, "w"))
     yield
     c.execute("DELETE FROM core.user_setting"); c.execute("DELETE FROM core.user_setting_history")

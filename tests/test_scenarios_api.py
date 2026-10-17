@@ -62,8 +62,9 @@ def test_economics_and_offer_end_to_end_with_inputs(client):
     off = client.post(f"/api/property/{PARCEL}/offers", json={"option_id": oid, "asking_rent": 1000, "assumptions": FULL, "retrofit": {"low": 240000, "base": 300000, "high": 360000},
                       "allowance_pct": 10, "terms": {"multiple": 2.0, "s": 0.4, "floor": 500, "s_h": 0.3, "threshold": 800}}).json()
     assert set(off["modes"]) == {"fixed", "jv", "hybrid"} and off["ranking"]
-    for k, m in off["modes"].items(): assert m["owner"]["weekly_at_stabilisation"] <= max(off["walk_away_rent_per_week"], m["owner"]["weekly_at_stabilisation"])
-    fixed = off["modes"]["fixed"]["owner"]["weekly_at_stabilisation"]; assert fixed <= off["walk_away_rent_per_week"] + 1e-9           # never above walk-away
+    wa = off["walk_away_rent_per_week"]
+    if wa <= 0: assert off["modes"]["fixed"]["blocked"] and "no positive rent works" in off["modes"]["fixed"]["note"] and "fixed" not in off["ranking"]       # 4 beds lose money before rent: no fixed rent is offered
+    else: assert off["modes"]["fixed"]["owner"]["weekly_at_stabilisation"] <= wa + 1e-9                                                                   # never above walk-away
     assert "Lawyer review required" in off["banner"] and off["modes"]["jv"]["owner"]["cases"]["occ_60"] is not None
     be = off["modes"]["jv"]["break_even_occupancy"]
     assert "needs_input" not in be and be["operator_zero_profit"] is None and "not reached" in be["note"]   # 4 beds cannot cover a fixed roster even full: reported, not hidden
@@ -80,7 +81,7 @@ def test_proposal_pack_language_downside_and_banner(client):
     oid = client.opts["base"]["id"]
     off = client.post(f"/api/property/{PARCEL}/offers", json={"option_id": oid, "asking_rent": 1000, "assumptions": FULL, "retrofit": 300000, "allowance_pct": 10,
                                                               "terms": {"multiple": 2.0, "s": 0.4, "floor": 500, "s_h": 0.3, "threshold": 800, "conversion_payment_per_week": 300}}).json()
-    for mode in ("fixed", "jv", "hybrid"):
+    for mode in [k for k, m in off["modes"].items() if not m.get("blocked")]:
         r = client.get(f"/api/scenarios/{off['scenario_id']}/proposal", params={"mode": mode})
         assert r.status_code == 200, r.text; t = r.json()["markdown"]
         assert "LAWYER REVIEW REQUIRED" in t and "Downside" in t and "Assumptions appendix" in t and "never contact tenants" in t
