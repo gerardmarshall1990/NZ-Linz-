@@ -1,0 +1,322 @@
+# Special Purpose - Māori Purpose Zone (H27) and Auckland-wide Māori Land (E20). Quotes verified against extracted plan text by scripts/load_rules.py.
+# NOTE: E20 provisions are about land-use rules only. Owner/trustee approval and Māori Land Court steps are outside the Unitary Plan (Te Ture Whenua Māori Act 1993).
+- zone_code: 52
+  chapter: H27
+  topic: height
+  parameter: maori_cultural_buildings_height_max
+  operator: <=
+  value: 10
+  unit: m
+  standard_ref: H27.6.2
+  quote: must not exceed 10m in height
+  evaluable: true
+  note: marae (incl. wharenui, wharekai) and structures/buildings for Māori cultural activities; pou haki exclusions in (2)
+  applies_if: {}
+- zone_code: 52
+  chapter: H27
+  topic: height
+  parameter: building_height_max
+  operator: <=
+  value: 8
+  unit: m
+  standard_ref: H27.6.2
+  quote: All other buildings must not exceed 8m in height
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 52
+  chapter: H27
+  topic: height_in_relation_to_boundary
+  parameter: hirb_height_at_boundary
+  operator: <=
+  value: 3
+  unit: m
+  standard_ref: H27.6.3
+  quote: must not exceed a height of 3m measured vertically above ground level at side and rear boundaries
+  evaluable: true
+  note: then set back 1m for every additional metre in height (45 degrees)
+  applies_if: {}
+- zone_code: 52
+  chapter: H27
+  topic: height_in_relation_to_boundary
+  parameter: hirb_angle
+  operator: '='
+  value: 45
+  unit: deg
+  standard_ref: H27.6.3
+  quote: 45 degrees
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 52
+  chapter: H27
+  topic: yards
+  parameter: yard_front_min
+  operator: '>='
+  value: 3
+  unit: m
+  standard_ref: H27.6.4
+  quote: Front 3m Side 1m Rear 1m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 52
+  chapter: H27
+  topic: yards
+  parameter: yard_side_min
+  operator: '>='
+  value: 1
+  unit: m
+  standard_ref: H27.6.4
+  quote: Front 3m Side 1m Rear 1m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 52
+  chapter: H27
+  topic: yards
+  parameter: yard_rear_min
+  operator: '>='
+  value: 1
+  unit: m
+  standard_ref: H27.6.4
+  quote: Front 3m Side 1m Rear 1m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 52
+  chapter: H27
+  topic: yards
+  parameter: yard_riparian_min
+  operator: '>='
+  value: 10
+  unit: m
+  standard_ref: H27.6.4
+  quote: Riparian 10m from the edge of all other permanent and intermittent streams
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 52
+  chapter: H27
+  topic: yards
+  parameter: yard_lakeside_min
+  operator: '>='
+  value: 30
+  unit: m
+  standard_ref: H27.6.4
+  quote: Lakeside 30m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 52
+  chapter: H27
+  topic: coverage
+  parameter: building_coverage_max_pct
+  operator: <=
+  value: 50
+  unit: '% of net site area'
+  standard_ref: H27.6.5
+  quote: maximum building coverage must not exceed 50 per cent of the net site
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 52
+  chapter: H27
+  topic: stormwater
+  parameter: impervious_max_pct
+  operator: <=
+  value: 60
+  unit: '% of site area'
+  standard_ref: H27.6.6
+  quote: maximum impervious area must not exceed 60 per cent of site area
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 52
+  chapter: H27
+  topic: outdoor_living
+  parameter: ols_ground_floor_min_area
+  operator: '>='
+  value: 20
+  unit: m2
+  standard_ref: H27.6.8
+  quote: must have an outdoor living space that is at least 20m2
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 52
+  chapter: H27
+  topic: outdoor_living
+  parameter: ols_ground_floor_min_dimension
+  operator: '>='
+  value: 4
+  unit: m
+  standard_ref: H27.6.8
+  quote: has no dimension less than 4m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 52
+  chapter: H27
+  topic: outdoor_living
+  parameter: ols_upper_floor_balcony_2br_plus_min_area
+  operator: '>='
+  value: 8
+  unit: m2
+  standard_ref: H27.6.8
+  quote: is at least 8m2 for two or more bedroom dwellings and has a minimum dimension of 1.8m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: null
+  chapter: E20
+  topic: activity_status
+  parameter: A1
+  operator: null
+  value: P
+  unit: null
+  standard_ref: E20.4
+  quote: Activities associated with marae or papakāinga up to 250m2
+  evaluable: true
+  note: null
+  applies_if:
+    land: Māori land (Te Ture Whenua Māori Act 1993)
+  activity: Activities associated with marae or papakāinga up to 250m2 gross floor area
+- zone_code: null
+  chapter: E20
+  topic: activity_status
+  parameter: A2
+  operator: null
+  value: RD
+  unit: null
+  standard_ref: E20.4
+  quote: Activities associated with marae or papakāinga greater than
+  evaluable: true
+  note: null
+  applies_if:
+    land: Māori land (Te Ture Whenua Māori Act 1993)
+  activity: Activities associated with marae or papakāinga greater than 250m2 gross floor area
+- zone_code: null
+  chapter: E20
+  topic: activity_status
+  parameter: A3
+  operator: null
+  value: P
+  unit: null
+  standard_ref: E20.4
+  quote: One dwelling per hectare with no more than 10 dwellings
+  evaluable: true
+  note: null
+  applies_if:
+    land: Māori land (Te Ture Whenua Māori Act 1993)
+  activity: One dwelling per hectare with no more than 10 dwellings per site in the rural zones
+- zone_code: null
+  chapter: E20
+  topic: activity_status
+  parameter: A4
+  operator: null
+  value: RD
+  unit: null
+  standard_ref: E20.4
+  quote: One dwelling per 4,000m2 with no more than 20 dwellings
+  evaluable: true
+  note: null
+  applies_if:
+    land: Māori land (Te Ture Whenua Māori Act 1993)
+  activity: One dwelling per 4,000m2 with no more than 20 dwellings per site in the rural zones
+- zone_code: null
+  chapter: E20
+  topic: activity_status
+  parameter: A5
+  operator: null
+  value: D
+  unit: null
+  standard_ref: E20.4
+  quote: Integrated Māori development
+  evaluable: true
+  note: null
+  applies_if:
+    land: Māori land (Te Ture Whenua Māori Act 1993)
+  activity: Integrated Māori development
+- zone_code: null
+  chapter: E20
+  topic: activity_status
+  parameter: A6
+  operator: null
+  value: NC
+  unit: null
+  standard_ref: E20.4
+  quote: Dwellings not otherwise provided for in a rural zone
+  evaluable: true
+  note: null
+  applies_if:
+    land: Māori land (Te Ture Whenua Māori Act 1993)
+  activity: Dwellings not otherwise provided for in a rural zone
+- zone_code: null
+  chapter: E20
+  topic: activity_status
+  parameter: A8
+  operator: null
+  value: P
+  unit: null
+  standard_ref: E20.4
+  quote: Marae up to 700m2 gross floor area
+  evaluable: true
+  note: null
+  applies_if:
+    land: Māori land (Te Ture Whenua Māori Act 1993)
+  activity: Marae up to 700m2 gross floor area
+- zone_code: null
+  chapter: E20
+  topic: activity_status
+  parameter: A9
+  operator: null
+  value: RD
+  unit: null
+  standard_ref: E20.4
+  quote: Marae greater than 700m2 gross floor area
+  evaluable: true
+  note: null
+  applies_if:
+    land: Māori land (Te Ture Whenua Māori Act 1993)
+  activity: Marae greater than 700m2 gross floor area
+- zone_code: null
+  chapter: E20
+  topic: applicability
+  parameter: e20_less_restrictive_rule_applies
+  operator: null
+  value: The provisions of the zone apply to Māori Land unless otherwise specified in E20; where E20 and the zone both provide for the same activity, the less restrictive rule applies
+  unit: null
+  standard_ref: E20.4
+  quote: the less restrictive rule applies
+  evaluable: false
+  note: read E20.4 introduction
+  applies_if:
+    land: Māori land
+- zone_code: null
+  chapter: E20
+  topic: coverage
+  parameter: building_coverage_max_pct_rural_zones_maori_land
+  operator: <=
+  value: 20
+  unit: '% of site area'
+  standard_ref: E20.6.4
+  quote: In rural zones building coverage must not exceed 20 per cent of the site area
+  evaluable: true
+  note: null
+  applies_if:
+    land: Māori land
+    zones: rural
+- zone_code: null
+  chapter: E20
+  topic: dwellings
+  parameter: dwellings_on_maori_land_zone_standards_apply
+  operator: null
+  value: Dwellings on Māori Land must comply with the standards in the underlying zone
+  unit: null
+  standard_ref: E20.6.3
+  quote: must comply with the standards in the underlying zone
+  evaluable: false
+  note: null
+  applies_if:
+    land: Māori land

@@ -1,0 +1,364 @@
+# Subdivision standards (AUP E38 Subdivision - Urban, operative July 2026). Quotes are verified against the extracted plan text by scripts/load_rules.py.
+# zone_code null = applies across residential zones (see applies_if / note).
+- zone_code: 8
+  chapter: E38
+  topic: subdivision
+  parameter: min_net_site_area_vacant_site_parent_lt_1ha
+  operator: '>='
+  value: 1200
+  unit: m2
+  standard_ref: E38.8.2.3
+  quote: Residential - Terrace Housing and Apartment 1,200m2
+  evaluable: true
+  note: vacant proposed sites; does not apply where subdivision follows existing or concurrently approved land use consent or is around existing buildings (E38.8.2.3(1))
+  applies_if:
+    parent_site: < 1 ha
+- zone_code: 60
+  chapter: E38
+  topic: subdivision
+  parameter: min_net_site_area_vacant_site_parent_lt_1ha
+  operator: '>='
+  value: 300
+  unit: m2
+  standard_ref: E38.8.2.3
+  quote: Residential - Mixed Housing Urban Zone 300m2
+  evaluable: true
+  note: vacant proposed sites; does not apply where subdivision follows existing or concurrently approved land use consent or is around existing buildings (E38.8.2.3(1))
+  applies_if:
+    parent_site: < 1 ha
+- zone_code: 18
+  chapter: E38
+  topic: subdivision
+  parameter: min_net_site_area_vacant_site_parent_lt_1ha
+  operator: '>='
+  value: 400
+  unit: m2
+  standard_ref: E38.8.2.3
+  quote: Residential - Mixed Housing Suburban Zone 400m2
+  evaluable: true
+  note: vacant proposed sites; does not apply where subdivision follows existing or concurrently approved land use consent or is around existing buildings (E38.8.2.3(1))
+  applies_if:
+    parent_site: < 1 ha
+- zone_code: 19
+  chapter: E38
+  topic: subdivision
+  parameter: min_net_site_area_vacant_site_parent_lt_1ha
+  operator: '>='
+  value: 600
+  unit: m2
+  standard_ref: E38.8.2.3
+  quote: Residential - Single House Zone 600m2
+  evaluable: true
+  note: vacant proposed sites; does not apply where subdivision follows existing or concurrently approved land use consent or is around existing buildings (E38.8.2.3(1))
+  applies_if:
+    parent_site: < 1 ha
+- zone_code: 23
+  chapter: E38
+  topic: subdivision
+  parameter: min_net_site_area_vacant_site_parent_lt_1ha
+  operator: '>='
+  value: 4000
+  unit: m2
+  standard_ref: E38.8.2.3
+  quote: Residential - Large Lot Zone 4,000m2
+  evaluable: true
+  note: vacant proposed sites; does not apply where subdivision follows existing or concurrently approved land use consent or is around existing buildings (E38.8.2.3(1))
+  applies_if:
+    parent_site: < 1 ha
+- zone_code: 20
+  chapter: E38
+  topic: subdivision
+  parameter: min_net_site_area_vacant_site_parent_lt_1ha
+  operator: '>='
+  value: 2500
+  unit: m2
+  standard_ref: E38.8.2.3
+  quote: Residential - Rural and Coastal Settlement Zone 2,500m2
+  evaluable: true
+  note: vacant proposed sites; does not apply where subdivision follows existing or concurrently approved land use consent or is around existing buildings (E38.8.2.3(1))
+  applies_if:
+    parent_site: < 1 ha
+- zone_code: 19
+  chapter: E38
+  topic: subdivision
+  parameter: min_net_site_area_each_site_parent_ge_1ha
+  operator: '>='
+  value: 480
+  unit: m2
+  standard_ref: E38.8.3.1
+  quote: Single House Zone 480m2 600m2 720m2
+  evaluable: true
+  note: null
+  applies_if:
+    parent_site: '>= 1 ha'
+- zone_code: 19
+  chapter: E38
+  topic: subdivision
+  parameter: min_average_net_site_area_parent_ge_1ha
+  operator: '>='
+  value: 600
+  unit: m2
+  standard_ref: E38.8.3.1
+  quote: Single House Zone 480m2 600m2 720m2
+  evaluable: true
+  note: null
+  applies_if:
+    parent_site: '>= 1 ha'
+- zone_code: 19
+  chapter: E38
+  topic: subdivision
+  parameter: max_average_net_site_area_for_averaging_parent_ge_1ha
+  operator: <=
+  value: 720
+  unit: m2
+  standard_ref: E38.8.3.1
+  quote: Single House Zone 480m2 600m2 720m2
+  evaluable: true
+  note: null
+  applies_if:
+    parent_site: '>= 1 ha'
+- zone_code: 18
+  chapter: E38
+  topic: subdivision
+  parameter: min_net_site_area_each_site_parent_ge_1ha
+  operator: '>='
+  value: 320
+  unit: m2
+  standard_ref: E38.8.3.1
+  quote: Mixed Housing Suburban 320m2 400m2 480m2
+  evaluable: true
+  note: null
+  applies_if:
+    parent_site: '>= 1 ha'
+- zone_code: 18
+  chapter: E38
+  topic: subdivision
+  parameter: min_average_net_site_area_parent_ge_1ha
+  operator: '>='
+  value: 400
+  unit: m2
+  standard_ref: E38.8.3.1
+  quote: Mixed Housing Suburban 320m2 400m2 480m2
+  evaluable: true
+  note: null
+  applies_if:
+    parent_site: '>= 1 ha'
+- zone_code: 18
+  chapter: E38
+  topic: subdivision
+  parameter: max_average_net_site_area_for_averaging_parent_ge_1ha
+  operator: <=
+  value: 480
+  unit: m2
+  standard_ref: E38.8.3.1
+  quote: Mixed Housing Suburban 320m2 400m2 480m2
+  evaluable: true
+  note: null
+  applies_if:
+    parent_site: '>= 1 ha'
+- zone_code: 60
+  chapter: E38
+  topic: subdivision
+  parameter: min_net_site_area_each_site_parent_ge_1ha
+  operator: '>='
+  value: 240
+  unit: m2
+  standard_ref: E38.8.3.1
+  quote: Mixed Housing Urban Zone 240m2 300m2 360m2
+  evaluable: true
+  note: null
+  applies_if:
+    parent_site: '>= 1 ha'
+- zone_code: 60
+  chapter: E38
+  topic: subdivision
+  parameter: min_average_net_site_area_parent_ge_1ha
+  operator: '>='
+  value: 300
+  unit: m2
+  standard_ref: E38.8.3.1
+  quote: Mixed Housing Urban Zone 240m2 300m2 360m2
+  evaluable: true
+  note: null
+  applies_if:
+    parent_site: '>= 1 ha'
+- zone_code: 60
+  chapter: E38
+  topic: subdivision
+  parameter: max_average_net_site_area_for_averaging_parent_ge_1ha
+  operator: <=
+  value: 360
+  unit: m2
+  standard_ref: E38.8.3.1
+  quote: Mixed Housing Urban Zone 240m2 300m2 360m2
+  evaluable: true
+  note: null
+  applies_if:
+    parent_site: '>= 1 ha'
+- zone_code: null
+  chapter: E38
+  topic: subdivision
+  parameter: shape_rectangle_vacant_site_standard
+  operator: '='
+  value: 8 x 15
+  unit: m
+  standard_ref: E38.8.1.1
+  quote: contain a rectangle of 8 metres by 15 metres
+  evaluable: true
+  note: all residential zones except Terrace Housing and Apartment Buildings; rectangle must be outside floodplain, coastal hazard, instability and other listed areas (E38.8.1.1(2))
+  applies_if:
+    zones: residential except THAB
+- zone_code: 8
+  chapter: E38
+  topic: subdivision
+  parameter: shape_rectangle_vacant_site
+  operator: '='
+  value: 15 x 20
+  unit: m
+  standard_ref: E38.8.1.1
+  quote: must contain a rectangle of 15 metres by 20 metres
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: null
+  chapter: E38
+  topic: subdivision
+  parameter: access_min_legal_width_rear_sites
+  operator: '>='
+  value: 3.0
+  unit: m
+  standard_ref: E38.8.1.2
+  quote: Minimum legal width 3.0m 3.5m 6.9m
+  evaluable: true
+  note: Table E38.8.1.2.1 Access to rear sites
+  applies_if:
+    rear_sites_served: '1'
+- zone_code: null
+  chapter: E38
+  topic: subdivision
+  parameter: access_min_legal_width_rear_sites
+  operator: '>='
+  value: 3.5
+  unit: m
+  standard_ref: E38.8.1.2
+  quote: Minimum legal width 3.0m 3.5m 6.9m
+  evaluable: true
+  note: Table E38.8.1.2.1 Access to rear sites
+  applies_if:
+    rear_sites_served: 2-5
+- zone_code: null
+  chapter: E38
+  topic: subdivision
+  parameter: access_min_legal_width_rear_sites
+  operator: '>='
+  value: 6.9
+  unit: m
+  standard_ref: E38.8.1.2
+  quote: Minimum legal width 3.0m 3.5m 6.9m
+  evaluable: true
+  note: Table E38.8.1.2.1 Access to rear sites
+  applies_if:
+    rear_sites_served: 6-10
+- zone_code: null
+  chapter: E38
+  topic: subdivision
+  parameter: access_min_formed_width_rear_sites
+  operator: '>='
+  value: 2.5
+  unit: m
+  standard_ref: E38.8.1.2
+  quote: Minimum formed width 2.5m 3.0m 5.5m
+  evaluable: true
+  note: Table E38.8.1.2.1 Access to rear sites
+  applies_if:
+    rear_sites_served: '1'
+- zone_code: null
+  chapter: E38
+  topic: subdivision
+  parameter: access_min_formed_width_rear_sites
+  operator: '>='
+  value: 3.0
+  unit: m
+  standard_ref: E38.8.1.2
+  quote: Minimum formed width 2.5m 3.0m 5.5m
+  evaluable: true
+  note: Table E38.8.1.2.1 Access to rear sites
+  applies_if:
+    rear_sites_served: 2-5
+- zone_code: null
+  chapter: E38
+  topic: subdivision
+  parameter: access_min_formed_width_rear_sites
+  operator: '>='
+  value: 5.5
+  unit: m
+  standard_ref: E38.8.1.2
+  quote: Minimum formed width 2.5m 3.0m 5.5m
+  evaluable: true
+  note: Table E38.8.1.2.1 Access to rear sites
+  applies_if:
+    rear_sites_served: 6-10
+- zone_code: null
+  chapter: E38
+  topic: subdivision
+  parameter: access_max_length_rear_sites
+  operator: <=
+  value: 50
+  unit: m
+  standard_ref: E38.8.1.2
+  quote: Maximum length 50m 50m 100m
+  evaluable: true
+  note: Table E38.8.1.2.1 Access to rear sites
+  applies_if:
+    rear_sites_served: '1'
+- zone_code: null
+  chapter: E38
+  topic: subdivision
+  parameter: access_max_length_rear_sites
+  operator: <=
+  value: 50
+  unit: m
+  standard_ref: E38.8.1.2
+  quote: Maximum length 50m 50m 100m
+  evaluable: true
+  note: Table E38.8.1.2.1 Access to rear sites
+  applies_if:
+    rear_sites_served: 2-5
+- zone_code: null
+  chapter: E38
+  topic: subdivision
+  parameter: access_max_length_rear_sites
+  operator: <=
+  value: 100
+  unit: m
+  standard_ref: E38.8.1.2
+  quote: Maximum length 50m 50m 100m
+  evaluable: true
+  note: Table E38.8.1.2.1 Access to rear sites
+  applies_if:
+    rear_sites_served: 6-10
+- zone_code: null
+  chapter: E38
+  topic: subdivision
+  parameter: access_max_rear_sites_served_per_accessway
+  operator: <=
+  value: 10
+  unit: sites
+  standard_ref: E38.8.1.2
+  quote: must not serve more than ten proposed rear sites
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: null
+  chapter: E38
+  topic: subdivision
+  parameter: access_pedestrian_path_min_width_6_to_10_sites
+  operator: '>='
+  value: 1.4
+  unit: m
+  standard_ref: E38.8.1.2
+  quote: have a minimum width of 1.4m
+  evaluable: true
+  note: null
+  applies_if:
+    rear_sites_served: 6-10

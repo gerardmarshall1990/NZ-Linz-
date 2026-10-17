@@ -1,14 +1,16 @@
-# Status
+# Status (2026-10-17)
 
-## Stage 1 (LINZ ingest): PASSED. Stage 2 (core.sites): PASSED with documented gaps
-Stage 1 counts: parcels 737,649; buildings 826,450; addresses 810,673; titles 769,445.
-Stage 2: core.sites = 559,528 Auckland sites (clipped to the Auckland local board boundary). Zone on 559,522 (6 without), 100% of 444,114
-urban-proxy sites (have an address, <=2,000 m2). Overlays on 147,168; hazard flag on 190,263; buildings on 404,265; council property link 555,529.
-Spot-checks: 5 parcels (THAB, Rural Production, MHS, Single House, Maori Purpose) vs live Auckland Council ArcGIS queries: zone and flood flags matched.
-Security: key removed from git history (filter-repo + force push); .env gitignored. Backups: `make backup STAGE=stageN` -> backups/ (gitignored).
+## Done
+- Stage 1 LINZ ingest, Stage 2 `core.sites` (559,528 Auckland parcels with zone, overlays, hazards, buildings, amenity distances incl. AT bus stops): passed.
+- Plan currency: zone layer = operative AUP (fully operative 23 Jul 2026). PC120 is proposed and differs from the operative zone for 40.6% of sites; flagged per site. See docs/PLAN_CURRENCY.md.
+- Stage 3 rules corpus: 99 official AUP chapter PDFs -> 2,166 citable chunks, 1,328 structured rules (156 numeric standards each verified against a verbatim quote, 965 activity-table rows, 207 text-only), `analytics.search_rules`, 63 passing tests. Gate table for your spot-check: docs/RULES_STAGE3_GATE.md.
+- Manual sources folder + loader (docs/sources_manual/) ready for HealthCERT, Ngā Paerewa, council forms, TPK files.
 
-Gaps: no rating values (not published), no slope, no bus/shop distances (see docs/DATA_SOURCES.md, docs/LIMITATIONS.md).
-Network: health.govt.nz behind Cloudflare bot challenge; overpass-api.de tunnel closed; kumi mirror HTTP 500.
-Stage 4 TODO (user request): treat the LINZ 'Maori' parcels (605 in the bbox, 108 sites in Auckland) as a partial indicator; cross-check against
-Te Puni Kōkiri and Māori Land Court public data and report the gap.
-Next: Stage 3 (rules corpus).
+## Waiting on you
+1. Spot-check docs/RULES_STAGE3_GATE.md (15 standards x 4 zones against the Council plan) and tell me anything wrong.
+2. SPEC_RESTHOME_TOOL.md was never uploaded (only CLAUDE.md and SPEC_SITE_FLOW.md): please attach it.
+3. HealthCERT list / Ngā Paerewa PDF into docs/sources_manual/ (see README there) or attach them in chat.
+4. download.geofabrik.de is still blocked (OSM motel tags skipped as instructed); Watercare licence decision (SPEC 0.9); 10+ known-outcome parcels for the regression suite.
+
+## Next
+Stage 4: Māori land cross-check (LINZ 'Maori' parcels vs Te Puni Kōkiri / Māori Land Court public data, report the gap) and the rest home layer from the manual HealthCERT file; then Stage 5 agent, Stage 6 calculators; slope (candidate parcels only) before the layout engine.

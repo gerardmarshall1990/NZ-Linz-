@@ -58,3 +58,12 @@ Source: Auckland Council open data ArcGIS FeatureServer, `https://services1.arcg
 - Overlays / hazards = parcel interior intersects layer interior (edge-touching ignored). Layers are subdivided (<=256 vertices) for speed.
 - Buildings assigned to the parcel containing their point-on-surface; footprints are full footprint areas (no clipping), coverage capped at 100%.
 - Māori flags: `maori_land_linz` (LINZ parcel_intent = 'Maori') and `zone_maori_purpose`. Partial indicators only (see Stage 4).
+
+# Stage 3 additions (2026-10-17)
+| Source | URL | Licence | Notes |
+|---|---|---|---|
+| Auckland Unitary Plan operative chapter PDFs (C, D, E, H, J) | https://unitaryplan.aucklandcouncil.govt.nz/ (index data/operative/data.xml, dated 16 Oct 2026) | Auckland Council publication; licence not stated on the plan site: confirm reuse terms before redistributing text outside this tool | 99 PDFs, 1,685 pages; refresh with `make rules` |
+| Auckland Council plan status pages | aucklandcouncil.govt.nz (operative-in-part page, proposed plan changes list, PC120 page) | as above | used for `analytics.plan_versions` |
+| Council plan-change property summaries (PC78 withdrawal, PC120 notified/revised) | services1.arcgis.com Auckland Council ArcGIS | CC BY 4.0 (Council open data) | attributes only, `raw.ac_pc*` |
+| Auckland Transport static GTFS | https://gtfs.at.govt.nz/gtfs.zip (feed 5 Oct 2026 to 7 Feb 2027) | AT open data (licence to confirm) | 6,863 stops, `raw.at_stops` |
+| Manual sources | `docs/sources_manual/` | n/a | HealthCERT, Ngā Paerewa, council forms, TPK/Māori Land Court exports |

@@ -1,0 +1,1239 @@
+# Numeric standards for Auckland Unitary Plan residential zones. Every entry's `quote` must appear verbatim (whitespace/m2 normalised)
+# in the extracted text of its `standard_ref` section, or the loader fails. Source: operative AUP chapters H3-H6 (July 2026).
+# Edit values here, never in the database. Entries with evaluable:false are shown to users as NEEDS_PROFESSIONAL.
+- zone_code: 19
+  chapter: H3
+  topic: height
+  parameter: building_height_max
+  operator: <=
+  value: 8
+  unit: m
+  standard_ref: H3.6.6
+  quote: Buildings must not exceed 8m in height
+  evaluable: true
+  note: plus 1m for 50% of roof where entire roof slopes 15 degrees or more (see text)
+  applies_if: {}
+- zone_code: 19
+  chapter: H3
+  topic: height_in_relation_to_boundary
+  parameter: hirb_angle
+  operator: '='
+  value: 45
+  unit: deg
+  standard_ref: H3.6.7
+  quote: 45-degree recession plane measured from a point 2.5m vertically above ground level
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 19
+  chapter: H3
+  topic: height_in_relation_to_boundary
+  parameter: hirb_start_height
+  operator: '='
+  value: 2.5
+  unit: m
+  standard_ref: H3.6.7
+  quote: recession plane measured from a point 2.5m vertically above ground level
+  evaluable: true
+  note: measured along side and rear boundaries; exceptions in clauses (2)-(7)
+  applies_if: {}
+- zone_code: 19
+  chapter: H3
+  topic: yards
+  parameter: yard_front_min
+  operator: '>='
+  value: 3
+  unit: m
+  standard_ref: H3.6.8
+  quote: Front 3m Side 1m Rear 1m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 19
+  chapter: H3
+  topic: yards
+  parameter: yard_side_min
+  operator: '>='
+  value: 1
+  unit: m
+  standard_ref: H3.6.8
+  quote: Front 3m Side 1m Rear 1m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 19
+  chapter: H3
+  topic: yards
+  parameter: yard_rear_min
+  operator: '>='
+  value: 1
+  unit: m
+  standard_ref: H3.6.8
+  quote: Front 3m Side 1m Rear 1m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 19
+  chapter: H3
+  topic: yards
+  parameter: yard_riparian_min
+  operator: '>='
+  value: 10
+  unit: m
+  standard_ref: H3.6.8
+  quote: Riparian 10m from the edge of all other permanent and intermittent streams
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 19
+  chapter: H3
+  topic: yards
+  parameter: yard_lakeside_min
+  operator: '>='
+  value: 30
+  unit: m
+  standard_ref: H3.6.8
+  quote: Lakeside 30m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 19
+  chapter: H3
+  topic: yards
+  parameter: yard_coastal_protection_min
+  operator: '>='
+  value: 10
+  unit: m
+  standard_ref: H3.6.8
+  quote: Coastal protection 10m, or as otherwise specified in Appendix 6
+  evaluable: true
+  note: or as specified in Appendix 6
+  applies_if: {}
+- zone_code: 19
+  chapter: H3
+  topic: stormwater
+  parameter: impervious_max_pct
+  operator: <=
+  value: 60
+  unit: '% of site area'
+  standard_ref: H3.6.9
+  quote: maximum impervious area must not exceed 60 per cent of site area
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 19
+  chapter: H3
+  topic: coverage
+  parameter: building_coverage_max_pct
+  operator: <=
+  value: 35
+  unit: '% of net site area'
+  standard_ref: H3.6.10
+  quote: maximum building coverage must not exceed 35 per cent of net site
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 19
+  chapter: H3
+  topic: landscaping
+  parameter: landscaped_min_pct
+  operator: '>='
+  value: 40
+  unit: '% of net site area'
+  standard_ref: H3.6.11
+  quote: minimum landscaped area must be at least 40 per cent of the net site
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 19
+  chapter: H3
+  topic: landscaping
+  parameter: front_yard_landscaped_min_pct
+  operator: '>='
+  value: 50
+  unit: '% of front yard'
+  standard_ref: H3.6.11
+  quote: At least 50 per cent of the area of the front yard must comprise landscaped area
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 19
+  chapter: H3
+  topic: fences
+  parameter: fence_front_yard_max
+  operator: <=
+  value: 1.4
+  unit: m
+  standard_ref: H3.6.12
+  quote: 'Within the front yard, either: (i) 1.4m in height'
+  evaluable: true
+  note: 'alternatives: 1.8m for max 50% of frontage, or 1.8m if 50% visually open'
+  applies_if: {}
+- zone_code: 19
+  chapter: H3
+  topic: fences
+  parameter: fence_side_rear_yard_max
+  operator: <=
+  value: 2
+  unit: m
+  standard_ref: H3.6.12
+  quote: 'side, rear, coastal protection, lakeside or riparian yards: 2m'
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 18
+  chapter: H4
+  topic: height
+  parameter: building_height_max
+  operator: <=
+  value: 8
+  unit: m
+  standard_ref: H4.6.4
+  quote: Buildings must not exceed 8m in height
+  evaluable: true
+  note: plus 1m for 50% of roof where entire roof slopes 15 degrees or more (see text)
+  applies_if: {}
+- zone_code: 18
+  chapter: H4
+  topic: height_in_relation_to_boundary
+  parameter: hirb_angle
+  operator: '='
+  value: 45
+  unit: deg
+  standard_ref: H4.6.5
+  quote: 45 degree recession plane measured from a point 2.5m vertically above ground level
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 18
+  chapter: H4
+  topic: height_in_relation_to_boundary
+  parameter: hirb_start_height
+  operator: '='
+  value: 2.5
+  unit: m
+  standard_ref: H4.6.5
+  quote: recession plane measured from a point 2.5m vertically above ground level
+  evaluable: true
+  note: measured along side and rear boundaries; exceptions in clauses (2)-(7)
+  applies_if: {}
+- zone_code: 18
+  chapter: H4
+  topic: yards
+  parameter: yard_front_min
+  operator: '>='
+  value: 3
+  unit: m
+  standard_ref: H4.6.7
+  quote: Front 3m Side 1m Rear 1m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 18
+  chapter: H4
+  topic: yards
+  parameter: yard_side_min
+  operator: '>='
+  value: 1
+  unit: m
+  standard_ref: H4.6.7
+  quote: Front 3m Side 1m Rear 1m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 18
+  chapter: H4
+  topic: yards
+  parameter: yard_rear_min
+  operator: '>='
+  value: 1
+  unit: m
+  standard_ref: H4.6.7
+  quote: Front 3m Side 1m Rear 1m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 18
+  chapter: H4
+  topic: yards
+  parameter: yard_riparian_min
+  operator: '>='
+  value: 10
+  unit: m
+  standard_ref: H4.6.7
+  quote: Riparian 10m from the edge of all other permanent and intermittent streams
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 18
+  chapter: H4
+  topic: yards
+  parameter: yard_lakeside_min
+  operator: '>='
+  value: 30
+  unit: m
+  standard_ref: H4.6.7
+  quote: Lakeside 30m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 18
+  chapter: H4
+  topic: yards
+  parameter: yard_coastal_protection_min
+  operator: '>='
+  value: 10
+  unit: m
+  standard_ref: H4.6.7
+  quote: Coastal protection 10m, or as otherwise specified in Appendix 6
+  evaluable: true
+  note: or as specified in Appendix 6
+  applies_if: {}
+- zone_code: 18
+  chapter: H4
+  topic: stormwater
+  parameter: impervious_max_pct
+  operator: <=
+  value: 60
+  unit: '% of site area'
+  standard_ref: H4.6.8
+  quote: maximum impervious area must not exceed 60 per cent of site area
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 18
+  chapter: H4
+  topic: coverage
+  parameter: building_coverage_max_pct
+  operator: <=
+  value: 40
+  unit: '% of net site area'
+  standard_ref: H4.6.9
+  quote: maximum building coverage must not exceed 40 per cent of the net site
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 18
+  chapter: H4
+  topic: landscaping
+  parameter: landscaped_min_pct
+  operator: '>='
+  value: 40
+  unit: '% of net site area'
+  standard_ref: H4.6.10
+  quote: minimum landscaped area must be at least 40 per cent of the net site
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 18
+  chapter: H4
+  topic: landscaping
+  parameter: front_yard_landscaped_min_pct
+  operator: '>='
+  value: 50
+  unit: '% of front yard'
+  standard_ref: H4.6.10
+  quote: At least 50 per cent of the area of the front yard must comprise landscaped area
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 18
+  chapter: H4
+  topic: fences
+  parameter: fence_front_yard_max
+  operator: <=
+  value: 1.4
+  unit: m
+  standard_ref: H4.6.14
+  quote: 'Within the front yard, either: (i) 1.4m in height'
+  evaluable: true
+  note: 'alternatives: 1.8m for max 50% of frontage, or 1.8m if 50% visually open'
+  applies_if: {}
+- zone_code: 18
+  chapter: H4
+  topic: fences
+  parameter: fence_side_rear_yard_max
+  operator: <=
+  value: 2
+  unit: m
+  standard_ref: H4.6.14
+  quote: 'side, rear, coastal protection, lakeside or riparian yards: 2m'
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 18
+  chapter: H4
+  topic: outlook
+  parameter: outlook_living_depth_min
+  operator: '>='
+  value: 6
+  unit: m
+  standard_ref: H4.6.11
+  quote: minimum dimension of 6m in depth and 4m in width
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 18
+  chapter: H4
+  topic: outlook
+  parameter: outlook_living_width_min
+  operator: '>='
+  value: 4
+  unit: m
+  standard_ref: H4.6.11
+  quote: minimum dimension of 6m in depth and 4m in width
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 18
+  chapter: H4
+  topic: outlook
+  parameter: outlook_bedroom_depth_min
+  operator: '>='
+  value: 3
+  unit: m
+  standard_ref: H4.6.11
+  quote: minimum dimension of 3m in depth and 3m in width
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 18
+  chapter: H4
+  topic: outlook
+  parameter: outlook_bedroom_width_min
+  operator: '>='
+  value: 3
+  unit: m
+  standard_ref: H4.6.11
+  quote: minimum dimension of 3m in depth and 3m in width
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 18
+  chapter: H4
+  topic: outlook
+  parameter: outlook_other_habitable_min
+  operator: '>='
+  value: 1
+  unit: m
+  standard_ref: H4.6.11
+  quote: minimum dimension of 1m in depth and 1m in width
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 18
+  chapter: H4
+  topic: outdoor_living
+  parameter: ols_ground_floor_min_area
+  operator: '>='
+  value: 20
+  unit: m2
+  standard_ref: H4.6.13
+  quote: must have an outdoor living space that is at least 20m2
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 18
+  chapter: H4
+  topic: outdoor_living
+  parameter: ols_ground_floor_min_dimension
+  operator: '>='
+  value: 4
+  unit: m
+  standard_ref: H4.6.13
+  quote: has no dimension less than 4m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 18
+  chapter: H4
+  topic: outdoor_living
+  parameter: ols_upper_floor_balcony_studio_1br_min_area
+  operator: '>='
+  value: 5
+  unit: m2
+  standard_ref: H4.6.13
+  quote: is at least 5m2 for studio and one-bedroom dwellings and has a minimum dimension of 1.8m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 18
+  chapter: H4
+  topic: outdoor_living
+  parameter: ols_upper_floor_balcony_2br_plus_min_area
+  operator: '>='
+  value: 8
+  unit: m2
+  standard_ref: H4.6.13
+  quote: is at least 8m2 for two or more bedroom dwellings and has a minimum dimension of 1.8m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 18
+  chapter: H4
+  topic: outdoor_living
+  parameter: ols_balcony_min_dimension
+  operator: '>='
+  value: 1.8
+  unit: m
+  standard_ref: H4.6.13
+  quote: has a minimum dimension of 1.8m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 18
+  chapter: H4
+  topic: dwelling_size
+  parameter: dwelling_min_net_floor_area_studio
+  operator: '>='
+  value: 30
+  unit: m2
+  standard_ref: H4.6.15
+  quote: 30m2 for studio dwellings
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 18
+  chapter: H4
+  topic: dwelling_size
+  parameter: dwelling_min_net_floor_area_1br_plus
+  operator: '>='
+  value: 45
+  unit: m2
+  standard_ref: H4.6.15
+  quote: 45m2 for one or more bedroom dwellings
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 18
+  chapter: H4
+  topic: daylight
+  parameter: daylight_height_factor
+  operator: <=
+  value: 2
+  unit: x horizontal distance
+  standard_ref: H4.6.12
+  quote: limited in height to twice the horizontal distance between the two buildings for a length defined by a 55 degree arc
+  evaluable: false
+  note: applies to parts of a building higher than 3m opposite buildings on the same site; geometry check, see Table/Figures
+  applies_if: {}
+- zone_code: 18
+  chapter: H4
+  topic: height_in_relation_to_boundary
+  parameter: alt_hirb_height_at_boundary_max
+  operator: <=
+  value: 3.6
+  unit: m
+  standard_ref: H4.6.6
+  quote: must not exceed a height of 3.6m measured vertically above ground level at side and rear boundaries
+  evaluable: true
+  note: alternative to the standard HIRB; applies within 20m of the site frontage
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: height
+  parameter: building_height_max
+  operator: <=
+  value: 11
+  unit: m
+  standard_ref: H5.6.4
+  quote: Buildings must not exceed 11m in height
+  evaluable: true
+  note: plus 1m for 50% of roof where entire roof slopes 15 degrees or more (see text)
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: height_in_relation_to_boundary
+  parameter: hirb_angle
+  operator: '='
+  value: 45
+  unit: deg
+  standard_ref: H5.6.5
+  quote: 45 degree recession plane measured from a point 3m vertically above ground level
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: height_in_relation_to_boundary
+  parameter: hirb_start_height
+  operator: '='
+  value: 3
+  unit: m
+  standard_ref: H5.6.5
+  quote: recession plane measured from a point 3m vertically above ground level
+  evaluable: true
+  note: measured along side and rear boundaries; exceptions in clauses (2)-(7)
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: yards
+  parameter: yard_front_min
+  operator: '>='
+  value: 2.5
+  unit: m
+  standard_ref: H5.6.8
+  quote: Front 2.5m Side 1m Rear 1m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: yards
+  parameter: yard_side_min
+  operator: '>='
+  value: 1
+  unit: m
+  standard_ref: H5.6.8
+  quote: Front 2.5m Side 1m Rear 1m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: yards
+  parameter: yard_rear_min
+  operator: '>='
+  value: 1
+  unit: m
+  standard_ref: H5.6.8
+  quote: Front 2.5m Side 1m Rear 1m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: yards
+  parameter: yard_riparian_min
+  operator: '>='
+  value: 10
+  unit: m
+  standard_ref: H5.6.8
+  quote: Riparian 10m from the edge of all other permanent and intermittent streams
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: yards
+  parameter: yard_lakeside_min
+  operator: '>='
+  value: 30
+  unit: m
+  standard_ref: H5.6.8
+  quote: Lakeside 30m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: yards
+  parameter: yard_coastal_protection_min
+  operator: '>='
+  value: 10
+  unit: m
+  standard_ref: H5.6.8
+  quote: Coastal protection 10m, or as otherwise specified in Appendix 6
+  evaluable: true
+  note: or as specified in Appendix 6
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: stormwater
+  parameter: impervious_max_pct
+  operator: <=
+  value: 60
+  unit: '% of site area'
+  standard_ref: H5.6.9
+  quote: maximum impervious area must not exceed 60 per cent of site area
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: coverage
+  parameter: building_coverage_max_pct
+  operator: <=
+  value: 45
+  unit: '% of net site area'
+  standard_ref: H5.6.10
+  quote: maximum building coverage must not exceed 45 per cent of the net site
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: landscaping
+  parameter: landscaped_min_pct
+  operator: '>='
+  value: 35
+  unit: '% of net site area'
+  standard_ref: H5.6.11
+  quote: minimum landscaped area must be at least 35 per cent of the net site
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: landscaping
+  parameter: front_yard_landscaped_min_pct
+  operator: '>='
+  value: 50
+  unit: '% of front yard'
+  standard_ref: H5.6.11
+  quote: At least 50 per cent of the area of the front yard must comprise landscaped area
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: fences
+  parameter: fence_front_yard_max
+  operator: <=
+  value: 1.4
+  unit: m
+  standard_ref: H5.6.15
+  quote: 'Within the front yard, either: (i) 1.4m in height'
+  evaluable: true
+  note: 'alternatives: 1.8m for max 50% of frontage, or 1.8m if 50% visually open'
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: fences
+  parameter: fence_side_rear_yard_max
+  operator: <=
+  value: 2
+  unit: m
+  standard_ref: H5.6.15
+  quote: 'side, rear, coastal protection, lakeside or riparian yards: 2m'
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: outlook
+  parameter: outlook_living_depth_min
+  operator: '>='
+  value: 6
+  unit: m
+  standard_ref: H5.6.12
+  quote: minimum dimension of 6m in depth and 4m in width
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: outlook
+  parameter: outlook_living_width_min
+  operator: '>='
+  value: 4
+  unit: m
+  standard_ref: H5.6.12
+  quote: minimum dimension of 6m in depth and 4m in width
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: outlook
+  parameter: outlook_bedroom_depth_min
+  operator: '>='
+  value: 3
+  unit: m
+  standard_ref: H5.6.12
+  quote: minimum dimension of 3m in depth and 3m in width
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: outlook
+  parameter: outlook_bedroom_width_min
+  operator: '>='
+  value: 3
+  unit: m
+  standard_ref: H5.6.12
+  quote: minimum dimension of 3m in depth and 3m in width
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: outlook
+  parameter: outlook_other_habitable_min
+  operator: '>='
+  value: 1
+  unit: m
+  standard_ref: H5.6.12
+  quote: minimum dimension of 1m in depth and 1m in width
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: outdoor_living
+  parameter: ols_ground_floor_min_area
+  operator: '>='
+  value: 20
+  unit: m2
+  standard_ref: H5.6.14
+  quote: must have an outdoor living space that is at least 20m2
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: outdoor_living
+  parameter: ols_ground_floor_min_dimension
+  operator: '>='
+  value: 4
+  unit: m
+  standard_ref: H5.6.14
+  quote: has no dimension less than 4m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: outdoor_living
+  parameter: ols_upper_floor_balcony_studio_1br_min_area
+  operator: '>='
+  value: 5
+  unit: m2
+  standard_ref: H5.6.14
+  quote: is at least 5m2 for studio and one-bedroom dwellings and has a minimum dimension of 1.8m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: outdoor_living
+  parameter: ols_upper_floor_balcony_2br_plus_min_area
+  operator: '>='
+  value: 8
+  unit: m2
+  standard_ref: H5.6.14
+  quote: is at least 8m2 for two or more bedroom dwellings and has a minimum dimension of 1.8m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: outdoor_living
+  parameter: ols_balcony_min_dimension
+  operator: '>='
+  value: 1.8
+  unit: m
+  standard_ref: H5.6.14
+  quote: has a minimum dimension of 1.8m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: dwelling_size
+  parameter: dwelling_min_net_floor_area_studio
+  operator: '>='
+  value: 30
+  unit: m2
+  standard_ref: H5.6.16
+  quote: 30m2 for studio dwellings
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: dwelling_size
+  parameter: dwelling_min_net_floor_area_1br_plus
+  operator: '>='
+  value: 45
+  unit: m2
+  standard_ref: H5.6.16
+  quote: 45m2 for one or more bedroom dwellings
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: daylight
+  parameter: daylight_height_factor
+  operator: <=
+  value: 2
+  unit: x horizontal distance
+  standard_ref: H5.6.13
+  quote: limited in height to twice the horizontal distance between the two buildings for a length defined by a 55 degree arc
+  evaluable: false
+  note: applies to parts of a building higher than 3m opposite buildings on the same site; geometry check, see Table/Figures
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: height_in_relation_to_boundary
+  parameter: alt_hirb_height_at_boundary_max
+  operator: <=
+  value: 3.6
+  unit: m
+  standard_ref: H5.6.6
+  quote: must not exceed a height of 3.6m measured vertically above ground level at side and rear boundaries
+  evaluable: true
+  note: alternative to the standard HIRB; applies within 20m of the site frontage
+  applies_if: {}
+- zone_code: 60
+  chapter: H5
+  topic: height_in_relation_to_boundary
+  parameter: hirb_lower_intensity_start_height
+  operator: '='
+  value: 2.5
+  unit: m
+  standard_ref: H5.6.7
+  quote: measured from a point 2.5m vertically above ground level along the boundary of the site
+  evaluable: true
+  note: 45 degree plane where adjoining Single House / Mixed Housing Suburban etc.
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: height
+  parameter: building_height_max
+  operator: <=
+  value: 16
+  unit: m
+  standard_ref: H6.6.5
+  quote: Buildings must not exceed 16m in height
+  evaluable: true
+  note: Height Variation Control sites use the height on the planning maps
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: height_in_relation_to_boundary
+  parameter: hirb_angle
+  operator: '='
+  value: 45
+  unit: deg
+  standard_ref: H6.6.6
+  quote: 45-degree recession plane measured from a point 3m vertically above ground level
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: height_in_relation_to_boundary
+  parameter: hirb_start_height
+  operator: '='
+  value: 3
+  unit: m
+  standard_ref: H6.6.6
+  quote: recession plane measured from a point 3m vertically above ground level
+  evaluable: true
+  note: measured along side and rear boundaries; exceptions in clauses (2)-(7)
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: yards
+  parameter: yard_front_min
+  operator: '>='
+  value: 1.5
+  unit: m
+  standard_ref: H6.6.9
+  quote: Front 1.5m Side 1m Rear 1m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: yards
+  parameter: yard_side_min
+  operator: '>='
+  value: 1
+  unit: m
+  standard_ref: H6.6.9
+  quote: Front 1.5m Side 1m Rear 1m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: yards
+  parameter: yard_rear_min
+  operator: '>='
+  value: 1
+  unit: m
+  standard_ref: H6.6.9
+  quote: Front 1.5m Side 1m Rear 1m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: yards
+  parameter: yard_riparian_min
+  operator: '>='
+  value: 10
+  unit: m
+  standard_ref: H6.6.9
+  quote: Riparian 10m from the edge of all other permanent and intermittent streams
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: yards
+  parameter: yard_lakeside_min
+  operator: '>='
+  value: 30
+  unit: m
+  standard_ref: H6.6.9
+  quote: Lakeside 30m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: yards
+  parameter: yard_coastal_protection_min
+  operator: '>='
+  value: 10
+  unit: m
+  standard_ref: H6.6.9
+  quote: Coastal protection 10m, or as otherwise specified in Appendix 6
+  evaluable: true
+  note: or as specified in Appendix 6
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: stormwater
+  parameter: impervious_max_pct
+  operator: <=
+  value: 70
+  unit: '% of site area'
+  standard_ref: H6.6.10
+  quote: maximum impervious area must not exceed 70 per cent of site area
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: coverage
+  parameter: building_coverage_max_pct
+  operator: <=
+  value: 50
+  unit: '% of net site area'
+  standard_ref: H6.6.11
+  quote: maximum building coverage must not exceed 50 per cent of the net site
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: landscaping
+  parameter: landscaped_min_pct
+  operator: '>='
+  value: 30
+  unit: '% of net site area'
+  standard_ref: H6.6.12
+  quote: minimum landscaped area must be at least 30 per cent of the net site
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: fences
+  parameter: fence_front_yard_max
+  operator: <=
+  value: 1.4
+  unit: m
+  standard_ref: H6.6.16
+  quote: 'Within the front yard, either: (i) 1.4m in height'
+  evaluable: true
+  note: 'alternatives: 1.8m for max 50% of frontage, or 1.8m if 50% visually open'
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: fences
+  parameter: fence_side_rear_yard_max
+  operator: <=
+  value: 2
+  unit: m
+  standard_ref: H6.6.16
+  quote: 'side, rear, coastal protection, lakeside or riparian yards: 2m'
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: outlook
+  parameter: outlook_living_depth_min
+  operator: '>='
+  value: 6
+  unit: m
+  standard_ref: H6.6.13
+  quote: minimum dimension of 6m in depth and 4m in width
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: outlook
+  parameter: outlook_living_width_min
+  operator: '>='
+  value: 4
+  unit: m
+  standard_ref: H6.6.13
+  quote: minimum dimension of 6m in depth and 4m in width
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: outlook
+  parameter: outlook_bedroom_depth_min
+  operator: '>='
+  value: 3
+  unit: m
+  standard_ref: H6.6.13
+  quote: minimum dimension of 3m in depth and 3m in width
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: outlook
+  parameter: outlook_bedroom_width_min
+  operator: '>='
+  value: 3
+  unit: m
+  standard_ref: H6.6.13
+  quote: minimum dimension of 3m in depth and 3m in width
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: outlook
+  parameter: outlook_other_habitable_min
+  operator: '>='
+  value: 1
+  unit: m
+  standard_ref: H6.6.13
+  quote: minimum dimension of 1m in depth and 1m in width
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: outdoor_living
+  parameter: ols_ground_floor_min_area
+  operator: '>='
+  value: 20
+  unit: m2
+  standard_ref: H6.6.15
+  quote: must have an outdoor living space that is at least 20m2
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: outdoor_living
+  parameter: ols_ground_floor_min_dimension
+  operator: '>='
+  value: 4
+  unit: m
+  standard_ref: H6.6.15
+  quote: has no dimension less than 4m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: outdoor_living
+  parameter: ols_upper_floor_balcony_studio_1br_min_area
+  operator: '>='
+  value: 5
+  unit: m2
+  standard_ref: H6.6.15
+  quote: is at least 5m2 for studio and one-bedroom dwellings and has a minimum dimension of 1.8m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: outdoor_living
+  parameter: ols_upper_floor_balcony_2br_plus_min_area
+  operator: '>='
+  value: 8
+  unit: m2
+  standard_ref: H6.6.15
+  quote: is at least 8m2 for two or more bedroom dwellings and has a minimum dimension of 1.8m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: outdoor_living
+  parameter: ols_balcony_min_dimension
+  operator: '>='
+  value: 1.8
+  unit: m
+  standard_ref: H6.6.15
+  quote: has a minimum dimension of 1.8m
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: dwelling_size
+  parameter: dwelling_min_net_floor_area_studio
+  operator: '>='
+  value: 30
+  unit: m2
+  standard_ref: H6.6.17
+  quote: 30m2 for studio dwellings
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: dwelling_size
+  parameter: dwelling_min_net_floor_area_1br_plus
+  operator: '>='
+  value: 45
+  unit: m2
+  standard_ref: H6.6.17
+  quote: 45m2 for one or more bedroom dwellings
+  evaluable: true
+  note: null
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: daylight
+  parameter: daylight_height_factor
+  operator: <=
+  value: 2
+  unit: x horizontal distance
+  standard_ref: H6.6.14
+  quote: limited in height to twice the horizontal distance between the two buildings for a length defined by a 55 degree arc
+  evaluable: false
+  note: applies to parts of a building higher than 3m opposite buildings on the same site; geometry check, see Table/Figures
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: height_in_relation_to_boundary
+  parameter: alt_hirb_angle
+  operator: '='
+  value: 60
+  unit: deg
+  standard_ref: H6.6.7
+  quote: 60 degree recession plane measured from a point 8m vertically above ground level
+  evaluable: true
+  note: alternative HIRB within 20m of the site frontage
+  applies_if: {}
+- zone_code: 8
+  chapter: H6
+  topic: height_in_relation_to_boundary
+  parameter: hirb_lower_intensity_start_height
+  operator: '='
+  value: 2.5
+  unit: m
+  standard_ref: H6.6.8
+  quote: measured from a point 2.5m vertically above ground level along the boundary of the site
+  evaluable: true
+  note: 45 degree plane where adjoining lower-intensity zones
+  applies_if: {}
