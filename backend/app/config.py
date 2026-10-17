@@ -19,6 +19,11 @@ def dsn() -> str:
     return (f"host={os.environ.get('PGHOST', 'localhost')} dbname={os.environ['POSTGRES_DB']} "
             f"user=app_rw password={os.environ['APP_RW_PASSWORD']}")
 
+def ai_dsn() -> str:
+    """The agent's own database role: SELECT only on core and analytics, read-only transactions, 15 s timeout, no access to raw."""
+    return (f"host={os.environ.get('PGHOST', 'localhost')} dbname={os.environ['POSTGRES_DB']} "
+            f"user=ai_readonly password={os.environ['AI_READONLY_PASSWORD']}")
+
 def upload_dir() -> Path:
     d = Path(os.environ.get("UPLOAD_DIR", "uploads"))
     d = d if d.is_absolute() else ROOT / d

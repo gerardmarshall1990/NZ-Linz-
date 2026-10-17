@@ -5,7 +5,7 @@ from typing import Literal
 from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse, Response
 from pydantic import BaseModel, Field
-from . import briefs, settings, listings, proposal, scenarios, calibration, compliance, drawings, estimates, facts, gaps, layout, plans, uploads, vision_reader
+from . import agent, briefs, settings, listings, proposal, scenarios, calibration, compliance, drawings, estimates, facts, gaps, layout, plans, uploads, vision_reader
 from .config import upload_dir
 from .db import conn
 
@@ -16,7 +16,7 @@ FOOTER = "Screening and preparation tool. Not planning, legal, engineering or fi
 @app.get("/api/health")
 def health():
     with conn() as c: n = c.execute("SELECT count(*) AS n FROM core.sites").fetchone()["n"]
-    return {"ok": True, "sites": n, "vision_available": vision_reader.available(), "footer": FOOTER}
+    return {"ok": True, "sites": n, "vision_available": vision_reader.available(), "agent_available": agent.available(), "footer": FOOTER}
 
 @app.get("/", response_class=HTMLResponse)
 def home(): return (STATIC / "app.html").read_text()
@@ -305,3 +305,20 @@ class RatesIn(BaseModel):
 
 @app.put("/api/settings/rates")
 def put_rates(body: RatesIn): return settings.set_rates(body.lines, body.pct)
+
+# ---------------- chat agent (blocked until ANTHROPIC_API_KEY and ANTHROPIC_MODEL are set)
+class ChatIn(BaseModel):
+    message: str
+    conversation_id: str | None = None
+
+@app.post("/api/chat")
+def chat(body: ChatIn):
+    import json as _json
+    from fastapi.responses import StreamingResponse
+    client = agent.make_client()          # 503 here if not configured, before any stream starts
+    def gen():
+        try:
+            for ev in agent.chat(body.message, body.conversation_id, client): yield f"data: {_json.dumps(ev)}\n\n"
+        except HTTPException as e: yield f"data: {_json.dumps({'type': 'error', 'text': e.detail})}\n\n"
+        except Exception as e: yield f"data: {_json.dumps({'type': 'error', 'text': 'The agent hit an error: ' + type(e).__name__})}\n\n"
+    return StreamingResponse(gen(), media_type="text/event-stream", headers={"Cache-Control": "no-store"})

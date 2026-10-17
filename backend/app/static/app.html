@@ -27,7 +27,7 @@ a{color:var(--acc)}footer{margin:24px 0;color:var(--mut);font-size:.8rem}label{d
 <div id="found" style="padding:0 14px"></div><div id="map"></div>
 <main>
 <div id="legend" class="mut" style="margin:8px 0"></div>
-<div class="tabs" id="tabs"><button data-t="parcel" onclick="tab('parcel')" class="on">Parcel</button><button data-t="listing" onclick="tab('listing')">Listing</button><button data-t="resthome" onclick="tab('resthome')">Rest Home</button><button data-t="offer" onclick="tab('offer')">Offer</button><button data-t="inputs" onclick="tab('inputs')">My inputs</button><button data-t="import" onclick="tab('import')">Import</button></div>
+<div class="tabs" id="tabs"><button data-t="parcel" onclick="tab('parcel')" class="on">Parcel</button><button data-t="listing" onclick="tab('listing')">Listing</button><button data-t="resthome" onclick="tab('resthome')">Rest Home</button><button data-t="offer" onclick="tab('offer')">Offer</button><button data-t="inputs" onclick="tab('inputs')">My inputs</button><button data-t="import" onclick="tab('import')">Import</button><button data-t="chat" onclick="tab('chat')">Ask</button></div>
 <div id="panel" class="card"><div class="mut">Tap a dot (a listing) or any parcel on the map, or search an address.</div></div>
 <footer>Screening and preparation tool. Hazard flags are information only for conversions of existing buildings. Projections are illustrative and may be wrong. Map data: OpenStreetMap contributors; parcels, zones and addresses: LINZ and Auckland Council open data.</footer>
 </main>
@@ -53,7 +53,7 @@ function tab(t){TAB=t;document.querySelectorAll('#tabs button').forEach(b=>b.cla
 async function openParcel(id){S=await api('/api/sites/'+id);LST=null;const lst=(await api('/api/listings/search',{method:'POST',body:{filters:{}}})).listings.find(l=>l.listing.parcel_id===id);if(lst)LST=lst;
  if(parcelLayer)map.removeLayer(parcelLayer);parcelLayer=L.geoJSON(S.geometry,{style:{color:'#0b5cab',weight:3,fillOpacity:.1}}).addTo(map);map.fitBounds(parcelLayer.getBounds(),{maxZoom:19});tab(LST&&TAB==='parcel'?'listing':TAB)}
 async function openListing(id){const v=await api('/api/listings/'+id);LST=v;if(v.listing.parcel_id){S=await api('/api/sites/'+v.listing.parcel_id);if(parcelLayer)map.removeLayer(parcelLayer);parcelLayer=L.geoJSON(S.geometry,{style:{color:'#0b5cab',weight:3,fillOpacity:.1}}).addTo(map)}else S=null;tab('listing')}
-function render(){const f={parcel:rParcel,listing:rListing,resthome:rRest,offer:rOffer,inputs:rInputs,import:rImport}[TAB];Promise.resolve(f()).catch(e=>{$('panel').innerHTML=`<div class="banner red">${esc(e.message)}</div>`})}
+function render(){const f={parcel:rParcel,listing:rListing,resthome:rRest,offer:rOffer,inputs:rInputs,import:rImport,chat:rChat}[TAB];Promise.resolve(f()).catch(e=>{$('panel').innerHTML=`<div class="banner red">${esc(e.message)}</div>`})}
 const kv=(k,v)=>`<div class="kv"><span>${esc(k)}</span><b>${v}</b></div>`;
 function rParcel(){if(!S)return $('panel').innerHTML='<div class="mut">Tap a parcel on the map or search an address.</div>';
  $('panel').innerHTML=`<h3 style="margin-top:0">${esc(S.address||S.appellation)}</h3>`+kv('Zone',esc(S.zone_name))+kv('Area',Math.round(S.area_m2).toLocaleString()+' m²')+kv('Title type',esc(S.title_type||'unknown'))+kv('Buildings (LINZ outlines)',S.building_count??'unknown')
@@ -125,5 +125,16 @@ async function rImport(){const s=await api('/api/listings/sources');const q=awai
 async function imp(dry){const f=$('lf').files[0];if(!f)return;const fd=new FormData();fd.append('file',f);fd.append('dry_run',dry);const r=await api('/api/listings/import',{method:'POST',body:fd});
  $('io').innerHTML=`<div class="card">${dry?'<b>Dry run: nothing saved.</b> ':''}new ${r.new}, changed ${r.changed}, unchanged ${r.unchanged}; matched high ${r.matched.high}, medium ${r.matched.medium}, low ${r.matched.low}, none ${r.matched.none}${r.missing_columns.length?`<div class="mut">columns not found: ${esc(r.missing_columns.join(', '))}</div>`:''}</div>`;if(!dry){loadListings()}}
 async function fixMatch(id){const v=$('m-'+id).value.trim();await api(`/api/listings/${id}/match`,{method:'PUT',body:{parcel_id:v?+v:null}});rImport();loadListings()}
+let CONV=null,CHAT=[];
+function rChat(){$('panel').innerHTML=`<h3 style="margin-top:0">Ask the analyst</h3><div class="mut">Answers come from tools over your data, with sources and confidence. It can only read: it cannot contact anyone or change anything.</div><div id="chatlog">${CHAT.map(m=>`<div class="card"><b>${m.me?'You':'Analyst'}</b><div style="white-space:pre-wrap">${esc(m.t)}</div></div>`).join('')}</div>
+ <div class="row"><input id="cq" placeholder="e.g. Show GREEN listings with 8+ bedrooms" onkeydown="if(event.key==='Enter')ask()"><button class="pri" onclick="ask()">Ask</button></div><div id="cs" class="mut"></div>`}
+async function ask(){const q=$('cq').value.trim();if(!q)return;$('cq').value='';CHAT.push({me:true,t:q});const a={me:false,t:''};CHAT.push(a);rChat();
+ try{const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,conversation_id:CONV})});
+  if(!r.ok){let m=r.statusText;try{m=(await r.json()).detail}catch(e){}a.t='Not available: '+m;rChat();return}
+  const rd=r.body.getReader(),dec=new TextDecoder();let buf='';
+  for(;;){const{done,value}=await rd.read();if(done)break;buf+=dec.decode(value,{stream:true});let i;while((i=buf.indexOf('\n\n'))>=0){const line=buf.slice(0,i);buf=buf.slice(i+2);if(!line.startsWith('data: '))continue;const ev=JSON.parse(line.slice(6));
+   if(ev.type==='conversation')CONV=ev.id;else if(ev.type==='text')a.t+=ev.text;else if(ev.type==='tool_call'){$('cs')&&($('cs').textContent='Looking up: '+ev.name)}else if(ev.type==='error')a.t+='\n['+ev.text+']';
+   $('chatlog').innerHTML=CHAT.map(m=>`<div class="card"><b>${m.me?'You':'Analyst'}</b><div style="white-space:pre-wrap">${esc(m.t)}</div></div>`).join('')}}
+  $('cs')&&($('cs').textContent='')}catch(e){a.t='Error: '+e.message;rChat()}}
 loadListings();
 </script></body></html>

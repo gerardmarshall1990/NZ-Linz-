@@ -13,6 +13,7 @@
 | 3d | Economics engine + Offer Builder (Part 6.4 worked example tested), retrofit cost engine (rates blank), proposal pack | built, 22 tests | 2026-10-17 | `docs/ECONOMICS.md`; needs your inputs: deal assumptions, QS rates (BLOCKERS 20) |
 | 3e | Listings: CSV import, address matching, history, Property Record upgrade, verdicts (GREEN/AMBER/RED/GREY), minimum beds | built, 12 tests | 2026-10-17 | `docs/LISTINGS.md`; Trade Me terms pending, realestate.co.nz blocked; verdicts GREY until deal inputs set (BLOCKERS 20) |
 | 3f | Map and Site Panel (`/`), My inputs screen (assumptions and rates stored in the app), parcel-at-point, listing map layer | built, browser-tested | 2026-10-17 | no shortlists, digest, alerts yet |
+| 3g | Chat agent (Ask tab): tool loop, validated read-only SQL, search rules, site info, listings; fake-model tests | built; real model blocked on ANTHROPIC_API_KEY/MODEL | 2026-10-17 | `docs/AGENT.md`; untested against a real model |
 | 3c | Scale layers (Part 8) | LATER | | after Part 7 steps 1-4 and owner go |
 | 5 | Slope for candidate parcels | not started | | before layout engine; open DEM/contours, record source and date |
 | 6 | Stage 4 Māori land + rest home provider layers | not started | | HealthCERT list is manual (BLOCKERS 5) |

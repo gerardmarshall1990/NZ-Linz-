@@ -1,5 +1,5 @@
 """Rest home potential verdict per listing (MASTER_SPEC Part 6.2) and house-scale minimum beds (Part 4 section 3.2). Pure functions.
-GREEN / AMBER / RED / GREY are screening labels, never 'approved' or 'will work'. Natural hazard data is returned for information only and is never read by the logic (decision 13).
+GREEN / AMBER / RED / GREY are screening labels only: they never claim a conversion is cleared or certain to work. Natural hazard data is returned for information only and is never read by the logic (decision 13).
 Without the economic inputs the label is GREY (not enough data), never a guess."""
 import math
 from . import economics as E

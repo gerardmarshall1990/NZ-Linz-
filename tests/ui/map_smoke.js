@@ -28,6 +28,8 @@ const { chromium } = require('/opt/node-tools/node_modules/playwright');
   await page.click('button[data-t=import]'); await page.waitForSelector('#lf', { timeout: 10000 });
   txt = await page.locator('#panel').innerText(); if (!/Trade Me/.test(txt) || !/realestate\.co\.nz/.test(txt)) fail('import tab coverage');
   await page.click('button[data-t=offer]'); await page.waitForFunction(() => /layout option|Offer Builder/.test(document.querySelector('#panel').innerText), null, { timeout: 10000 }).catch(() => fail('offer tab'));
+  await page.click('button[data-t=chat]'); await page.fill('#cq', 'hello'); await page.click('#panel button.pri');
+  await page.waitForFunction(() => /Not available|Analyst/.test(document.querySelector('#panel').innerText) && /hello/.test(document.querySelector('#panel').innerText), null, { timeout: 10000 }).catch(() => fail('chat tab'));
   // no horizontal scroll at phone width
   const sw = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth); if (sw > 2) fail('horizontal overflow of ' + sw + 'px');
   await page.screenshot({ path: shot });
