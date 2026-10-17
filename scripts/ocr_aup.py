@@ -5,7 +5,7 @@ Some AUP PDFs render parts of pages (e.g. tables, numbered lists under tracked c
 For each page we store: text-layer alnum char count, OCR alnum char count, and OCR lines with positions (PDF points).
 Output: data/aup/ocr/<chapter>/<file>.json  (idempotent; skips files already done). Run: python3 -I scripts/ocr_aup.py
 """
-import json, subprocess, sys, tempfile
+import os, json, subprocess, sys, tempfile
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 import pymupdf
@@ -25,7 +25,7 @@ def ocr_pdf(pdf_rel):
             layer = sum(ch.isalnum() for ch in page.get_text("text"))
             png = Path(td) / f"p{n}.png"
             page.get_pixmap(dpi=DPI).save(png)
-            tsv = subprocess.run(["tesseract", str(png), "-", "--psm", "4", "-l", "eng", "tsv"], capture_output=True, text=True).stdout
+            tsv = subprocess.run(["tesseract", str(png), "-", "--psm", "4", "-l", "eng", "tsv"], capture_output=True, text=True, env={**os.environ, "OMP_THREAD_LIMIT": "1"}).stdout
             lines = {}
             for row in tsv.splitlines()[1:]:
                 f = row.split("\t")
