@@ -27,4 +27,5 @@ cost_of_capital_pct: null
 owner_required_yield_on_capex_pct: null  # for owner_funds_via_rent
 target_profit_per_year: null
 minimum_acceptable_profit_per_year: null
+retrofit_cost_per_bed_screening: null    # my screening figure for listings with no plans (QS to replace); used only for minimum beds and listing verdicts
 cash_limit: null                      # my stated cash limit; cash required above it is flagged red

@@ -1,0 +1,14 @@
+# Listing sources and their lawful route status (MASTER_SPEC Part 6.1). The map and every digest show this coverage.
+sources:
+  csv_manual:
+    label: "CSV / manual entry"
+    status: live
+    note: "Listings you paste, enter or import from a licensed export. Works today."
+  trademe:
+    label: "Trade Me"
+    status: pending
+    note: "Official developer API only. Terms not yet read and application not approved (BLOCKERS). Until then import by CSV. No scraping."
+  realestate_co_nz:
+    label: "realestate.co.nz"
+    status: blocked
+    note: "No official public API. Not scraped. Needs a data licensing agreement or manual/CSV entry (BLOCKERS 1)."

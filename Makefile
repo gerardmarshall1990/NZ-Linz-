@@ -61,6 +61,7 @@ app-db:
 	bash scripts/create_app_role.sh
 	$(PSQL) -f db/sql/80_rh_property.sql
 	$(PSQL) -f db/sql/90_rh_step2.sql
+	$(PSQL) -f db/sql/95_listings.sql
 	python3 scripts/load_rh_requirements.py
 
 app:

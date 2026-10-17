@@ -1,7 +1,7 @@
 # Property Record field catalogue (MASTER_SPEC Part 3 section 1.1). Each stored fact has value, source, confidence (ESTIMATED / DOCUMENTED / CONFIRMED), method, note.
 # type: int | float | bool | text | enum | json. Unknown stays blank: there is no default for any field.
 groups:
-  rooms: [bedrooms_total, rooms_with_ensuite, shared_bathrooms, rooms_by_size_band, kitchens, laundries, lounge_dining_areas, staff_office_rooms, address_points_on_parcel]
+  rooms: [bedrooms_total, bathrooms_total, rooms_with_ensuite, shared_bathrooms, rooms_by_size_band, kitchens, laundries, lounge_dining_areas, staff_office_rooms, address_points_on_parcel]
   building: [building_count, footprint_total_m2, footprint_largest_m2, storeys_per_building, gfa_m2, net_room_area_m2, year_built, construction_type, roof_wall_type]
   circulation: [corridor_width_min_m, door_width_min_m, stairs_count, lifts, ramps_count, level_access_entrances, external_accessible_route]
   fire: [sprinklers, fire_alarm, emergency_lighting, fire_rated_walls, compliance_schedule_bwof_status, previous_fire_engineer_reports]
@@ -10,6 +10,7 @@ groups:
   legal: [title_type, current_use, consents_on_file, known_defects, asking_price, asking_rent_per_week, lease_terms_offered]
 fields:
   bedrooms_total: {type: int, label: Bedrooms / guest rooms (total)}
+  bathrooms_total: {type: int, label: Bathrooms (total, as listed)}
   rooms_with_ensuite: {type: int, label: Rooms with ensuite}
   shared_bathrooms: {type: int, label: Shared bathrooms}
   rooms_by_size_band: {type: json, label: Rooms by size band}

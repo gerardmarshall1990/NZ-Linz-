@@ -5,7 +5,7 @@ from typing import Literal
 from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse, Response
 from pydantic import BaseModel, Field
-from . import briefs, proposal, scenarios, calibration, compliance, drawings, estimates, facts, gaps, layout, plans, uploads, vision_reader
+from . import briefs, listings, proposal, scenarios, calibration, compliance, drawings, estimates, facts, gaps, layout, plans, uploads, vision_reader
 from .config import upload_dir
 from .db import conn
 
@@ -240,3 +240,33 @@ def get_proposal(sid: int, mode: Literal["fixed", "jv", "hybrid"]): return propo
 @app.get("/api/scenarios/{sid}/proposal.pdf")
 def get_proposal_pdf(sid: int, mode: Literal["fixed", "jv", "hybrid"]):
     return Response(proposal.pdf(proposal.build(sid, mode)["markdown"]), media_type="application/pdf", headers={"Content-Disposition": f'attachment; filename="proposal_{sid}_{mode}.pdf"'})
+
+# ---------------- listings (CSV / manual only: no scraping), match review, verdicts
+@app.get("/api/listings/sources")
+def listing_sources(): return listings.sources()
+
+@app.post("/api/listings/import")
+async def listing_import(file: UploadFile = File(...), source: str = Form("csv_manual"), dry_run: bool = Form(True), snapshot: bool = Form(False)):
+    return listings.import_csv((await file.read(5_000_000)).decode("utf-8-sig", errors="replace"), source, dry_run, snapshot)
+
+@app.get("/api/listings/review-queue")
+def listing_review_queue(): return listings.review_queue()
+
+class MatchIn(BaseModel):
+    parcel_id: int | None = None
+
+@app.put("/api/listings/{lid}/match")
+def listing_review_match(lid: int, body: MatchIn): return listings.review_match(lid, body.parcel_id)
+
+@app.post("/api/listings/{lid}/upgrade-record")
+def listing_upgrade(lid: int): return listings.upgrade_property_record(lid)
+
+@app.get("/api/listings/{lid}")
+def listing_get(lid: int): return listings.verdict_for(lid)
+
+class SearchIn(BaseModel):
+    filters: dict = {}
+    assumptions: dict | None = None
+
+@app.post("/api/listings/search")
+def listing_search(body: SearchIn): return listings.search(body.filters, body.assumptions)
