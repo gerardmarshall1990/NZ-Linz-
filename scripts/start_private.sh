@@ -4,7 +4,8 @@
 # The app itself listens on 127.0.0.1 only (never all network interfaces); Tailscale forwards https://<name>.<tailnet>.ts.net to it.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-[ "${#APP_PASSWORD}" -ge 16 ] 2>/dev/null || { echo "REFUSED: APP_PASSWORD must be set (16+ characters)"; exit 2; }
+[ "${#APP_PASSWORD}" -ge 12 ] 2>/dev/null || { echo "REFUSED: APP_PASSWORD must be set (12+ characters; 16+ recommended)"; exit 2; }
+[ "${#APP_PASSWORD}" -ge 16 ] || echo "WARNING: APP_PASSWORD is under 16 characters: use a longer random one when you can"
 [ -n "${TS_AUTHKEY:-}" ] || { echo "REFUSED: TS_AUTHKEY is not set"; exit 2; }
 TS_DIR="${TS_DIR:-$HOME/.tailscale-nzlinz}"; mkdir -p "$TS_DIR"
 if [ ! -x "$TS_DIR/tailscaled" ]; then
