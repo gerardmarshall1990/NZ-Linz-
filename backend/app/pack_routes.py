@@ -3,7 +3,7 @@ from datetime import date
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from fastapi.responses import HTMLResponse, PlainTextResponse, Response
 from pydantic import BaseModel, Field
-from . import approvals, portfolio, screen, screenapi, playbooks, bestuse, maori, layers, rcpack, devreport, devscenarios, services, crm, digest, trademe, capture_guide, certification, rfi, timeline, consent_pack as cp, dealsheet, flags, plan_request, ranking, retrofit_calibration as rcal, reviews, validation
+from . import approvals, audit, field, offers, routeplan, portfolio, screen, screenapi, playbooks, bestuse, maori, layers, rcpack, devreport, devscenarios, services, crm, digest, trademe, capture_guide, certification, rfi, timeline, consent_pack as cp, dealsheet, flags, plan_request, ranking, retrofit_calibration as rcal, reviews, validation
 from .facts import get_property
 from .layout import get_option
 from .pack_pdf import md_to_pdf
@@ -330,7 +330,7 @@ class LeadIn(BaseModel):
 @r.post("/api/crm/leads")
 def crm_create(body: LeadIn): return crm.create_lead(body.listing_id, body.parcel_id, body.notes)
 @r.get("/api/crm/leads/{lid}")
-def crm_get(lid: int): return crm.get(lid)
+def crm_get(lid: int): return crm.view(lid)
 @r.put("/api/crm/leads/{lid}")
 def crm_update(lid: int, body: dict): return crm.update_lead(lid, body)
 class ContIn(BaseModel): contactable: bool
@@ -496,3 +496,69 @@ class PfIn(BaseModel):
 def pf_run(body: PfIn):
     homes = body.homes or portfolio.homes_from_screen(body.parcel_ids)
     return portfolio.evaluate(homes, body.overrides, {k: v for k, v in body.model_dump().items() if k not in ("parcel_ids", "homes", "overrides") and v is not None})
+
+# ---- CRM extras (gated), audit log
+@r.get("/api/crm/leads")
+def crm_list(rep: str | None = None, stage: str | None = None): return crm.leads(rep, stage)
+@r.get("/api/crm/funnel/{dim}")
+def crm_funnel_by(dim: str): return crm.funnel_by(dim)
+@r.get("/api/crm/audit")
+def crm_audit(): return audit.recent()
+
+# ---- field capture (gated: /field and /api/field)
+@r.get("/field", response_class=HTMLResponse)
+def field_page(): return field.PAGE
+@r.get("/field/manifest.json")
+def field_manifest(): return field.MANIFEST
+@r.get("/field/sw.js")
+def field_sw(): return Response(field.SW, media_type="application/javascript")
+from datetime import datetime as _dt
+class CapIn(BaseModel):
+    parcel_id: int
+    rep_name: str
+    permission_given_by: str = ""
+    permission_note: str | None = None
+    gps: dict | None = None
+    captured_at: _dt | None = None
+    values: dict = Field(default_factory=dict)
+    rooms: list[dict] = Field(default_factory=list)
+    photo_upload_ids: list[int] = Field(default_factory=list)
+@r.post("/api/field/capture")
+def field_capture(body: CapIn): return field.capture(body.parcel_id, body.rep_name, body.permission_given_by, body.permission_note, body.gps, body.captured_at, body.values, body.rooms, body.photo_upload_ids)
+@r.get("/api/field/captures")
+def field_list(status: str | None = None): return field.list_(status)
+class RevIn2(BaseModel): accept: bool
+@r.post("/api/field/captures/{cid}/review")
+def field_review(cid: int, body: RevIn2): return field.review(cid, body.accept)
+@r.post("/api/field/photo")
+async def field_photo(parcel_id: int = Form(...), file: UploadFile = File(...)): return field.add_photo(parcel_id, file.filename or "photo.jpg", await file.read(cp.MAX_UPLOAD_BYTES + 1))
+
+# ---- call sheets and route plans (gated)
+class CsIn(BaseModel):
+    parcel_ids: list[int]
+    name: str = "Call sheet"
+    start: list[float] | None = None
+@r.post("/api/call-sheets")
+def call_sheet(body: CsIn): return routeplan.build(body.parcel_ids, body.name, tuple(body.start) if body.start else None)
+@r.post("/api/call-sheets/pdf")
+def call_sheet_pdf(body: CsIn): return Response(routeplan.pdf(routeplan.build(body.parcel_ids, body.name, tuple(body.start) if body.start else None, save=False)["markdown"]), media_type="application/pdf")
+
+# ---- offer generator (gated)
+class OfIn(BaseModel):
+    kind: str
+    scenario_id: int
+    mode: str
+    lead_id: int | None = None
+    sender: str | None = None
+    rent_offered: float | None = None
+    terms: dict = Field(default_factory=dict)
+@r.post("/api/offer-letters")
+def offer_make(body: OfIn): return offers.create(body.kind, body.scenario_id, body.mode, body.lead_id, body.sender, body.rent_offered, body.terms)
+@r.get("/api/offer-letters")
+def offer_versions(lead_id: int | None = None, scenario_id: int | None = None): return offers.versions(lead_id, scenario_id)
+@r.get("/api/offer-letters/{did}")
+def offer_get(did: int): return offers.get(did)
+@r.post("/api/offer-letters/{did}/sent")
+def offer_sent(did: int): return offers.mark_sent(did)
+@r.get("/crm", response_class=HTMLResponse)
+def crm_page(): return crm.PAGE

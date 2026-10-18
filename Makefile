@@ -87,6 +87,7 @@ app-db:
 	$(PSQL) -f db/sql/98_digest_crm.sql
 	$(PSQL) -f db/sql/98_dev.sql
 	$(PSQL) -f db/sql/98_screen.sql
+	$(PSQL) -f db/sql/98_outreach.sql
 	python3 scripts/load_rh_requirements.py
 	$(PSQL) -f db/sql/99_ai_grants.sql
 

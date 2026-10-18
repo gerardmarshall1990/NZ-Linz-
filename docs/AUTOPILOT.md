@@ -41,13 +41,13 @@ Status key: [x] done, [~] partly done (what is left in the note), [ ] not starte
 - [x] E9 Apartment playbook (done)
 
 ## F. Part 4
-- [ ] F1 Bulk Auckland screening with map layers
-- [ ] F2 House-scale and portfolio economics
-- [ ] F3 Suburb analytics
-- [ ] F4 Field capture app (behind flag)
-- [ ] F5 CRM (behind flag)
-- [ ] F6 Route planning (behind flag)
-- [ ] F7 Offer generator (behind flag)
+- [x] F1 Bulk Auckland screening: analytics.rh_screen (362k candidates), layers, filters, shortlists (done)
+- [x] F2 House-scale and portfolio economics (done)
+- [x] F3 Suburb analytics (done; certified beds and census PENDING, BLOCKERS 28)
+- [x] F4 Field capture app, behind flag (done)
+- [x] F5 CRM page, funnel by rep/suburb/source/type, audit log, behind flag (done)
+- [x] F6 Route planning and call sheets, straight-line, behind flag (done)
+- [x] F7 Offer generator: letters, emails, one-pagers, terms sheets, behind flag (done)
 
 ## G. Part 8
 - [~] G1 Approval Queue (basic queue and Approvals tab done; extend to all draft kinds in G-phase)

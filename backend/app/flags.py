@@ -6,7 +6,7 @@ from .config import ROOT
 from .db import conn
 
 # Features that stay disabled until the owner sets the flag in config/feature_flags.yaml (the app has no switch for these: only the owner edits the file, after the validation report passes).
-GATED = {"outreach_enabled": ("/api/outreach", "/api/crm", "/api/call-sheets", "/api/routes", "/api/leads"),
+GATED = {"outreach_enabled": ("/api/outreach", "/api/crm", "/crm", "/api/call-sheets", "/api/routes", "/api/leads"),
          "field_capture_enabled": ("/api/field", "/field"),
          "offer_letters_enabled": ("/api/offer-letters",)}
 
