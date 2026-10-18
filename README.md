@@ -1,6 +1,6 @@
 # NZ property deal-sourcing tool (Auckland first)
 
-Finds and screens rest home conversions of existing buildings: listings on a map with a verdict, bed layouts from a confirmed plan, compliance gaps, retrofit cost, economics and walk-away rent, the Offer Builder, a Deal Sheet PDF, and a draft building consent pack for your engineers. Development-site and Māori-land finders come later.
+Finds and screens rest home conversions of existing buildings (listings on a map with a verdict, bed layouts from a confirmed plan, compliance gaps, retrofit cost, economics and walk-away rent, the Offer Builder, a Deal Sheet PDF, a draft building consent pack and an engineer review workflow), development sites (concept layouts, rules checks, feasibility, detailed report, draft resource consent pack), Māori land (partnership first), an Auckland-wide screening of 360,000+ candidate dwellings, and the operations layer (approvals, dashboard, capacity planner). Outreach, field capture and offer letters are built but switched off.
 `MASTER_SPEC.md` is the single source of truth; `docs/STATUS.md` says what is done and what is blocked on you; `docs/BLOCKERS.md` is your to-do list. It is a **screening and preparation tool**: not planning, legal, engineering or financial advice. Council decides applications. Nothing it produces is a producer statement, signature, registration number or final fire report.
 
 ## Setup in 5 steps
@@ -31,10 +31,10 @@ Install Tailscale on the iPhone, allow the Tailscale domains for the sandbox, th
 - Backups: `make backup` (local), `make backup-github` (encrypted, to a separate PRIVATE repo; `docs/BACKUP.md`). Plans and uploads need a different route. The database lives only in the sandbox, so run a backup after each working session.
 
 ## Everyday use
-Map: click a listing dot or search an address. **Parcel / Listing / Rest Home / Offer** tabs show the verdict, layout options, compliance screening, retrofit, economics, what-if sliders, the Deal Sheet PDF, the consent pack and engineer review packages. **Rank** orders properties by profit per effort point within each confidence tier.
+Map: click a listing dot, a candidate, or search an address; the Layers control shows zones, Māori land, overlays, hazards (information only for conversions) and screening candidates. Tabs: **Parcel / Listing / Rest Home / Offer** (verdict, layouts, compliance, retrofit, economics, what-if, Deal Sheet PDF, consent pack, reviews), **Develop / Best use** (development feasibility and the three-way comparison), **Screen** (Auckland-wide candidates, shortlists, suburb analytics), **Digest, Track, Approvals, Ops, Feeds**, **Rank, Quotes, My inputs, Placeholders, Import, Ask**. Nothing is sent or lodged without a tap in **Approvals**.
 
 ## Checks
-`make test` runs the test suite (215 tests). `make validate` regenerates `docs/VALIDATION.md`, the go/no-go report that must pass before you flip any outreach flag. Outreach, field capture and offer letters are **off** (`config/feature_flags.yaml`) and the routes answer 403; only you can turn them on, by editing that file.
+`make test` runs the test suite (273 tests). `make screen` (about 2 minutes) rebuilds the Auckland-wide screening table; `make demo-seed` / `make demo-clear` load or remove the three DEMO listings; `make preflight` shows which keys are missing. `make validate` regenerates `docs/VALIDATION.md`, the go/no-go report that must pass before you flip any outreach flag. Outreach, field capture and offer letters are **off** (`config/feature_flags.yaml`) and the routes answer 403; only you can turn them on, by editing that file. The engineer review links and the capture portal links are also off until you switch them on.
 
 ## Where things are
 `backend/app/` the API and engines; `backend/app/static/` the phone UI; `config/` rules, rates, assumptions, checklists; `db/sql/` schema; `scripts/` pipelines and backups; `docs/` explanations (start with `docs/STATUS.md`, `docs/BLOCKERS.md`, `docs/LIMITATIONS.md`).

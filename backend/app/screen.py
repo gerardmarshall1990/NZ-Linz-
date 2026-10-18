@@ -36,6 +36,7 @@ def run(bbox: tuple | None = None, limit: int | None = None, progress=print) -> 
                           (SELECT max(l.bedrooms) FROM core.user_listing l WHERE l.parcel_id = s.parcel_id AND l.status='active' AND l.bedrooms IS NOT NULL AND l.source_id NOT LIKE 'DEMO-%%') AS lbeds,
                           (SELECT (f.value #>> '{}')::int FROM core.rh_property_fact f WHERE f.parcel_id = s.parcel_id AND f.field='bedrooms_total' AND f.confidence IN ('CONFIRMED','DOCUMENTED') LIMIT 1) AS fbeds,
                           (SELECT f.confidence FROM core.rh_property_fact f WHERE f.parcel_id = s.parcel_id AND f.field='bedrooms_total' LIMIT 1) AS ftier,
+                          (SELECT a.bedrooms FROM core.user_property_attribute a WHERE a.parcel_id = s.parcel_id) AS abeds, (SELECT a.floor_area_m2::float FROM core.user_property_attribute a WHERE a.parcel_id = s.parcel_id) AS afloor,
                           o.hash AS oldhash
                    FROM core.sites s LEFT JOIN (SELECT parcel_id, inputs_hash AS hash FROM analytics.rh_screen) o ON o.parcel_id = s.parcel_id
                    WHERE s.parcel_id > %s AND s.building_count > 0 AND s.zone_name = ANY(%s) AND NOT coalesce(s.is_reserve, false)
@@ -49,10 +50,11 @@ def run(bbox: tuple | None = None, limit: int | None = None, progress=print) -> 
             for r in rows:
                 seen += 1; last = r["parcel_id"]
                 if limit and seen > limit: break
-                fp = r["fp"] or 0; gfa = fp * st; est = int(gfa // gpb)
+                fp = r["fp"] or 0; gfa = r["afloor"] if r["afloor"] else fp * st; est = int(gfa // gpb)
                 if r["fbeds"] is not None: beds, tier, src = r["fbeds"], r["ftier"], "Property Record bedrooms"
                 elif r["lbeds"] is not None: beds, tier, src = r["lbeds"], "DOCUMENTED", "listing bedrooms"
-                else: beds, tier, src = est, "ESTIMATED", f"footprint {fp:.0f} m2 x {st} storey / {gpb} m2 per bed (placeholder)"
+                elif r["abeds"] is not None: beds, tier, src = r["abeds"], "DOCUMENTED", "licensed property attributes (bedrooms)"
+                else: beds, tier, src = est, "ESTIMATED", (f"licensed floor area {gfa:.0f} m2" if r["afloor"] else f"footprint {fp:.0f} m2 x {st} storey") + f" / {gpb} m2 per bed (placeholder)"
                 h = _hash(r["parcel_id"], fp, r["zone_name"], r["title_type"], beds, tier, ahash)
                 if h == r["oldhash"]: same += 1; continue
                 a_ = econ(beds) if beds >= 1 else {"needs_input": []}; need = a_.get("needs_input") or []

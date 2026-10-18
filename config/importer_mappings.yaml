@@ -1,0 +1,24 @@
+# Importer column mappings (MASTER_SPEC Part 5 section 2). For each target field, the source column names accepted (case-insensitive, matched after trimming). Override per import with a mapping JSON.
+# Required fields are marked. Rows that cannot be parsed are rejected with the reason; a dry run reports everything and writes nothing.
+property_attributes:
+  address: {required: true, synonyms: [address, property address, street address, full address, raw_address]}
+  suburb: {synonyms: [suburb, locality, suburb_locality]}
+  bedrooms: {type: int, synonyms: [bedrooms, beds, bedroom count, no of bedrooms]}
+  bathrooms: {type: int, synonyms: [bathrooms, baths, bathroom count]}
+  floor_area_m2: {type: float, synonyms: [floor area, floor_area_m2, floor area m2, gfa, building area]}
+  storeys: {type: int, synonyms: [storeys, stories, levels, number of storeys]}
+  build_year: {type: int, synonyms: [year built, build year, build_year, construction year]}
+  construction_type: {synonyms: [construction type, construction, wall type]}
+  land_use: {synonyms: [land use, land_use, use, property type]}
+sales:
+  address: {required: true, synonyms: [address, property address, street address]}
+  sale_date: {type: date, required: true, synonyms: [sale date, date, sold date, settlement date]}
+  price: {type: float, required: true, synonyms: [price, sale price, sold price, amount]}
+rest_homes:
+  name: {required: true, synonyms: [name, provider, provider name, facility, service name, rest home]}
+  address: {synonyms: [address, street address, physical address, location]}
+  beds: {type: int, synonyms: [beds, bed count, total beds, capacity, certified beds, number of beds]}
+demographics:
+  area_name: {required: true, synonyms: [area, area name, suburb, sa2, sa2 name, locality]}
+  year: {type: int, required: true, synonyms: [year, census year, as at]}
+  population_75_plus: {type: int, required: true, synonyms: [population aged 75+, aged 75 and over, 75+, population 75 plus, 75 years and over]}

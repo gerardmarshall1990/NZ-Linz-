@@ -1,123 +1,83 @@
-# Status (last updated 2026-10-18)
+# Status (last updated 2026-10-18, end of the autopilot run)
 
-Priority (docs/BUILD_NOW.md): Part 7 Remote Conversion Pipeline is the main product; then 1) rest home finder, 2) development site finder, 3) Māori land finder. Everything else is LATER.
-Legend: **Done** = built and tested; **Partly** = some of it built, the rest listed; **Not started**. "Needs you" = finished code that shows "needs input" until you supply something (see Blocked on you).
-Tests: 191 pass (`make test`). Bootstrap proven on a slice (`docs/BOOTSTRAP.md`).
+Legend: **Done** = built and tested. **Done, needs you** = built; shows "needs input" or a flagged placeholder until you supply something (docs/BLOCKERS.md). **Partly** = what is left is listed. **Flagged off** = built, behind a feature flag that only you can switch on.
+Tests: 273 (`make test`). Bootstrap proven on a slice (docs/BOOTSTRAP.md). Validation report: `docs/VALIDATION.md` (`make validate`): NO-GO until your spot-checks and calibration data exist.
+Checklist of the autopilot run: docs/AUTOPILOT.md. Explanations: docs/IPHONE_TEST.md (start here), PART7_STEP4.md, DEALSHEET_RANKING_CALIBRATION.md, DEVELOPMENT_FLOW.md, SCREENING_OUTREACH.md, SCALE.md, CONFLICTS.md.
 
-## Part 1: Master brief (stages)
+## Part 1: Master brief
 | Step | Status | Notes |
 |---|---|---|
 | 1 LINZ ingest | Done | 559,528 sites; rotate the LINZ key (BLOCKERS 15) |
-| 2 Zoning, overlays, hazards, amenities, values into `core.sites` | Partly | done: zones, overlays, hazards, hospital/school/rail/bus distances. Missing: rating values (none published), shops/OSM (Geofabrik blocked), slope |
-| 3 Rules corpus | Done | 99 chapters, 2,166 chunks, 1,361 rules (33 PC120 proposed); nothing owner-verified yet (10 checks sent) |
-| 4 Māori land + rest home provider layers | Partly | only LINZ "Maori" parcel flag and Māori Purpose zone; TPK / Māori Land Court and HealthCERT list not loaded (manual files) |
-| 5 Agent + tools + read-only guard | Partly | built; 26 SQL attack cases rejected; tested with a scripted fake model only; the 10 sample queries not run (no key) |
-| 6 Calculators (fit_units, subdivision_yield, feasibility, rest_home_score) | Partly | rest home economics and verdicts done; fit_units, subdivision_yield, development feasibility not started |
-| 7 Frontend | Partly | map, listing layer, Site Panel (rest home), Ask tab, login; no zone/overlay/parcel layers, no Māori layer, transportable-homes flow not built |
-| 8 Floor plan reader + conversion estimator | Partly | DXF exact, manual tracing, human review, calibration; vision reader untested (no key); no sample plan from you yet |
-| 9 Consent prep module | Not started | consent packs last |
-| 10 Docs, `make refresh`, backup | Partly | DATA_SOURCES, AGENT, LIMITATIONS, BOOTSTRAP, BACKUP, ACCESS done; `make bootstrap` and encrypted backups done; **README with 5-step setup missing** |
+| 2 Zoning, overlays, hazards, amenities | Partly | zones, overlays, hazards, distances done; rating values (none published) and OSM amenities (host blocked) missing |
+| 3 Rules corpus | Done, needs you | 1,361 rules (33 PC120 proposed); none owner-verified: send back the 10 standards checks |
+| 4 Māori land and rest home provider layers | Partly | LINZ Māori flag, Māori Purpose zone, map layer, module; TPK export and HealthCERT list importers built, files not loaded |
+| 5 Agent and tools | Partly | built and tested with a scripted model; needs ANTHROPIC_API_KEY / ANTHROPIC_MODEL for the real one |
+| 6 Calculators | Done, needs you | fit_units, subdivision_yield (area rule only), feasibility, rest home economics and verdicts |
+| 7 Frontend | Done | map with layers, 14 tabs, login; phone width tested |
+| 8 Floor plan reader | Partly | DXF exact, tracing, human review, calibration; vision reader needs the key; no sample plan from you yet |
+| 9 Consent prep | Done, Council checklist partly seen | building consent pack to AC1009; resource consent pack to the spec list (Council RC checklist unseen) |
+| 10 Docs, refresh, backup | Done | README with the 5-step setup; encrypted backups (need BACKUP_PASSPHRASE and the private repo) |
 
-## Part 2: Site flow (section 13 build order)
+## Part 2: Development-site flow
 | Step | Status | Notes |
 |---|---|---|
-| 1 Finish stages 1 to 6 | Partly | see Part 1 |
-| 2 Rules engine ingestion and evaluator | Partly | corpus, search, seeds, PC120 operative/proposed done; the rule evaluator is not built |
-| 3 Layout engine and financial engine | Partly | rest home layouts and economics done; development layout (max density) engine not started |
-| 4 Services module | Not started | licence rules apply (LATER) |
-| 5 Site Panel and Button 1, Button 2 report | Partly | Site Panel for rest homes; no development feasibility Buttons 1 and 2 |
-| 6 Consent pathway engine and consent packs | Not started | last |
-| 7 Māori land specifics | Partly | Māori Purpose and subdivision rule seeds only; no entity layer or proposal outline |
-| 8 Docs | Partly | RULES, LIMITATIONS done; CONSENT_PACKS not started |
+| 2 Rules evaluator | Done, needs you | geometry rules, UNKNOWN when a rule is not loaded; vehicle access standards not in the corpus |
+| 3 Layout and financial engines | Done, needs you | 20+ arrangements per run, binding constraint; finance inputs yours |
+| 4 Services module | Done, needs you | licence-aware, manual fields, capacity UNKNOWN until a letter |
+| 5 Site Panel buttons 1 to 3 | Done | Develop tab: scenarios, report PDF, consent pack |
+| 6 Consent pathway engine | Partly | activity rows and trigger list in the report; no per-scenario consent status derivation |
+| 7 Māori land specifics | Done, needs you | partnership-first, entity and TPK data blank until you supply them |
+| 8 Docs | Done | DEVELOPMENT_FLOW.md |
 
-## Part 3: Rest home tool (section 11 build order)
+## Part 3: Rest home tool
+All steps Done or Done, needs you (rates, running costs and QS quotes are yours): property record, plan reader, bed yield, compliance (regulatory numbers blank until Ngā Paerewa / Building Code are supplied), retrofit with calibration loop, feasibility, Deal Sheet PDF, ranking and sliders, timeline scenarios and parallel tracks (lead times blank), certification checklist (Ministry steps not discovered).
+
+## Part 4: Screening, listings, outreach
 | Step | Status | Notes |
 |---|---|---|
-| 1 Property Record, intake UI, CSV import, auto-estimates | Done | |
-| 2 Requirements and bed rules discovery with spot-check table | Partly | 17 requirement slots and bed rules config built; every regulatory number blank (Ngā Paerewa and Building Code documents are behind bot challenges: needs you) |
-| 3 Compliance gap engine and bed yield engine | Partly | 18 checks, 3 layout options, binding constraint; room-size, ensuite, corridor and door rules not applied until sourced |
-| 4 Retrofit cost engine, blank rates, calibration loop | Partly | quantities and cost range built; rates blank (needs you); calibration loop not built |
-| 5 Fiscal feasibility, deal sheet, ranking, what-if sliders | Partly | feasibility, walk-away rent, sensitivity, Offer Builder done; one-page Deal Sheet PDF, effort-point ranking and live sliders not built |
-| 6 Floor plan reader (DXF, then vision) with review UI | Partly | DXF and manual done; vision untested |
-| 7 Plan request pack and site visit form | Not started | |
-| 8 Timeline and parallel tracks, conversion consent packs, certification checklist | Not started | |
-| 9 Agent tools and acceptance tests | Partly | rest-home tools built; more tools LATER |
-
-## Part 4: Auckland-wide screening, listings, outreach
-| Step | Status | Notes |
-|---|---|---|
-| 1 `core.rh_screen` bulk run, vector tiles, shortlists | Not started | LATER (bulk screening) |
-| 2 Listings module, geocoding, alerts, offer logic | Partly | CSV import, LINZ address matching with confidence, history, review queue, verdicts, offer logic done; Trade Me API blocked on terms; no alerts or digest |
-| 3 House-scale economics, minimum beds, portfolio view | Partly | minimum beds and too-small flag done; clusters, shared staff, portfolio view not built |
-| 4 Field capture PWA, plan request queue | Not started | LATER |
-| 5 CRM, routing, call sheets, offer generator, JV terms sheet | Not started | LATER (proposal pack exists, Part 6) |
-| 6 Suburb analytics and targeting | Not started | LATER |
-| 7 Agent tools, docs (OUTREACH_POLICY, LISTINGS_TERMS) | Partly | LISTINGS.md only |
+| Bulk screening, map layer, shortlists, suburb analytics | Done, needs you | 362k candidates, ESTIMATED beds from a flagged placeholder; certified beds and census blank until files loaded |
+| Listings (CSV), digest, saved searches | Done | Trade Me connector built, off until terms and keys (BLOCKERS 2, 26) |
+| House-scale and portfolio economics | Done, needs you | |
+| Field capture, CRM, routes, offer generator | Flagged off | guardrails tested; straight-line routes (no routing engine) |
 
 ## Part 5: Feeds, flags, validation
-| Step | Status | Notes |
-|---|---|---|
-| 1 `core.feeds`, FEEDS.md, BLOCKERS.md, `make feeds-status` | Partly | all done except the admin page |
-| 2 Importers for pending feeds | Partly | manual-file loader and CSV listings done; licensed attributes and sales importer, Trade Me connector not built |
-| 3 Feature flags and gating | Done | `config/feature_flags.yaml` all false; outreach, CRM, call sheet, route, lead-export, field-capture and offer-letter routes answer 403 (tested); the app has no switch, only you edit the file. Nothing outreach-related is built yet |
-| 4 `make validate` and Validation Report | Done (report says NO-GO) | `docs/VALIDATION.md`: 3 of 7 pass; pending your spot-checks, tolerance and chosen properties, data coverage; feeds not all live/manual |
-| 5 CONFLICTS.md | Not started | |
+Feeds register and admin tab, importers (attributes, sales, rest homes, census) with dry run, feature flags, validation report, CONFLICTS.md: Done. Validation says NO-GO (3 of 7 checks pass; the rest need your data).
 
-## Part 6: Listings to offer (6.9 build order)
-| Step | Status | Notes |
-|---|---|---|
-| Verdict engine (GREEN, AMBER, RED, GREY) | Done | capped at AMBER while placeholders are used; hazards information only |
-| Map layer and digest | Partly | map layer, filters, coverage banner done; nightly digest and email not built |
-| Offer Builder with Part 6.4 worked example test | Done | fixed, profit share, hybrid; downside cases; cash required; flags |
-| Owner proposal pack | Done | markdown and PDF, lawyer banner, wording scan |
-| CRM link | Not started | LATER |
+## Part 6: Listings to offer
+Verdicts, map, Offer Builder (worked example is a test), proposal pack, digest: Done, needs you (placeholders cap verdicts at AMBER until your real costs are in).
 
-## Part 7: Remote conversion pipeline (7.6 build order)
-| Step | Status | Notes |
-|---|---|---|
-| 1 Property intake, plan upload, plan reader with human review | Done | vision reader needs the Anthropic key |
-| 2 Evidence gaps, layout options, compliance gaps, fire brief | Done | DRAFT-stamped DXF/PDF drawings, 4 briefs; regulatory numbers blank (needs you) |
-| 3 Retrofit quantities, economics, Offer Builder link | Done (needs you) | rates blank; placeholders loaded for running costs |
-| 4 Draft consent pack, engineer review workflow, completeness check, upload sheet | Done, reconciled with AC1009 v.21 | pack built to the Council's own lodgement checklist (151 lines); `council_verified` stays false until you say the pack has been checked against AC1021, the portal screens and fees (not yet seen), so "ready to lodge" stays refused (docs/PART7_STEP4.md) |
-| 5 Capture Guide, RFI tracker, timeline widget, metrics | Done | Track tab; approval records gate review links, "sent" and lodgement; track lead times and Ministry steps blank (BLOCKERS 24) |
+## Part 7: Remote conversion pipeline
+Steps 1 to 5 Done: property intake, plan reader, layouts, compliance, drawings (DRAFT), economics, consent pack to AC1009, engineer review workflow, approvals, RFI tracker, timeline, capture guide, plan request pack, metrics.
 
-## Part 8: Scale design (8.10 build order)
-| Step | Status | Notes |
-|---|---|---|
-| Approval Queue and touchpoint timing | Not started | LATER: after Part 7 steps 1 to 4 and your go |
-| Dashboard | Not started | |
-| Capture portal | Not started | |
-| Playbooks and delta view | Not started | apartment playbook is Part 8.3 |
-| Batch engineer workflow | Not started | |
-| Capacity planner | Not started | |
+## Part 8: Scale design
+Approval Queue, touchpoint timing, Next Best Action, dashboard and weekly digest, capture portal (flagged off), playbooks and delta (engineers write the content once), batch engineer workflow, capacity planner: Done.
 
-## Platform work not in the spec's step lists (done)
-`README.md` with the 5-step setup (Part 1 stage 10 docs item). Deal Sheet PDF, ranking by effort point, what-if sliders, retrofit calibration loop, plan request pack with site visit form (docs/DEALSHEET_RANKING_CALIBRATION.md). `make bootstrap` proven on a slice; owner login and Tailscale private access script; user-data backups with encrypted push to a private repo (needs setup); placeholders with banner and AMBER cap; My inputs, Placeholders and Import tabs.
+## Part 9: Best Use
+Done (three columns, honest "best" rule, hazard rule tested).
 
-## Tests by module (269 pass)
+## Tests by module (273)
 | Module | Tests |
 |---|---|
 | Rules corpus (Stage 3) | 69 |
 | Chat agent, SQL guard, read-only role | 38 |
 | Economics, Offer Builder, worked example | 18 |
-| Listings, matching, verdicts, listing offers | 16 |
-| Property Record, DXF reader, plan review (Part 7 s1) | 10 |
+| Listings, matching, verdicts | 16 |
+| Consent pack (AC1009, statements, register, gate, reviews, approvals, lodgement) | 15 |
+| Development engine (evaluator, layout, finance, subdivision) | 12 |
+| Property Record, DXF reader, plan review | 10 |
 | Login and access control | 10 |
 | Part 7 step 2 (layouts, drawings, compliance, briefs, gaps) | 8 |
-| Feature flags gating and validation settings | 5 |
-| Deal sheet, ranking, what-if, calibration loop, plan request pack | 5 |
-| Part 8 scale (queue, NBA, dashboard, capture portal, engineers, capacity) | 6 |
-| Bulk screening, portfolio, outreach layer (flagged off) | 14 |
-| Development engine, report, rc pack, services, layers, Māori, Best Use, playbooks | 22 |
-| Digest, saved searches, CRM guardrails, Trade Me connector | 3 |
-| Workflow: approvals, RFI, timeline, tracks, metrics, certification, capture guide | 6 |
-| Part 7 step 4 (consent pack, AC1009, statements, register check, ready gate, reviews, flag) | 14 |
+| Bulk screening, portfolio, importers (8 + 4) | 12 |
 | Placeholders | 7 |
-| Scenarios API: retrofit, economics, proposal (Part 7 s3) | 6 |
-| Settings and map | 4 |
-| Forbidden-words scan | 2 |
-| Backups (split check, encrypted push: 11 shell checks) | 2 |
-| Browser smoke test (phone width, signs in) | 1 |
+| Workflow (RFI, timeline, certification, metrics) | 6 |
+| Scenarios API | 6 |
+| Part 8 scale | 6 |
+| Outreach layer (flagged off) | 6 |
+| Deal sheet, ranking, calibration, plan request | 5 |
+| Feature flags and validation settings | 5 |
+| Development flow, Best Use, Māori, playbooks, layers | 10 |
+| Settings and map; digest, CRM, Trade Me | 7 |
+| Forbidden words, demo, backups, browser smoke | 7 |
 
 ## Blocked on you
-See docs/BLOCKERS.md (current list). Highest value first: set `APP_PASSWORD` and `TS_AUTHKEY` (open the app on your iPhone); reply to the 10 standards checks; create the private backup repo and set `BACKUP_PASSPHRASE`; `ANTHROPIC_API_KEY` and `ANTHROPIC_MODEL`; the Ngā Paerewa PDF and Building Code documents; your real running costs to replace placeholders and QS rates; a sample plan and your listings CSV.
+docs/BLOCKERS.md is the current list. Highest value first: `APP_PASSWORD` and `TS_AUTHKEY` (open the app on your iPhone: docs/IPHONE_TEST.md); reply to the 10 standards checks; Ngā Paerewa and Building Code documents (docs/sources_manual/README.md); the Council's AC1021, portal screens and fee schedule; your real running costs and QS quotes; stage probabilities and some logged minutes; engineer fees and playbook content; `BACKUP_PASSPHRASE` and the private backup repo; `ANTHROPIC_API_KEY` and model; HealthCERT list and census file; Trade Me keys.

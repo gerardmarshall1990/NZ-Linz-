@@ -54,8 +54,16 @@ def suburbs(min_candidates: int = 1) -> dict:
     with conn() as c:
         rows = c.execute("""SELECT suburb, count(*) AS candidates, sum(beds_base) AS beds_possible, avg(profit_before_rent_annual) AS avg_profit, avg(walk_away_rent) AS avg_walk_away, count(*) FILTER (WHERE beds_tier<>'ESTIMATED') AS better_than_estimated
                             FROM analytics.rh_screen WHERE suburb IS NOT NULL GROUP BY suburb HAVING count(*) >= %s ORDER BY sum(beds_base) DESC""", (min_candidates,)).fetchall()
-    return {"suburbs": [{**_row(r), "certified_beds_existing": None, "beds_per_1000_aged_75_plus": None} for r in rows],
-            "notes": ["certified_beds_existing is blank: the HealthCERT list is not loaded (BLOCKERS 5)", "beds_per_1000_aged_75_plus is blank: census data is not loaded (source and licence to be discovered; BLOCKERS 28)", "beds_possible sums ESTIMATED bedrooms for most rows: indicative only"]}
+        homes = {r["k"]: r["beds"] for r in c.execute("SELECT lower(s.suburb) AS k, sum(h.beds) AS beds FROM core.user_rest_home h JOIN core.sites s ON s.parcel_id=h.parcel_id WHERE h.beds IS NOT NULL GROUP BY 1").fetchall()}
+        pop = {r["k"]: r["p"] for r in c.execute("SELECT DISTINCT ON (lower(area_name)) lower(area_name) AS k, population_75_plus AS p FROM core.user_demographic ORDER BY lower(area_name), year DESC").fetchall()}
+    out = []
+    for r in rows:
+        k = (r["suburb"] or "").lower(); cb = homes.get(k); p = pop.get(k)
+        out.append({**_row(r), "certified_beds_existing": int(cb) if cb is not None else None, "beds_per_1000_aged_75_plus": round(cb / p * 1000, 1) if cb is not None and p else None})
+    notes = ["beds_possible sums ESTIMATED bedrooms for most rows: indicative only"]
+    if not homes: notes.insert(0, "certified_beds_existing is blank: no rest home list is loaded (HealthCERT export, BLOCKERS 5)")
+    if not pop: notes.insert(0, "beds_per_1000_aged_75_plus is blank: no census data is loaded (BLOCKERS 28)")
+    return {"suburbs": out, "notes": notes}
 
 # ------------------------------------------------------------------ shortlists
 def _audit(c, sid, action, detail=None): c.execute("INSERT INTO core.user_shortlist_audit (shortlist_id, action, detail) VALUES (%s,%s,%s::jsonb)", (sid, action, json.dumps(detail or {}, default=str)))

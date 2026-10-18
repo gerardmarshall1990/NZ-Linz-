@@ -58,9 +58,12 @@ Status key: [x] done, [~] partly done (what is left in the note), [ ] not starte
 - [x] G6 Capacity planner (done)
 
 ## H. Part 5 and close-out
-- [ ] H1 Feeds admin page, importers, CONFLICTS.md
+- [x] H1 Feeds admin tab, importers (attributes, sales, rest homes, census), CONFLICTS.md (done)
 - [x] H2 Feature flags and validation report (done; re-run `make validate` at the end)
-- [ ] H3 README refreshed, final backup, STATUS.md final
+- [x] H3 README refreshed, STATUS.md final, validation re-run (NO-GO: 3 of 7), final backup (done 2026-10-18)
+
+## Run complete 2026-10-18
+Every item above is built and tested (273 tests) except where marked [P]/PENDING in docs/BLOCKERS.md. A new session should read docs/STATUS.md and docs/BLOCKERS.md, then work through the owner's replies (standards checks, documents, keys, real costs). Next engineering work once documents arrive: fill the 17 requirement slots and bed rules (docs/sources_manual/README.md), reconcile the consent checklists, load HealthCERT/census/TPK files with the importers, then re-run `make validate`.
 
 ## Owner-blocked inputs (do not wait for these; see docs/BLOCKERS.md)
 APP_PASSWORD, TS_AUTHKEY, BACKUP_PASSPHRASE + private backup repo, ANTHROPIC_API_KEY/MODEL, Ngā Paerewa and Building Code documents, HealthCERT list, AC1021 / portal screens / fee schedule, PS author register export, real costs and QS quotes, standards spot-checks, tolerance and chosen validation properties.

@@ -1,10 +1,12 @@
 """Routes for the consent pack, statements, engineer reviews and feature flags (Part 7 step 4). The only routes reachable without the owner's login are /review/{token} and /api/review/{token}, and only while the engineer_review_links flag is ON."""
 from datetime import date
+import re
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from fastapi.responses import HTMLResponse, PlainTextResponse, Response
 from pydantic import BaseModel, Field
-from . import approvals, capacity, engineers, capture_portal, dashboard, nba, tasks, audit, field, offers, routeplan, portfolio, screen, screenapi, playbooks, bestuse, maori, layers, rcpack, devreport, devscenarios, services, crm, digest, trademe, capture_guide, certification, rfi, timeline, consent_pack as cp, dealsheet, flags, plan_request, ranking, retrofit_calibration as rcal, reviews, validation
+from . import approvals, importers, capacity, engineers, capture_portal, dashboard, nba, tasks, audit, field, offers, routeplan, portfolio, screen, screenapi, playbooks, bestuse, maori, layers, rcpack, devreport, devscenarios, services, crm, digest, trademe, capture_guide, certification, rfi, timeline, consent_pack as cp, dealsheet, flags, plan_request, ranking, retrofit_calibration as rcal, reviews, validation
 from .facts import get_property
+from .db import conn
 from .layout import get_option
 from .pack_pdf import md_to_pdf
 
@@ -670,3 +672,28 @@ class CapPlanIn(BaseModel):
     opening_target: str | None = None
 @r.post("/api/capacity")
 def cap_plan(body: CapPlanIn): return capacity.plan(body.homes or portfolio.homes_from_screen(body.parcel_ids), body.capacities, body.overrides, body.horizon_weeks, body.opening_target)
+
+# ---- feeds admin and importers
+@r.get("/api/feeds")
+def feeds_list():
+    with conn() as c: rows = c.execute("SELECT id, feed, purpose, cost_licence, needed_by, plug_in_point, without_it, status, count_sql, last_refresh, blocked_reason, next_action FROM core.feeds ORDER BY id").fetchall()
+    out = []
+    for x in rows:
+        n = None
+        if x["count_sql"]:
+            try:
+                with conn() as c: n = list(c.execute(x["count_sql"]).fetchone().values())[0]
+            except Exception:
+                m = re.search(r"FROM\s+([\w.]+)", x["count_sql"] or "")
+                try:
+                    with conn() as c: n = c.execute("SELECT reltuples::bigint AS n FROM pg_class WHERE oid = %s::regclass", (m.group(1),)).fetchone()["n"] if m else None
+                except Exception: n = None
+        out.append({**{k: (v.isoformat() if hasattr(v, "isoformat") else v) for k, v in x.items() if k != "count_sql"}, "rows": n})
+    return out
+@r.post("/api/importers/{kind}")
+async def importer_run(kind: str, file: UploadFile = File(...), dry_run: bool = Form(True), source: str | None = Form(None), mapping: str | None = Form(None)):
+    import json as _json
+    text = (await file.read(25_000_000)).decode("utf-8-sig", errors="replace")
+    return importers.run(kind, text, file.filename, _json.loads(mapping) if mapping else None, dry_run, source)
+@r.get("/api/importers/log")
+def importer_log(): return importers.log()

@@ -9,7 +9,7 @@ HAZARDS = {"flood_plains": "ac_hz_flood_plains", "flood_prone": "ac_hz_flood_pro
 MAX_SPAN_DEG = 0.06      # about 6 km: zoom in to see polygons
 LIMIT = 500
 
-def kinds() -> dict: return {"zones": "Planning zones", "maori_land": "Māori land (LINZ parcels flagged Māori)", "overlays": sorted(OVERLAYS), "hazards": sorted(HAZARDS), "note": "Hazard layers are information only for conversions of existing buildings."}
+def kinds() -> dict: return {"zones": "Planning zones", "maori_land": "Māori land (LINZ parcels flagged Māori)", "rest_homes": "Existing certified rest homes (from your HealthCERT export; empty until loaded)", "overlays": sorted(OVERLAYS), "hazards": sorted(HAZARDS), "note": "Hazard layers are information only for conversions of existing buildings."}
 
 def _bbox(b: str) -> tuple:
     try: x0, y0, x1, y1 = [float(v) for v in b.split(",")]
@@ -25,6 +25,8 @@ def get(kind: str, bbox: str, name: str | None = None) -> dict:
             rows = c.execute(f"SELECT jsonb_build_object('zone', COALESCE(l.zone_name, z.zone::text)) AS p, ST_AsGeoJSON(ST_Transform(ST_SimplifyPreserveTopology(z.geom, 2), 4326), 6)::jsonb AS g FROM raw.ac_zone z LEFT JOIN core.zone_lookup l ON l.code = z.zone WHERE z.geom && {env} LIMIT {LIMIT}", (x0, y0, x1, y1)).fetchall()
         elif kind == "maori_land":
             rows = c.execute(f"SELECT jsonb_build_object('parcel_id', parcel_id, 'address', address, 'zone', zone_name, 'maori_land_linz', maori_land_linz) AS p, ST_AsGeoJSON(ST_Transform(ST_SimplifyPreserveTopology(geom, 2), 4326), 6)::jsonb AS g FROM core.sites WHERE (maori_land_linz OR zone_name ILIKE '%%ori Purpose%%') AND geom && {env} LIMIT {LIMIT}", (x0, y0, x1, y1)).fetchall()
+        elif kind == "rest_homes":
+            rows = c.execute("SELECT jsonb_build_object('name', name, 'beds', beds, 'address', address_raw) AS p, ST_AsGeoJSON(ST_MakePoint(lon, lat), 6)::jsonb AS g FROM core.user_rest_home WHERE lon BETWEEN %s AND %s AND lat BETWEEN %s AND %s LIMIT %s", (x0, x1, y0, y1, LIMIT)).fetchall()
         elif kind in ("overlay", "hazard"):
             tab = (OVERLAYS if kind == "overlay" else HAZARDS).get(name or "")
             if not tab: raise HTTPException(422, f"name must be one of {sorted(OVERLAYS if kind == 'overlay' else HAZARDS)}")
