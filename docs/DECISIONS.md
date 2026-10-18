@@ -29,3 +29,5 @@ Owner decisions are in MASTER_SPEC.md Part 0.4 (numbered 1 to 19; they override 
 - Git history was rewritten with `git filter-repo` to remove the committed LINZ key; branch force-pushed. The key must still be rotated by the owner.
 - Rules corpus built from Council's official chapter PDFs with OCR repair (text layers drop content). Quote-matching is not the same as owner verification; see decision 17.
 - Plan currency: loaded zone layer = operative AUP (fully operative 23 Jul 2026). PC120 is proposed (submissions closed 24 Sep 2026) and not applied.
+- 2026-10-18 (autopilot): the earlier instruction "do not start the development-site flow until I say" is superseded by the owner's autopilot list, which includes it (item E). Order follows the owner's list.
+- 2026-10-18 (autopilot): demo data is labelled DEMO (source_id `DEMO-n`), uses invented rent and bedrooms on real addresses, is removable with `make demo-clear`, and never writes your saved inputs.

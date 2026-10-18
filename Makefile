@@ -1,4 +1,4 @@
-.PHONY: app-private backup-github backup-full owner-review-table bootstrap app-db app up down refresh refresh-linz refresh-auckland core backup manual rules test feeds feeds-status check-page validate
+.PHONY: app-private backup-github backup-full owner-review-table bootstrap app-db app up down refresh refresh-linz refresh-auckland core backup manual rules test feeds feeds-status check-page validate demo-seed demo-clear preflight
 SHELL := /bin/bash
 PSQL = set -a; . ./.env; set +a; PGPASSWORD=$$POSTGRES_PASSWORD psql -h $${PGHOST:-localhost} -U $$POSTGRES_USER -d $$POSTGRES_DB -v ON_ERROR_STOP=1 -q
 
@@ -56,6 +56,15 @@ feeds:
 
 feeds-status:
 	@python3 scripts/feeds_status.py
+
+demo-seed:
+	@python3 scripts/demo_seed.py
+
+demo-clear:
+	@python3 scripts/demo_seed.py --clear
+
+preflight:
+	@python3 scripts/preflight.py
 
 validate:
 	@python3 scripts/validate.py
