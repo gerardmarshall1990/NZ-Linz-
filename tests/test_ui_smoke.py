@@ -14,6 +14,8 @@ def free_port():
 
 def test_map_app_in_browser(addrs, tmp_path):
     num, road, sub = addrs["single"][1], addrs["single"][2], addrs["single"][3]
+    from backend.app.db import conn
+    with conn() as c: c.execute("DELETE FROM core.user_listing WHERE source_id LIKE 'DEMO-%'"); c.commit()         # the browser test picks the first dot: remove DEMO listings (make demo-seed puts them back)
     port = free_port(); pw = os.environ["APP_PASSWORD"]; env = {**os.environ, "UPLOAD_DIR": str(tmp_path), "APP_PASSWORD": pw}
     srv = subprocess.Popen([sys.executable, "-m", "uvicorn", "backend.app.main:app", "--port", str(port), "--log-level", "warning"], cwd=ROOT, env=env)
     try:

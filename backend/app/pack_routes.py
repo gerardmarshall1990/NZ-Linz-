@@ -3,7 +3,7 @@ from datetime import date
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from fastapi.responses import HTMLResponse, PlainTextResponse, Response
 from pydantic import BaseModel, Field
-from . import approvals, consent_pack as cp, dealsheet, flags, plan_request, ranking, retrofit_calibration as rcal, reviews, validation
+from . import approvals, capture_guide, certification, rfi, timeline, consent_pack as cp, dealsheet, flags, plan_request, ranking, retrofit_calibration as rcal, reviews, validation
 from .facts import get_property
 from .layout import get_option
 from .pack_pdf import md_to_pdf
@@ -226,3 +226,74 @@ class LodgedIn(BaseModel):
     note: str | None = None
 @r.post("/api/packs/{pid}/lodged")
 def pack_lodged(pid: int, body: LodgedIn): return cp.mark_lodged(pid, body.portal_ref, body.lodged_on, body.note)
+
+# ---- capture guide, RFI tracker, timeline, metrics, certification
+@r.get("/api/property/{parcel_id}/capture-guide", response_class=PlainTextResponse)
+def cg_md(parcel_id: int): return PlainTextResponse(capture_guide.build(parcel_id)["markdown"])
+@r.get("/api/property/{parcel_id}/capture-guide.pdf")
+def cg_pdf(parcel_id: int): return Response(capture_guide.pdf(parcel_id), media_type="application/pdf")
+
+class RfiItemIn(BaseModel):
+    text: str
+    owner_role: str | None = None
+class RfiIn(BaseModel):
+    received_on: date
+    summary: str
+    items: list[RfiItemIn]
+    due_on: date | None = None
+    council_ref: str | None = None
+    pack_id: int | None = None
+@r.post("/api/property/{parcel_id}/rfis")
+def rfi_add(parcel_id: int, body: RfiIn): return rfi.add(parcel_id, body.received_on, body.summary, [i.model_dump() for i in body.items], body.due_on, body.council_ref, body.pack_id)
+@r.get("/api/property/{parcel_id}/rfis")
+def rfi_list(parcel_id: int): return rfi.list_for(parcel_id)
+@r.get("/api/rfis/overdue")
+def rfi_overdue(): return rfi.overdue_all()
+class RfiAnsIn(BaseModel):
+    status: str
+    response: str | None = None
+@r.put("/api/rfi-items/{iid}")
+def rfi_item(iid: int, body: RfiAnsIn): return rfi.answer_item(iid, body.status, body.response)
+class RespIn(BaseModel): responded_on: date | None = None
+@r.post("/api/rfis/{rid}/responded")
+def rfi_responded(rid: int, body: RespIn): return rfi.mark_responded(rid, body.responded_on)
+@r.post("/api/rfis/{rid}/close")
+def rfi_close(rid: int): return rfi.close(rid)
+
+@r.get("/api/property/{parcel_id}/timeline")
+def tl_get(parcel_id: int, scenario: str = "target", opening: date | None = None): return timeline.plan(parcel_id, scenario, opening)
+class TrackIn(BaseModel):
+    lead_weeks: float | None = None
+    source: str | None = None
+@r.put("/api/timeline/tracks/{key}")
+def tl_track(key: str, body: TrackIn): return timeline.set_track(key, body.lead_weeks, body.source)
+class StructIn(BaseModel): light: bool | None = None
+@r.put("/api/property/{parcel_id}/structure-light")
+def tl_struct(parcel_id: int, body: StructIn): return timeline.set_structure_light(parcel_id, body.light)
+class MsIn(BaseModel):
+    planned_on: date | None = None
+    actual_on: date | None = None
+    note: str | None = None
+@r.put("/api/property/{parcel_id}/milestones/{key}")
+def tl_ms(parcel_id: int, key: str, body: MsIn): return timeline.set_milestone(parcel_id, key, body.planned_on, body.actual_on, body.note)
+@r.get("/api/property/{parcel_id}/milestones")
+def tl_ms_get(parcel_id: int): return timeline.milestones(parcel_id)
+class MinIn(BaseModel):
+    parcel_id: int | None = None
+    step: str
+    minutes: float
+    note: str | None = None
+@r.post("/api/metrics/minutes")
+def metrics_log(body: MinIn): return timeline.log_minutes(body.parcel_id, body.step, body.minutes, body.note)
+@r.get("/api/metrics")
+def metrics_get(): return timeline.metrics()
+
+@r.get("/api/property/{parcel_id}/certification")
+def cert_get(parcel_id: int): return certification.view(parcel_id)
+class CertIn(BaseModel):
+    status: str
+    note: str | None = None
+@r.put("/api/property/{parcel_id}/certification/{key}")
+def cert_set(parcel_id: int, key: str, body: CertIn): return certification.set_status(parcel_id, key, body.status, body.note)
+@r.get("/api/certification/templates/{key}", response_class=PlainTextResponse)
+def cert_template(key: str): return PlainTextResponse(certification.template(key))

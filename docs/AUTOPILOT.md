@@ -13,16 +13,16 @@ Status key: [x] done, [~] partly done (what is left in the note), [ ] not starte
 - [x] B1 Consent pack, review workflow, completeness against AC1009 (151 lines), DRAFT stamps, upload slots, PS validity (90 days, register)  (done 2026-10-18)
 - [x] B2 Plan request pack (email, Council LIM guidance, site visit form, request log)  (done)
 - [x] B3 Approval records: table + API; gate review link issue, plan request "sent", lodgement record (done)
-- [ ] B4 Capture Guide generator (remote phone capture instructions for the owner/agent)
-- [ ] B5 RFI tracker (Council requests for information: logged, due dates, responses)
-- [ ] B6 Timeline widget (consent, works, audit; parallel tracks) and metrics (human minutes per step)
+- [x] B4 Capture Guide generator (done)
+- [x] B5 RFI tracker (done)
+- [x] B6 Timeline widget, parallel tracks, milestones, human-minutes metrics (done; track lead times blank until owner sets them)
 
 ## C. Part 3
 - [x] C1 Retrofit calibration loop (done)
 - [x] C2 Deal Sheet PDF (done)
 - [x] C3 Ranking and what-if sliders (done)
-- [ ] C4 Timeline scenarios (best / base / delay) feeding the Offer Builder
-- [ ] C5 Certification checklist (HealthCERT / Ngā Paerewa pathway; clause values PENDING the standard)
+- [x] C4 Timeline scenarios target / delay (+13 weeks) feed the Offer Builder; contract has no phase split so it cannot (done)
+- [x] C5 Certification checklist and lease conditions; policy templates only (done; Ministry steps PENDING, BLOCKERS 5)
 
 ## D. Part 6
 - [ ] D1 Digest and alerts (listing changes, follow-ups due, RFIs due; in-app only, no sending)
@@ -50,7 +50,7 @@ Status key: [x] done, [~] partly done (what is left in the note), [ ] not starte
 - [ ] F7 Offer generator (behind flag)
 
 ## G. Part 8
-- [ ] G1 Approval Queue
+- [~] G1 Approval Queue (basic queue and Approvals tab done; extend to all draft kinds in G-phase)
 - [ ] G2 Dashboard
 - [ ] G3 Capture portal
 - [ ] G4 Playbooks and delta view

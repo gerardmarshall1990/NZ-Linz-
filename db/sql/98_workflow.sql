@@ -1,8 +1,11 @@
 -- Autopilot B/C: approval records, lodgement record, RFI tracker, milestones, effort log, parallel tracks, certification checklist. USER data (core.rh_*).
 CREATE TABLE IF NOT EXISTS core.rh_approval (
   id bigserial PRIMARY KEY, kind text NOT NULL, subject_type text NOT NULL, subject_id bigint NOT NULL, summary text NOT NULL, draft_text text,
-  status text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','approved','rejected')), requested_at timestamptz NOT NULL DEFAULT now(),
+  status text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','granted','rejected')), requested_at timestamptz NOT NULL DEFAULT now(),
   decided_at timestamptz, decided_by text, note text, used_at timestamptz);
+ALTER TABLE core.rh_approval DROP CONSTRAINT IF EXISTS rh_approval_status_check;
+UPDATE core.rh_approval SET status='granted' WHERE status='approved';
+ALTER TABLE core.rh_approval ADD CONSTRAINT rh_approval_status_check CHECK (status IN ('pending','granted','rejected'));
 CREATE INDEX IF NOT EXISTS rh_approval_subject ON core.rh_approval (kind, subject_type, subject_id);
 CREATE TABLE IF NOT EXISTS core.rh_lodgement (id bigserial PRIMARY KEY, pack_id bigint NOT NULL REFERENCES core.rh_pack(id), approval_id bigint NOT NULL REFERENCES core.rh_approval(id),
   portal_ref text NOT NULL, lodged_on date NOT NULL, note text, created_at timestamptz NOT NULL DEFAULT now());

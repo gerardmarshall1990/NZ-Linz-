@@ -1,5 +1,5 @@
 """Approval records. Nothing leaves the app, and nothing is recorded as sent or lodged, without an approval the owner made with one tap (MASTER_SPEC Part 8, decision 15).
-Flow: an action that would issue something asks `require(...)`; with no approved, unused record it creates a pending one (with the draft text) and refuses with 409 {approval_required}. The owner approves or rejects in the app;
+Flow: an action that would issue something asks `require(...)`; with no granted, unused record it creates a pending one (with the draft text) and refuses with 409 {approval_required}. The owner approves or rejects in the app;
 the action then succeeds once and consumes the approval. The app sends nothing itself: approval permits the app to issue a link or record the step; the owner still sends or lodges."""
 from fastapi import HTTPException
 from .db import conn
@@ -17,16 +17,16 @@ def request(kind: str, subject_type: str, subject_id: int, summary: str, draft_t
     return _view(r)
 
 def require(kind: str, subject_type: str, subject_id: int, summary: str, draft_text: str | None = None) -> int:
-    """Return the id of an approved, unused record and mark it used; otherwise create a pending one and raise 409."""
+    """Return the id of an granted, unused record and mark it used; otherwise create a pending one and raise 409."""
     with conn() as c:
-        r = c.execute("SELECT id FROM core.rh_approval WHERE kind=%s AND subject_type=%s AND subject_id=%s AND status='approved' AND used_at IS NULL ORDER BY id LIMIT 1", (kind, subject_type, subject_id)).fetchone()
+        r = c.execute("SELECT id FROM core.rh_approval WHERE kind=%s AND subject_type=%s AND subject_id=%s AND status='granted' AND used_at IS NULL ORDER BY id LIMIT 1", (kind, subject_type, subject_id)).fetchone()
         if r: c.execute("UPDATE core.rh_approval SET used_at = now() WHERE id=%s", (r["id"],)); c.commit(); return r["id"]
     a = request(kind, subject_type, subject_id, summary, draft_text)
     raise HTTPException(409, {"approval_required": True, "approval_id": a["id"], "kind": kind, "message": f"Needs your approval first: {KINDS[kind]}. Approve it in the approval list, then repeat the action."})
 
 def decide(aid: int, approve: bool, note: str | None = None) -> dict:
     with conn() as c:
-        r = c.execute("UPDATE core.rh_approval SET status=%s, decided_at=now(), decided_by='owner', note=%s WHERE id=%s AND status='pending' RETURNING *", ("approved" if approve else "rejected", note, aid)).fetchone(); c.commit()
+        r = c.execute("UPDATE core.rh_approval SET status=%s, decided_at=now(), decided_by='owner', note=%s WHERE id=%s AND status='pending' RETURNING *", ("granted" if approve else "rejected", note, aid)).fetchone(); c.commit()
     if not r: raise HTTPException(409, "no such pending approval (already decided?)")
     return _view(r)
 

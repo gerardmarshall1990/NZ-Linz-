@@ -1,7 +1,7 @@
 """Glue: layout option + Property Record + assumptions -> feasibility, retrofit cost, offer modes. Stores every run in core.rh_scenario so the owner can see the history."""
 import json
 from fastapi import HTTPException
-from . import economics, retrofit, settings
+from . import economics, retrofit, settings, timeline
 from .compliance import _facts, run as run_checks
 from .db import conn
 from .facts import get_property
@@ -54,7 +54,7 @@ def offer_run(parcel_id: int, option_id: int, body: dict) -> dict:
     if feas.get("stabilised") is None or feas["stabilised"]["net"] is None:
         return {"needs_input": feas["needs_input"], "modes": {}, "label": "Needs input: the operating model has unset inputs, so no net operating profit is available."}
     t = economics.timeline_defaults()["target"]
-    tl = body.get("timeline") or {"consent_weeks": t["consent_weeks"], "works_weeks": t["works_weeks"], "audit_weeks": t["audit_signoff_weeks"]}
+    tl = body.get("timeline") or ({k: v for k, v in timeline.weeks_for(body["timeline_scenario"]).items() if k != "fill_weeks"} if body.get("timeline_scenario") else {"consent_weeks": t["consent_weeks"], "works_weeks": t["works_weeks"], "audit_weeks": t["audit_signoff_weeks"]})
     N = sens["N_range"]
     inp = {"asking_rent": body["asking_rent"], "current_net": body.get("current_net"), "N": N, "N_fn": lambda occ: economics.operating(o["beds"], occ, p)["net"], "stabilised_occupancy": p["stabilised_occupancy"],
            "retrofit": rt_range, "allowance_pct": alloc, "timeline": tl, "fill_ramp_by_month": p["fill_ramp_by_month"], "pre_opening_costs": p["pre_opening_costs"], "working_capital": p["working_capital"],

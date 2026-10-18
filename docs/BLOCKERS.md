@@ -25,3 +25,5 @@
 | 21 | Open the app on your iPhone: create a Tailscale account, install the app, set `APP_PASSWORD` and `TS_AUTHKEY` in the environment settings, allow the Tailscale domains (docs/ACCESS.md) | Owner | open |
 | 22 | ~~Write `README.md` with the 5-step setup~~ done 2026-10-18 | Me | closed |
 | 23 | Reply to the 10 numeric standards checks sent in chat (and later the rest of `docs/key_standards_check.html`) | Owner | open |
+| 24 | PENDING (owner): HealthCERT / Ministry certification steps and parallel-track lead times (recruitment, audit, long-lead orders): all blank in `config/parallel_tracks.yaml` and the certification checklist; set them on the Track tab when known. | Owner | open |
+| 25 | PENDING (owner): Council RFI due dates are entered by you from the Council's letter; no statutory period is assumed. | Owner | open |

@@ -31,7 +31,7 @@ def client(tmp_path_factory):
 
 def send_review(client, rid):
     r = client.post(f"/api/reviews/{rid}/send"); assert r.status_code == 409 and r.json()["detail"]["approval_required"]       # nothing is issued without an approval record
-    assert client.post(f"/api/approvals/{r.json()['detail']['approval_id']}/decide", json={"approve": True}).json()["status"] == "approved"
+    assert client.post(f"/api/approvals/{r.json()['detail']['approval_id']}/decide", json={"approve": True}).json()["status"] == "granted"
     return client.post(f"/api/reviews/{rid}/send").json()
 
 def new_pack(client): r = client.post(f"/api/property/{PARCEL}/packs", json={"option_id": client.opt}); assert r.status_code == 200, r.text; return r.json()

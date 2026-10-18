@@ -268,6 +268,7 @@ class OfferIn(BaseModel):
     retrofit: dict | float | None = None
     allowance_pct: float | None = None
     timeline: dict | None = None
+    timeline_scenario: Literal['target', 'delay', 'contract'] | None = None
     downside: dict | None = None
 
 @app.post("/api/property/{parcel_id}/offers")

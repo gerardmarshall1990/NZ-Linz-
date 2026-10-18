@@ -1,0 +1,22 @@
+# Certification and conditional-lease checklists (MASTER_SPEC Part 3 section 8). The HealthCERT steps themselves have NOT been discovered from the Ministry (health.govt.nz is behind a bot challenge, docs/BLOCKERS.md 5),
+# so the certification items below are the spec's own list and every lead time is blank. Do not treat this as the Ministry's process. Policies are templates only: `[TO COMPLETE]`, never a final policy.
+source: "MASTER_SPEC Part 3 section 8 and section 7 track list; Ministry steps PENDING"
+certification:
+  - {key: legal_entity,        title: "Legal entity registered (the operator)", owner: "you / lawyer", documents: ["Certificate of incorporation"]}
+  - {key: healthcert_pathway,  title: "HealthCERT application pathway confirmed with the Ministry (reconfiguration or new service; provisional steps)", owner: "you / operator", documents: ["Ministry correspondence"]}
+  - {key: auditor_booked,      title: "Designated auditing agency identified, audit scheduled, fees and timeframes confirmed in writing", owner: "operator", documents: ["Auditor quote and schedule"]}
+  - {key: policies,            title: "Policies and procedures written and approved by the operator's clinical lead (list from Ngā Paerewa: PENDING the standard)", owner: "operator", documents: ["Policy set"]}
+  - {key: manager_hired,       title: "Manager hired", owner: "you", documents: []}
+  - {key: clinical_lead_hired, title: "Clinical lead (registered nurse) hired", owner: "you", documents: []}
+  - {key: staff_roster,        title: "Staff roster and recruitment plan matching the staffing your auditor requires", owner: "operator", documents: ["Roster"]}
+  - {key: building_sign_off,   title: "Building consent code compliance evidence and fire safety documents ready for the audit", owner: "designer / engineers", documents: ["Code compliance certificate", "Compliance schedule / BWOF"]}
+lease_conditions:
+  - {key: building_consent,    title: "Condition precedent: building consent granted for the alterations"}
+  - {key: resource_consent,    title: "Condition precedent: resource consent, if the planner says it is needed"}
+  - {key: certification,       title: "Condition precedent: certification pathway confirmed with the designated auditing agency"}
+  - {key: finance,             title: "Condition precedent: finance, where relevant"}
+  - {key: mortgagee_consent,   title: "Landlord's mortgagee consent (and insurer confirmation)"}
+  - {key: long_stop,           title: "Long-stop date agreed (the lawyers set the consequence if a condition is not met)"}
+  - {key: rent_free,           title: "Rent-free period during conversion agreed"}
+  - {key: fit_out,             title: "Fit-out ownership agreed"}
+  - {key: make_good,           title: "Make-good on exit agreed"}

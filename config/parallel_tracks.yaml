@@ -1,0 +1,13 @@
+# Parallel tracks for a rest home opening (MASTER_SPEC Part 3 section 7). Start dates are counted back from the target opening using each track's lead time.
+# lead_weeks is BLANK on purpose: the real lead times (HealthCERT application and audit steps, recruitment, long-lead orders) are not known to me and are not guessed. Set each on the Timeline screen when you learn it; a blank is shown as "set lead time".
+tracks:
+  legal_entity:            {title: "Legal entity registration", owner: "you / lawyer", lead_weeks: null, source: null}
+  healthcert_application:  {title: "HealthCERT application (reconfiguration / provisional steps to be discovered from the Ministry)", owner: "you / operator", lead_weeks: null, source: null}
+  auditor_booking:         {title: "Designated auditing agency booking", owner: "operator", lead_weeks: null, source: null}
+  policies:                {title: "Policies and procedures written (templates only until a professional completes them)", owner: "operator", lead_weeks: null, source: null}
+  manager_clinical_lead:   {title: "Manager and clinical lead hired", owner: "you", lead_weeks: null, source: null}
+  staff_recruitment:       {title: "Staff recruitment and training", owner: "operator", lead_weeks: null, source: null}
+  waitlist_referrers:      {title: "Waitlist and referrers", owner: "operator", lead_weeks: null, source: null}
+  long_lead_orders:        {title: "Long-lead orders (sprinklers, nurse call, lift)", owner: "project manager", lead_weeks: null, source: null}
+  council_pre_application: {title: "Council pre-application meeting", owner: "you / designer", lead_weeks: null, source: null}
+  utility_approvals:       {title: "Utility approvals", owner: "designer / engineers", lead_weeks: null, source: null}
