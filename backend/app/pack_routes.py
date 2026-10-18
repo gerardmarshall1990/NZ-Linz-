@@ -3,7 +3,7 @@ from datetime import date
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from fastapi.responses import HTMLResponse, PlainTextResponse, Response
 from pydantic import BaseModel, Field
-from . import consent_pack as cp, dealsheet, flags, plan_request, ranking, retrofit_calibration as rcal, reviews, validation
+from . import approvals, consent_pack as cp, dealsheet, flags, plan_request, ranking, retrofit_calibration as rcal, reviews, validation
 from .facts import get_property
 from .layout import get_option
 from .pack_pdf import md_to_pdf
@@ -209,3 +209,20 @@ class ValIn(BaseModel):
 def val_get(): return validation.get_config()
 @r.put("/api/validation/config")
 def val_put(body: ValIn): return validation.set_config(body.tolerance_pct, body.properties)
+
+# ---- approval records
+@r.get("/api/approvals")
+def approvals_pending(): return approvals.pending()
+@r.get("/api/approvals/history")
+def approvals_history(): return approvals.history()
+class DecideIn(BaseModel):
+    approve: bool
+    note: str | None = None
+@r.post("/api/approvals/{aid}/decide")
+def approvals_decide(aid: int, body: DecideIn): return approvals.decide(aid, body.approve, body.note)
+class LodgedIn(BaseModel):
+    portal_ref: str
+    lodged_on: date | None = None
+    note: str | None = None
+@r.post("/api/packs/{pid}/lodged")
+def pack_lodged(pid: int, body: LodgedIn): return cp.mark_lodged(pid, body.portal_ref, body.lodged_on, body.note)

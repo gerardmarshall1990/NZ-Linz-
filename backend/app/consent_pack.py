@@ -6,7 +6,7 @@ from datetime import date, datetime
 from functools import lru_cache
 import yaml
 from fastapi import HTTPException
-from . import drawings, ps_register
+from . import approvals, drawings, ps_register
 from .compliance import run as run_checks, _facts
 from .config import ROOT, upload_dir
 from .db import conn
@@ -364,10 +364,23 @@ def completeness(pack_id: int) -> dict:
 
 def mark_ready(pack_id: int) -> dict:
     p = _pack(pack_id)
-    if p["status"] == "superseded": raise HTTPException(409, "superseded pack")
+    if p["status"] in ("superseded", "lodged"): raise HTTPException(409, f"pack is {p['status']}")
     g = completeness(pack_id)
     if not g["ready"]: raise HTTPException(409, {"message": "not ready to lodge", "blockers": g["blockers"]})
     with conn() as c: c.execute("UPDATE core.rh_pack SET status='ready_to_lodge', ready_marked_at=now() WHERE id=%s", (pack_id,)); c.commit()
+    return get(pack_id)
+
+def mark_lodged(pack_id: int, portal_ref: str, lodged_on: date | None = None, note: str | None = None) -> dict:
+    """Record that YOU lodged the pack through the Council portal. Needs the pack to be ready_to_lodge, a portal reference, and an approval record. The app never lodges anything."""
+    p = _pack(pack_id)
+    if p["status"] != "ready_to_lodge": raise HTTPException(409, f"pack is {p['status']}: only a ready_to_lodge pack can be recorded as lodged")
+    if not (portal_ref or "").strip(): raise HTTPException(422, "the Council portal reference is required")
+    on = lodged_on or date.today()
+    if on > date.today(): raise HTTPException(422, "lodgement date is in the future")
+    aid = approvals.require("council_lodgement", "pack", pack_id, f"Record lodgement of consent pack v{p['version']} for {p['inputs']['site']['address']} (portal ref {portal_ref.strip()})", "You lodge through the Council's portal yourself; this records that you did.")
+    with conn() as c:
+        c.execute("INSERT INTO core.rh_lodgement (pack_id, approval_id, portal_ref, lodged_on, note) VALUES (%s,%s,%s,%s,%s)", (pack_id, aid, portal_ref.strip(), on, note))
+        c.execute("UPDATE core.rh_pack SET status='lodged' WHERE id=%s", (pack_id,)); c.commit()
     return get(pack_id)
 
 # ------------------------------------------------------------------ views and export

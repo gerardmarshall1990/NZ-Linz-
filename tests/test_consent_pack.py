@@ -17,6 +17,7 @@ def client(tmp_path_factory):
     from backend.app.db import conn
     def clean():
         with conn() as c:
+            c.execute("DELETE FROM core.rh_lodgement"); c.execute("DELETE FROM core.rh_approval")
             c.execute("DELETE FROM core.rh_pack WHERE parcel_id=%s", (PARCEL,))
             c.execute("DELETE FROM core.user_flag WHERE key='engineer_review_links'")
             for t in ("rh_brief", "rh_check_run", "rh_layout_option", "rh_evidence_gap_status"): c.execute(f"DELETE FROM core.{t} WHERE parcel_id=%s", (PARCEL,))
@@ -27,6 +28,11 @@ def client(tmp_path_factory):
             c.commit()
     clean(); cl = TestClient(app); setup_property(cl)
     cl.opt = cl.post(f"/api/property/{PARCEL}/layouts").json()[0]["id"]; yield cl; clean()
+
+def send_review(client, rid):
+    r = client.post(f"/api/reviews/{rid}/send"); assert r.status_code == 409 and r.json()["detail"]["approval_required"]       # nothing is issued without an approval record
+    assert client.post(f"/api/approvals/{r.json()['detail']['approval_id']}/decide", json={"approve": True}).json()["status"] == "approved"
+    return client.post(f"/api/reviews/{rid}/send").json()
 
 def new_pack(client): r = client.post(f"/api/property/{PARCEL}/packs", json={"option_id": client.opt}); assert r.status_code == 200, r.text; return r.json()
 
@@ -141,7 +147,7 @@ def test_not_required_needs_a_reason(client):
 def test_review_packages_flag_and_metrics(client):
     p = new_pack(client); pid = p["id"]
     rv = client.post(f"/api/packs/{pid}/reviews", json={"role": "fire", "engineer_name": "F Eng", "engineer_company": "Fire Ltd"}).json(); assert rv["status"] == "draft"
-    s = client.post(f"/api/reviews/{rv['id']}/send").json(); assert s["link"] is None and s["status"] == "sent"      # flag OFF: no working link issued
+    s = send_review(client, rv["id"]); assert s["link"] is None and s["status"] == "sent"      # flag OFF: no working link issued
     z = zipfile.ZipFile(io.BytesIO(client.get(f"/api/reviews/{rv['id']}/package.zip").content)); assert "Brief.pdf" in z.namelist() and "Documents wanted from you.txt" in z.namelist()
     assert STAMP in pymupdf.open(stream=z.read("Brief.pdf"), filetype="pdf")[0].get_text().replace("\n", " ")
     from tests.conftest import RAW_TESTCLIENT
@@ -150,7 +156,7 @@ def test_review_packages_flag_and_metrics(client):
     assert anon.get("/review/abc").status_code == 404 and anon.get("/api/review/abc").status_code == 404
     assert anon.get("/api/packs/1").status_code == 401                         # everything else still needs the login
     assert client.put("/api/flags/engineer_review_links", json={"enabled": True}).json()["enabled"] is True
-    s = client.post(f"/api/reviews/{rv['id']}/send").json(); tok = s["link"].rsplit("/", 1)[1]
+    s = send_review(client, rv["id"]); tok = s["link"].rsplit("/", 1)[1]
     assert anon.get("/review/" + tok).status_code == 200
     page = anon.get("/api/review/" + tok).json(); assert page["role"] == "fire" and STAMP in page["label"]
     assert anon.get("/api/review/wrong-token").status_code == 404
@@ -161,7 +167,7 @@ def test_review_packages_flag_and_metrics(client):
     v = client.get(f"/api/packs/{pid}/reviews").json()[0]; assert v["status"] == "returned" and [e["kind"] for e in v["events"]][-1] == "returned"
     m = client.get("/api/reviews/metrics").json()["by_role"]["fire"]; assert m["returned"] >= 1 and m["median_turnaround_hours"] is not None
     # a cancelled package's link stops working; turning the flag off stops every link
-    rv2 = client.post(f"/api/packs/{pid}/reviews", json={"role": "structural"}).json(); t2 = client.post(f"/api/reviews/{rv2['id']}/send").json()["link"].rsplit("/", 1)[1]
+    rv2 = client.post(f"/api/packs/{pid}/reviews", json={"role": "structural"}).json(); t2 = send_review(client, rv2["id"])["link"].rsplit("/", 1)[1]
     assert anon.get("/api/review/" + t2).status_code == 200
     client.put("/api/flags/engineer_review_links", json={"enabled": False}); assert anon.get("/api/review/" + t2).status_code == 404
 
@@ -220,3 +226,20 @@ def test_drawings_carry_the_ac1009_title_block(client):
     pdfn = [n for n in z.namelist() if n.startswith("Plans/Architectural Plan") and n.endswith(".pdf")][0]
     txt = pymupdf.open(stream=z.read(pdfn), filetype="pdf")[0].get_text().replace("\n", " ")
     for want in ("Address:", "Legal description:", "Drawing A-01", "D Signer Ltd", "Owner Co", "Dated:", "DRAFT: NOT FOR CONSENT"): assert want in txt, want
+
+
+def test_lodgement_needs_ready_pack_reference_and_approval(client, monkeypatch):
+    from backend.app import consent_pack as cp
+    p = new_pack(client); pid = p["id"]
+    assert client.post(f"/api/packs/{pid}/lodged", json={"portal_ref": "BC-1"}).status_code == 409          # not ready_to_lodge
+    monkeypatch.setattr(cp, "completeness", lambda i: {"ready": True, "blockers": [], "documents": [], "pack_id": i, "status": "draft"})
+    assert client.post(f"/api/packs/{pid}/ready-to-lodge").json()["status"] == "ready_to_lodge"
+    assert client.post(f"/api/packs/{pid}/lodged", json={"portal_ref": " "}).status_code == 422
+    r = client.post(f"/api/packs/{pid}/lodged", json={"portal_ref": "BC-123"}); assert r.status_code == 409 and r.json()["detail"]["kind"] == "council_lodgement"
+    assert any(a["kind"] == "council_lodgement" for a in client.get("/api/approvals").json())
+    client.post(f"/api/approvals/{r.json()['detail']['approval_id']}/decide", json={"approve": False, "note": "not yet"})
+    assert client.post(f"/api/packs/{pid}/lodged", json={"portal_ref": "BC-123"}).status_code == 409           # a rejection does not allow it: a new pending record is made
+    aid = client.get("/api/approvals").json()[0]["id"]; client.post(f"/api/approvals/{aid}/decide", json={"approve": True})
+    assert client.post(f"/api/packs/{pid}/lodged", json={"portal_ref": "BC-123"}).json()["status"] == "lodged"
+    assert client.post(f"/api/packs/{pid}/lodged", json={"portal_ref": "BC-124"}).status_code == 409           # already lodged
+    assert client.post(f"/api/approvals/{aid}/decide", json={"approve": True}).status_code == 409              # decided approvals cannot be re-decided

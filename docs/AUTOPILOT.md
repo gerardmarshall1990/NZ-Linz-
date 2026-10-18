@@ -12,7 +12,7 @@ Status key: [x] done, [~] partly done (what is left in the note), [ ] not starte
 ## B. Part 7 steps 4 and 5, plan request pack
 - [x] B1 Consent pack, review workflow, completeness against AC1009 (151 lines), DRAFT stamps, upload slots, PS validity (90 days, register)  (done 2026-10-18)
 - [x] B2 Plan request pack (email, Council LIM guidance, site visit form, request log)  (done)
-- [ ] B3 Approval records (nothing sent or lodged without one): table + API, used by review send and "lodged" marker
+- [x] B3 Approval records: table + API; gate review link issue, plan request "sent", lodgement record (done)
 - [ ] B4 Capture Guide generator (remote phone capture instructions for the owner/agent)
 - [ ] B5 RFI tracker (Council requests for information: logged, due dates, responses)
 - [ ] B6 Timeline widget (consent, works, audit; parallel tracks) and metrics (human minutes per step)

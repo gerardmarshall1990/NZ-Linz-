@@ -4,6 +4,7 @@ from datetime import date
 from fastapi import HTTPException
 from .config import field_catalogue
 from .db import conn
+from . import approvals
 from .facts import get_property, set_fact
 
 COUNCIL = {
@@ -57,6 +58,7 @@ def submit_site_visit(parcel_id: int, values: dict, visitor: str | None = None) 
 def log_request(parcel_id: int, kind: str, recipient: str | None, sent_on: date | None, follow_up_on: date | None, note: str | None) -> dict:
     get_property(parcel_id)
     if kind not in ("owner_agent", "council_file"): raise HTTPException(422, "kind must be owner_agent or council_file")
+    if sent_on: approvals.require("plan_request_sent", "property", parcel_id, f"Record a {kind} plan request as sent on {sent_on}" + (f" to {recipient}" if recipient else ""), email(parcel_id)["text"] if kind == "owner_agent" else None)
     with conn() as c:
         r = c.execute("INSERT INTO core.rh_plan_request (parcel_id, kind, recipient, sent_on, follow_up_on, status, note) VALUES (%s,%s,%s,%s,%s,%s,%s) RETURNING id",
                       (parcel_id, kind, recipient, sent_on, follow_up_on, "sent" if sent_on else "drafted", note)).fetchone(); c.commit()

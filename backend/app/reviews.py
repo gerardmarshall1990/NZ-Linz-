@@ -4,7 +4,7 @@ Engineers' comments are recorded as comments, never as approvals; a producer sta
 import hashlib, io, secrets, statistics, zipfile
 from datetime import datetime, timedelta, timezone
 from fastapi import HTTPException
-from . import briefs, consent_pack, flags
+from . import approvals, briefs, consent_pack, flags
 from .db import conn
 from .pack_pdf import md_to_pdf
 from .stamp import STAMP
@@ -34,6 +34,7 @@ def create(pack_id: int, role: str, name: str | None, company: str | None) -> di
 def send(pid: int) -> dict:
     k = _pkg(pid)
     if k["status"] in ("returned", "cancelled"): raise HTTPException(409, f"package is {k['status']}")
+    approvals.require("review_link_issue", "review_package", pid, f"Issue the {k['role']} review package to {k['engineer_name'] or 'the engineer'} ({k['engineer_company'] or ''})", "The package contains the brief, wanted documents and drawings (DRAFT).")
     tok = secrets.token_urlsafe(32); exp = datetime.now(timezone.utc) + timedelta(days=LINK_DAYS)
     with conn() as c:
         c.execute("UPDATE core.rh_review_package SET token_hash=%s, expires_at=%s, status=CASE WHEN status='commented' THEN status ELSE 'sent' END, sent_at=COALESCE(sent_at, now()) WHERE id=%s", (_h(tok), exp, pid)); c.commit()

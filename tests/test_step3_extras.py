@@ -14,7 +14,7 @@ def client(tmp_path_factory):
     def clean():
         with conn() as c:
             for t in ("rh_plan_request", "rh_scenario", "rh_brief", "rh_check_run", "rh_layout_option", "rh_evidence_gap_status"): c.execute(f"DELETE FROM core.{t} WHERE parcel_id=%s", (PARCEL,))
-            c.execute("DELETE FROM core.rh_quote"); c.execute("DELETE FROM core.rh_rate_calibration")
+            c.execute("DELETE FROM core.rh_approval"); c.execute("DELETE FROM core.rh_quote"); c.execute("DELETE FROM core.rh_rate_calibration")
             c.execute("DELETE FROM core.rh_plan_edit WHERE extraction_id IN (SELECT x.id FROM core.rh_plan_extraction x JOIN core.rh_upload u ON u.id=x.upload_id WHERE u.parcel_id=%s)", (PARCEL,))
             c.execute("DELETE FROM core.rh_plan_extraction WHERE upload_id IN (SELECT id FROM core.rh_upload WHERE parcel_id=%s)", (PARCEL,))
             c.execute("DELETE FROM core.rh_plan_calibration WHERE upload_id IN (SELECT id FROM core.rh_upload WHERE parcel_id=%s)", (PARCEL,))
@@ -106,7 +106,10 @@ def test_plan_request_pack(client):
     assert sorted(r["written"]) == ["bedrooms_total", "corridor_width_min_m"]
     facts = client.get(f"/api/property/{PARCEL}").json()["facts"]
     assert facts["corridor_width_min_m"]["confidence"] == "CONFIRMED" and facts["corridor_width_min_m"]["value"] == 1.2 and "site visit" not in facts["kitchens"]["source"]
-    log = client.post(f"/api/property/{PARCEL}/plan-requests", json={"kind": "owner_agent", "recipient": "agent", "sent_on": str(date.today() - timedelta(days=9)), "follow_up_on": str(date.today() - timedelta(days=2))}).json()
+    body = {"kind": "owner_agent", "recipient": "agent", "sent_on": str(date.today() - timedelta(days=9)), "follow_up_on": str(date.today() - timedelta(days=2))}
+    r0 = client.post(f"/api/property/{PARCEL}/plan-requests", json=body); assert r0.status_code == 409 and r0.json()["detail"]["approval_required"]          # recording it as sent needs an approval record
+    client.post(f"/api/approvals/{r0.json()['detail']['approval_id']}/decide", json={"approve": True})
+    log = client.post(f"/api/property/{PARCEL}/plan-requests", json=body).json()
     assert log[0]["status"] == "sent" and log[0]["follow_up_due"] is True
     assert client.put(f"/api/plan-requests/{log[0]['id']}", json={"status": "received"}).json()[0]["follow_up_due"] is False
     assert client.post(f"/api/property/{PARCEL}/plan-requests", json={"kind": "bad"}).status_code == 422
