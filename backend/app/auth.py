@@ -6,6 +6,7 @@ from fastapi import Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 
 COOKIE = "session"; SESSION_SECONDS = 7 * 24 * 3600
+REVIEW_PREFIXES = ("/review/", "/api/review/")    # engineer review links: token gated and 404 unless the engineer_review_links flag is ON (flags.py)
 PUBLIC = {"/login", "/api/health", "/favicon.ico", "/robots.txt"}
 _sessions: dict[str, float] = {}
 _fails: dict[str, list[float]] = {}
@@ -63,7 +64,7 @@ async def middleware(request: Request, call_next):
     if request.method in ("POST", "PUT", "PATCH", "DELETE"):      # cross-site writes are refused (SameSite=Strict is the first defence)
         origin = request.headers.get("origin"); host = request.headers.get("host", "")
         if origin and origin.split("://", 1)[-1] != host: return _with(JSONResponse({"detail": "cross-site request refused"}, 403))
-    if path in PUBLIC: resp = await call_next(request)
+    if path in PUBLIC or path.startswith(REVIEW_PREFIXES): resp = await call_next(request)
     elif not configured(): resp = JSONResponse({"detail": "server not configured: set APP_PASSWORD"}, 503) if path.startswith("/api") else RedirectResponse("/login", 303)
     elif not valid(request.cookies.get(COOKIE)): resp = JSONResponse({"detail": "login required"}, 401) if path.startswith("/api") else RedirectResponse("/login", 303)
     else: resp = await call_next(request)

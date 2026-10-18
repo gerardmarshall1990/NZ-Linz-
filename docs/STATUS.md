@@ -1,4 +1,4 @@
-# Status (last updated 2026-10-17)
+# Status (last updated 2026-10-18)
 
 Priority (docs/BUILD_NOW.md): Part 7 Remote Conversion Pipeline is the main product; then 1) rest home finder, 2) development site finder, 3) Māori land finder. Everything else is LATER.
 Legend: **Done** = built and tested; **Partly** = some of it built, the rest listed; **Not started**. "Needs you" = finished code that shows "needs input" until you supply something (see Blocked on you).
@@ -78,7 +78,7 @@ Tests: 191 pass (`make test`). Bootstrap proven on a slice (`docs/BOOTSTRAP.md`)
 | 1 Property intake, plan upload, plan reader with human review | Done | vision reader needs the Anthropic key |
 | 2 Evidence gaps, layout options, compliance gaps, fire brief | Done | DRAFT-stamped DXF/PDF drawings, 4 briefs; regulatory numbers blank (needs you) |
 | 3 Retrofit quantities, economics, Offer Builder link | Done (needs you) | rates blank; placeholders loaded for running costs |
-| 4 Draft consent pack, engineer review workflow, completeness check, upload sheet | Not started | |
+| 4 Draft consent pack, engineer review workflow, completeness check, upload sheet | Done, Council checklist unverified | pack built to a spec-derived checklist (`council_verified: false`), so "ready to lodge" is refused until you supply the Council's checklist (docs/PART7_STEP4.md) |
 | 5 Capture Guide, RFI tracker, timeline widget, metrics | Not started | |
 
 ## Part 8: Scale design (8.10 build order)
@@ -94,7 +94,7 @@ Tests: 191 pass (`make test`). Bootstrap proven on a slice (`docs/BOOTSTRAP.md`)
 ## Platform work not in the spec's step lists (done)
 `make bootstrap` proven on a slice; owner login and Tailscale private access script; user-data backups with encrypted push to a private repo (needs setup); placeholders with banner and AMBER cap; My inputs, Placeholders and Import tabs.
 
-## Tests by module (191 pass)
+## Tests by module (201 pass)
 | Module | Tests |
 |---|---|
 | Rules corpus (Stage 3) | 69 |
@@ -104,6 +104,7 @@ Tests: 191 pass (`make test`). Bootstrap proven on a slice (`docs/BOOTSTRAP.md`)
 | Property Record, DXF reader, plan review (Part 7 s1) | 10 |
 | Login and access control | 10 |
 | Part 7 step 2 (layouts, drawings, compliance, briefs, gaps) | 8 |
+| Part 7 step 4 (consent pack, statements, register check, ready gate, reviews, flag) | 10 |
 | Placeholders | 7 |
 | Scenarios API: retrofit, economics, proposal (Part 7 s3) | 6 |
 | Settings and map | 4 |

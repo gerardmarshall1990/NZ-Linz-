@@ -8,9 +8,11 @@ from pydantic import BaseModel, Field
 from . import agent, auth, briefs, settings, listings, proposal, scenarios, calibration, compliance, drawings, estimates, facts, gaps, layout, plans, uploads, vision_reader
 from .config import upload_dir
 from .db import conn
+from .pack_routes import r as pack_router
 
 app = FastAPI(title="NZ Property Intelligence: Remote Conversion Pipeline", version="0.1", docs_url=None, redoc_url=None, openapi_url=None)
 app.middleware("http")(auth.middleware)
+app.include_router(pack_router)
 STATIC = Path(__file__).parent / "static"
 FOOTER = "Screening and preparation tool. Not planning, legal, engineering or financial advice. Council decides applications. Confirm with a qualified planner and the relevant professionals."
 

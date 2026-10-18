@@ -1,0 +1,30 @@
+# Building consent pack checklist (MASTER_SPEC 8.4 and Part 7.3 step 9). Built from the spec and the file-naming guidance in docs/council_forms/README.md.
+# council_verified: false on every item: Auckland Council's own checklist (AC1021 and the online portal) could not be opened from the sandbox. "Ready to lodge" is blocked until the owner supplies it and
+# this file is reconciled (docs/sources_manual/README.md). `required` is my assumption for a care-home change of use and can be changed per pack with a reason.
+checklist_version: "spec-8.4-draft-1"
+council_verified: false
+documents:
+  - {key: cover_index,        title: "Cover page and index", kind: generated, folder: Applications, file_name: "Index", required: true, owner: me, source: "spec 8.6"}
+  - {key: application_data,   title: "Application data sheet (field by field, portal order unverified)", kind: generated, folder: Applications, file_name: "Application Form", required: true, owner: "you / agent", source: "spec 8.4, council file naming page (summary)"}
+  - {key: lodgement_checklist, title: "Lodgement checklist (status of every item)", kind: generated, folder: Applications, file_name: "Lodgement Checklist", required: true, owner: me, source: "council file naming page (summary): Applications folder"}
+  - {key: record_of_title,    title: "Record of title", kind: upload_slot, folder: Applications, file_name: "RoT", required: true, owner: you, source: "council file naming page (summary)", note: "order a copy from LINZ for this parcel"}
+  - {key: owner_agent_details, title: "Owner and agent details", kind: form_data, folder: Applications, file_name: "Owner Details", required: true, owner: you, source: "spec 8.4"}
+  - {key: project_description, title: "Project description", kind: generated, folder: Supporting Documents, file_name: "Project Description", required: true, owner: me, source: "spec 8.4"}
+  - {key: change_of_use,      title: "Change of use assessment (existing versus proposed use)", kind: generated, folder: Supporting Documents, file_name: "Change of Use", required: true, owner: "designer / fire engineer", source: "AC2205 (summary), spec 8.4"}
+  - {key: pim_request,        title: "Project Information Memorandum request", kind: generated, folder: Applications, file_name: "PIM Request", required: false, owner: you, source: "spec 8.4: where applicable"}
+  - {key: drawings,           title: "Drawing set: existing, demolition and new work (DXF and PDF)", kind: generated, folder: Plans, file_name: "Architectural Plan", required: true, owner: me, source: "spec 7.1, 7.3 step 9"}
+  - {key: specification,      title: "Specification and schedules (rooms, doors, windows, finishes, fixtures)", kind: generated, folder: Supporting Documents, file_name: "Calcs and Specs", required: true, owner: designer, source: "spec 7.3 step 9"}
+  - {key: compliance_matrix,  title: "Building Code compliance schedule (clause by clause)", kind: generated, folder: Supporting Documents, file_name: "Code Compliance Schedule", required: true, owner: designer, source: "spec 8.4"}
+  - {key: structural_calcs,   title: "Structural calculations and drawings", kind: upload_slot, folder: Supporting Documents, file_name: "Calcs", required: true, owner: "structural engineer", source: "spec 8.4"}
+  - {key: fire_report,        title: "Fire design report (a professional's document: upload slot only)", kind: upload_slot, folder: Supporting Documents, file_name: "Fire Report", statement_type: FIRE_REPORT, discipline: fire, required: true, owner: "fire engineer", source: "AC2205 (summary), spec 7.1, 8.4"}
+  - {key: ps1_design,         title: "Producer statement PS1: design (architect / designer)", kind: upload_slot, folder: Supporting Documents, file_name: "PS1 Design", statement_type: PS1, discipline: design, required: true, owner: designer, source: "spec 7.1, 8.4"}
+  - {key: ps1_structural,     title: "Producer statement PS1: structural", kind: upload_slot, folder: Supporting Documents, file_name: "PS1 Structural", statement_type: PS1, discipline: structural, required: true, owner: "structural engineer", source: "spec 7.1, 8.4"}
+  - {key: ps1_fire,           title: "Producer statement PS1: fire", kind: upload_slot, folder: Supporting Documents, file_name: "PS1 Fire", statement_type: PS1, discipline: fire, required: true, owner: "fire engineer", source: "spec 7.1, 8.4"}
+  - {key: ps1_services,       title: "Producer statement PS1: services (electrical, mechanical, hydraulic)", kind: upload_slot, folder: Supporting Documents, file_name: "PS1 Services", statement_type: PS1, discipline: services, required: false, owner: "services engineer", source: "spec 7.1: confirm against the Council checklist"}
+  - {key: ps2_review,         title: "Producer statement PS2: design review", kind: upload_slot, folder: Supporting Documents, file_name: "PS2 Review", statement_type: PS2, discipline: review, required: false, owner: "reviewing engineer", source: "spec 7.1: only if a peer review is used"}
+  - {key: cow,                title: "Certificate of work / LBP schedule (restricted building work design)", kind: upload_slot, folder: Supporting Documents, file_name: "CoW", statement_type: COW, discipline: design, required: true, owner: "licensed building practitioner", source: "council file naming page (summary: CoW), spec 8.4"}
+  - {key: tech_literature,    title: "Technical literature for products", kind: upload_slot, folder: Supporting Documents, file_name: "Tech Lit", required: false, owner: designer, source: "council file naming page (summary)"}
+  - {key: fee_estimate,       title: "Council fee estimate", kind: form_data, folder: Applications, file_name: "Fees", required: false, owner: you, source: "spec 8.3: fee schedule not found"}
+construction_stage:     # not required at lodgement; tracked for the code compliance certificate
+  - {key: ps3_construction, title: "Producer statement PS3: construction", statement_type: PS3}
+  - {key: ps4_review,       title: "Producer statement PS4: construction review", statement_type: PS4}
