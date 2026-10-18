@@ -1,0 +1,4 @@
+# Self-serve capture portal (MASTER_SPEC 8.4). Photo quality checks are HEURISTICS for asking for retakes, not measurements: tune them with real photos.
+photo_min_mean_brightness: 40        # 0-255; below this a photo is "too dark"
+photo_min_sharpness: 20.0            # variance of a Laplacian on a 800 px wide copy; below this a photo is "blurry"
+min_photo_width_px: 600

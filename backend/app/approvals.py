@@ -5,7 +5,7 @@ from fastapi import HTTPException
 from .db import conn
 
 KINDS = {"review_link_issue": "Issue a private review link to an engineer", "plan_request_sent": "Record a plan request as sent to an owner or agent", "council_lodgement": "Record that the consent pack was lodged with the Council",
-         "rfi_response_sent": "Record a response to a Council request for information as sent", "owner_message": "Send or record a message to a property owner"}
+         "rfi_response_sent": "Record a response to a Council request for information as sent", "owner_message": "Send or record a message to a property owner", "capture_link_issue": "Issue a self-serve capture link to an owner or agent"}
 
 def _view(r: dict) -> dict: return {k: (v.isoformat() if hasattr(v, "isoformat") else v) for k, v in r.items()}
 
@@ -28,6 +28,14 @@ def decide(aid: int, approve: bool, note: str | None = None) -> dict:
     with conn() as c:
         r = c.execute("UPDATE core.rh_approval SET status=%s, decided_at=now(), decided_by='owner', note=%s WHERE id=%s AND status='pending' RETURNING *", ("granted" if approve else "rejected", note, aid)).fetchone(); c.commit()
     if not r: raise HTTPException(409, "no such pending approval (already decided?)")
+    return _view(r)
+
+def edit(aid: int, draft_text: str) -> dict:
+    """Edit the draft of a pending approval before deciding (the approval queue's 'edit')."""
+    if not (draft_text or "").strip(): raise HTTPException(422, "the draft cannot be empty")
+    with conn() as c:
+        r = c.execute("UPDATE core.rh_approval SET draft_text=%s, note=COALESCE(note,'') || ' [edited by owner]' WHERE id=%s AND status='pending' RETURNING *", (draft_text, aid)).fetchone(); c.commit()
+    if not r: raise HTTPException(409, "no such pending approval")
     return _view(r)
 
 def pending() -> list[dict]:

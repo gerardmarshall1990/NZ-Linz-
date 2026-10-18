@@ -3,7 +3,7 @@ from datetime import date
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from fastapi.responses import HTMLResponse, PlainTextResponse, Response
 from pydantic import BaseModel, Field
-from . import approvals, audit, field, offers, routeplan, portfolio, screen, screenapi, playbooks, bestuse, maori, layers, rcpack, devreport, devscenarios, services, crm, digest, trademe, capture_guide, certification, rfi, timeline, consent_pack as cp, dealsheet, flags, plan_request, ranking, retrofit_calibration as rcal, reviews, validation
+from . import approvals, capacity, engineers, capture_portal, dashboard, nba, tasks, audit, field, offers, routeplan, portfolio, screen, screenapi, playbooks, bestuse, maori, layers, rcpack, devreport, devscenarios, services, crm, digest, trademe, capture_guide, certification, rfi, timeline, consent_pack as cp, dealsheet, flags, plan_request, ranking, retrofit_calibration as rcal, reviews, validation
 from .facts import get_property
 from .layout import get_option
 from .pack_pdf import md_to_pdf
@@ -283,8 +283,9 @@ class MinIn(BaseModel):
     step: str
     minutes: float
     note: str | None = None
+    role: str = "owner"
 @r.post("/api/metrics/minutes")
-def metrics_log(body: MinIn): return timeline.log_minutes(body.parcel_id, body.step, body.minutes, body.note)
+def metrics_log(body: MinIn): return timeline.log_minutes(body.parcel_id, body.step, body.minutes, body.note, body.role)
 @r.get("/api/metrics")
 def metrics_get(): return timeline.metrics()
 
@@ -562,3 +563,110 @@ def offer_get(did: int): return offers.get(did)
 def offer_sent(did: int): return offers.mark_sent(did)
 @r.get("/crm", response_class=HTMLResponse)
 def crm_page(): return crm.PAGE
+
+# ---- approval queue extras, tasks, next best action
+class EditIn(BaseModel): draft_text: str
+@r.put("/api/approvals/{aid}/draft")
+def approvals_edit(aid: int, body: EditIn): return approvals.edit(aid, body.draft_text)
+class TaskIn(BaseModel):
+    title: str
+    assignee: str | None = None
+    due_on: date | None = None
+    subject_type: str | None = None
+    subject_id: int | None = None
+@r.post("/api/tasks")
+def task_add(body: TaskIn): return tasks.create(body.title, body.assignee, body.due_on, body.subject_type, body.subject_id)
+@r.get("/api/tasks")
+def task_list(assignee: str | None = None, status: str | None = "open"): return tasks.list_(assignee, status)
+class TaskSt(BaseModel): status: str
+@r.put("/api/tasks/{tid}")
+def task_status(tid: int, body: TaskSt): return tasks.set_status(tid, body.status)
+@r.get("/api/nba")
+def nba_queue(limit: int = 50): return nba.queue(limit)
+@r.get("/api/nba/probabilities")
+def nba_probs(): return nba.probs()
+class ProbIn(BaseModel): p: float | None = None
+@r.put("/api/nba/probabilities/{stage}")
+def nba_set(stage: str, body: ProbIn): return nba.set_prob(stage, body.p)
+@r.get("/api/dashboard")
+def dash(): return dashboard.build()
+@r.post("/api/dashboard/weekly")
+def dash_weekly(): return dashboard.weekly()
+
+# ---- capture portal: owner side (login) and public side (token + flag)
+class CapLinkIn(BaseModel):
+    parcel_id: int
+    days: int = 14
+    retention_days: int = 90
+@r.post("/api/capture-links")
+def cap_link(body: CapLinkIn): return capture_portal.create_link(body.parcel_id, body.days, body.retention_days)
+@r.get("/api/capture-links")
+def cap_links(stall_days: int | None = None): return capture_portal.status_all(stall_days)
+@r.post("/api/capture-links/{lid}/reminder")
+def cap_reminder(lid: int): return capture_portal.draft_reminder(lid)
+@r.post("/api/capture-links/purge")
+def cap_purge(): return capture_portal.purge()
+@r.get("/capture/{tok}", response_class=HTMLResponse)
+def cap_page(tok: str):
+    if not flags.enabled("capture_portal_links"): raise HTTPException(404, "not found")
+    return capture_portal.PAGE
+@r.get("/api/capture/{tok}")
+def cap_view(tok: str): return capture_portal.view(tok)
+class PermIn(BaseModel):
+    by: str
+    role: str
+@r.post("/api/capture/{tok}/permission")
+def cap_perm(tok: str, body: PermIn): return capture_portal.permission(tok, body.by, body.role)
+class DetIn(BaseModel):
+    rooms: list[dict] = Field(default_factory=list)
+    door_width_min_m: float | None = None
+    exits_count: int | None = None
+@r.post("/api/capture/{tok}/details")
+def cap_details(tok: str, body: DetIn): return capture_portal.details(tok, body.rooms, body.door_width_min_m, body.exits_count)
+@r.post("/api/capture/{tok}/upload")
+async def cap_upload(tok: str, file: UploadFile = File(...), label: str = Form(""), kind: str = Form("photo")): return capture_portal.upload(tok, label, file.filename or "upload", await file.read(cp.MAX_UPLOAD_BYTES + 1), kind)
+@r.post("/api/capture/{tok}/submit")
+def cap_submit(tok: str): return capture_portal.submit(tok)
+
+# ---- batch engineering workflow
+class EngIn(BaseModel):
+    name: str
+    company: str | None = None
+    discipline: str
+    fee_per_review: float | None = None
+    target_turnaround_days: int | None = None
+    review_window: str | None = None
+@r.post("/api/engineers")
+def eng_add(body: EngIn): return engineers.add(**body.model_dump())
+@r.get("/api/engineers")
+def eng_list(): return engineers.list_()
+class AssignIn(BaseModel):
+    package_ids: list[int]
+    engineer_id: int
+@r.post("/api/engineers/assign")
+def eng_assign(body: AssignIn): return engineers.assign(body.package_ids, body.engineer_id)
+@r.get("/api/engineers/queue")
+def eng_queue(engineer_id: int | None = None): return engineers.queue(engineer_id)
+@r.post("/api/engineers/escalate")
+def eng_escalate(): return engineers.escalate_overdue()
+@r.get("/api/engineers/scorecard")
+def eng_scorecard(): return engineers.scorecard()
+class TplIn(BaseModel):
+    title: str
+    body: str
+    discipline: str | None = None
+@r.post("/api/comment-templates")
+def tpl_add(body: TplIn): return engineers.add_template(body.title, body.body, body.discipline)
+@r.get("/api/comment-templates")
+def tpl_list(discipline: str | None = None): return engineers.templates(discipline)
+
+# ---- capacity planner
+class CapPlanIn(BaseModel):
+    parcel_ids: list[int] = Field(default_factory=list)
+    homes: list[dict] = Field(default_factory=list)
+    overrides: dict = Field(default_factory=dict)
+    capacities: dict = Field(default_factory=dict)
+    horizon_weeks: int = 156
+    opening_target: str | None = None
+@r.post("/api/capacity")
+def cap_plan(body: CapPlanIn): return capacity.plan(body.homes or portfolio.homes_from_screen(body.parcel_ids), body.capacities, body.overrides, body.horizon_weeks, body.opening_target)

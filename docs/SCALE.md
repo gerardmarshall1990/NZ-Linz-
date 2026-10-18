@@ -1,0 +1,10 @@
+# Part 8 scale design: what exists
+
+- **Approval Queue** (Approvals tab): every draft the app prepares (review links, plan request "sent", RFI responses, lodgement record, owner messages, offer documents, capture links) waits for one tap: approve, edit the draft, or reject. Every decision is recorded (`core.rh_approval`). Nothing is sent or lodged without one (tested).
+- **Touchpoint timing**: log minutes per step and role (Track tab / `/api/metrics/minutes`); the dashboard totals match the log.
+- **Next Best Action queue** (Ops tab): properties at DOCUMENTED tier or better above your profit threshold, ranked by expected profit per human minute once YOU set stage probabilities and have logged minutes; until then ordered by profit, with what to set.
+- **Dashboard and weekly digest** (Ops tab): pipeline by stage, minutes by role, cycle time per stage, engineer turnaround, RFIs per lodged pack, pack gaps, cash required, beds in pipeline, expected openings, slowest step. Blank where nothing is recorded.
+- **Capture portal** (flag `capture_portal_links`, default OFF): expiring token link, no account; permission first, Capture Guide, photos and plans, automatic completeness (rooms vs expected bedrooms, door widths, exits, dark or blurry photos: heuristics in `config/capture_portal.yaml`), retakes asked for specifically, retention date and purge; reminders are drafts that need approval.
+- **Playbooks and delta**: apartment archetype computed; other archetypes are skeletons your engineers write once; review packages carry the delta (or say there is no reviewed baseline).
+- **Batch engineer workflow**: engineers with fee and target turnaround, per-engineer queue by due date, bulk assign, escalation of overdue items (a flag: the app sends nothing), comment templates, scorecard (turnaround vs target, rework rate, issues raised).
+- **Capacity planner** (`/api/capacity`): week-by-week roll-out through engineer review, lodgement admin, Council processing, builder starts, works, auditor slots, hiring and cash; names the binding constraint; resources you leave blank are listed as not modelled.

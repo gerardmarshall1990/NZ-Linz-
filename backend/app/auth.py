@@ -8,7 +8,7 @@ from fastapi import Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 
 COOKIE = "session"; SESSION_SECONDS = 7 * 24 * 3600
-REVIEW_PREFIXES = ("/review/", "/api/review/")    # engineer review links: token gated and 404 unless the engineer_review_links flag is ON (flags.py)
+REVIEW_PREFIXES = ("/review/", "/api/review/", "/capture/", "/api/capture/")    # engineer review links: token gated and 404 unless the engineer_review_links flag is ON (flags.py)
 PUBLIC = {"/login", "/api/health", "/favicon.ico", "/robots.txt"}
 _sessions: dict[str, float] = {}
 _fails: dict[str, list[float]] = {}

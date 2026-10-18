@@ -104,15 +104,18 @@ def milestones(parcel_id: int) -> list[dict]:
 
 # ---- human minutes metrics
 STEPS = ["plan_review", "layout_review", "pack_review", "engineer_coordination", "owner_contact", "council_liaison", "site_capture_review", "other"]
-def log_minutes(parcel_id: int | None, step: str, minutes: float, note: str | None = None) -> dict:
+ROLES = ["owner", "assistant", "engineer", "admin", "builder", "other"]
+def log_minutes(parcel_id: int | None, step: str, minutes: float, note: str | None = None, role: str = "owner") -> dict:
     if step not in STEPS: raise HTTPException(422, f"step must be one of {STEPS}")
     if isinstance(minutes, bool) or minutes < 0 or minutes > 1440: raise HTTPException(422, "minutes must be between 0 and 1440")
-    with conn() as c: c.execute("INSERT INTO core.rh_effort_log (parcel_id, step, minutes, note) VALUES (%s,%s,%s,%s)", (parcel_id, step, minutes, note)); c.commit()
+    if role not in ROLES: raise HTTPException(422, f"role must be one of {ROLES}")
+    with conn() as c: c.execute("INSERT INTO core.rh_effort_log (parcel_id, step, minutes, note, role) VALUES (%s,%s,%s,%s,%s)", (parcel_id, step, minutes, note, role)); c.commit()
     return metrics()
 
 def metrics() -> dict:
     with conn() as c: rows = c.execute("SELECT step, count(*) AS n, sum(minutes)::float AS total, avg(minutes)::float AS avg FROM core.rh_effort_log GROUP BY step ORDER BY step").fetchall()
     per_prop = None
     with conn() as c: r = c.execute("SELECT avg(t)::float AS a FROM (SELECT sum(minutes) AS t FROM core.rh_effort_log WHERE parcel_id IS NOT NULL GROUP BY parcel_id) x").fetchone(); per_prop = r["a"]
-    return {"by_step": [{**r, "total": round(r["total"], 1), "avg": round(r["avg"], 1)} for r in rows], "avg_minutes_per_property": round(per_prop, 1) if per_prop is not None else None,
+    with conn() as c: roles = c.execute("SELECT COALESCE(role,'owner') AS role, sum(minutes)::float AS total, count(*) AS n FROM core.rh_effort_log GROUP BY 1 ORDER BY 1").fetchall()
+    return {"by_step": [{**r, "total": round(r["total"], 1), "avg": round(r["avg"], 1)} for r in rows], "by_role": [{**r, "total": round(r["total"], 1)} for r in roles], "avg_minutes_per_property": round(per_prop, 1) if per_prop is not None else None,
             "note": "Human minutes you log per step. Blank until you log some: nothing is estimated."}

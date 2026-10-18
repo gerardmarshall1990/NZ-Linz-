@@ -50,12 +50,12 @@ Status key: [x] done, [~] partly done (what is left in the note), [ ] not starte
 - [x] F7 Offer generator: letters, emails, one-pagers, terms sheets, behind flag (done)
 
 ## G. Part 8
-- [~] G1 Approval Queue (basic queue and Approvals tab done; extend to all draft kinds in G-phase)
-- [ ] G2 Dashboard
-- [ ] G3 Capture portal
-- [~] G4 Playbooks and delta view (playbook skeletons + delta view done; engineers to write content once; UI to add)
-- [ ] G5 Batch engineer workflow
-- [ ] G6 Capacity planner
+- [x] G1 Approval Queue (approve/edit/reject), tasks, touchpoint timing, Next Best Action queue (done)
+- [x] G2 Dashboard and weekly digest (done)
+- [x] G3 Capture portal, flagged off by default (done)
+- [x] G4 Playbooks and delta view in review packages (done; engineers write playbook content once)
+- [x] G5 Batch engineer workflow (done)
+- [x] G6 Capacity planner (done)
 
 ## H. Part 5 and close-out
 - [ ] H1 Feeds admin page, importers, CONFLICTS.md

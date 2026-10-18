@@ -4,7 +4,7 @@ Engineers' comments are recorded as comments, never as approvals; a producer sta
 import hashlib, io, secrets, statistics, zipfile
 from datetime import datetime, timedelta, timezone
 from fastapi import HTTPException
-from . import approvals, briefs, consent_pack, flags
+from . import approvals, engineers, briefs, consent_pack, flags
 from .db import conn
 from .pack_pdf import md_to_pdf
 from .stamp import STAMP
@@ -69,6 +69,7 @@ def package_zip(pid: int) -> bytes:
     k = _pkg(pid); p = consent_pack._pack(k["pack_id"]); c = content(pid); buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
         z.writestr("Brief.pdf", md_to_pdf(c["body_md"], c["title"]))
+        z.writestr("Playbook delta.txt", f"{STAMP}\n\n" + engineers.playbook_delta_text(k["pack_id"]) + "\n")
         z.writestr("Documents wanted from you.txt", f"{STAMP}\n\n" + "\n".join(f"- {w['document']} ({w['type']}): please return as a PDF, signed by you, for the owner to upload." for w in c["wanted_from_you"]) + "\n\nThe app produces no statements or signatures on your behalf.\n")
         files, _ = consent_pack.drawing_files(p)
         for name, pdf_b, dxf_b in files: z.writestr(f"Drawings/{consent_pack.safe_name(name)}.pdf", pdf_b); z.writestr(f"Drawings/{consent_pack.safe_name(name)}.dxf", dxf_b)

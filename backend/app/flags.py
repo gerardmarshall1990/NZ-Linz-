@@ -25,6 +25,7 @@ def gate_response(flag: str) -> JSONResponse:
     return JSONResponse({"detail": f"this feature is switched off ({flag} is false in config/feature_flags.yaml)"}, 403)
 
 KNOWN = {
+    "capture_portal_links": "Lets an owner or agent open a self-serve capture page through a private expiring link you send them. OFF: nothing is reachable without the app login.",
     "engineer_review_links": "Lets an engineer open a read-only review page through a private link you send them. OFF: nothing is reachable without the app login.",
 }
 
