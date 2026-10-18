@@ -106,12 +106,14 @@ def test_ready_to_lodge_gate_and_full_path(client, monkeypatch):
     # even with every other gap closed, an unverified checklist keeps the gate shut
     verified = copy.deepcopy(cp.checklist()); verified["council_verified"] = True
     monkeypatch.setattr(cp, "checklist", lambda: verified)
-    fields = {k: "x" for k in list(cp.FIELD_KEYS)} | {f"clause_method.{c['clause']}": "m" for c in cp.clauses()} | {f"clause_evidence.{c['clause']}": "e" for c in cp.clauses()}
+    fields = {k: "x" for k in list(cp.FIELD_KEYS) if k != "fire_route"} | {"fire_route": "C/AS2"} | {f"clause_method.{c['clause']}": "m" for c in cp.clauses()} | {f"clause_evidence.{c['clause']}": "e" for c in cp.clauses()}
     assert client.put(f"/api/packs/{pid}/fields", json={"fields": fields}).status_code == 200
     for k, v in (("kitchens", 1), ("laundries", 1), ("lounge_dining_areas", 1), ("staff_office_rooms", 1), ("year_built", 1985), ("construction_type", "timber"), ("sprinklers", "none"), ("fire_alarm", "none"), ("level_access_entrances", 1),
                  ("bedrooms_total", 4), ("storeys_per_building", 1), ("gfa_m2", 300)):
         assert client.put(f"/api/property/{PARCEL}/facts", json={"field": k, "value": v, "source": "test", "confidence": "CONFIRMED"}).status_code == 200, k
     p = new_pack(client); pid = p["id"]; assert client.put(f"/api/packs/{pid}/fields", json={"fields": fields}).status_code == 200
+    assert "lodgement_checklist_unanswered" in {b["code"] for b in client.get(f"/api/packs/{pid}/completeness").json()["blockers"]}
+    assert client.put(f"/api/packs/{pid}/lodgement", json={"sections_na": [x["id"] for x in client.get(f"/api/packs/{pid}/lodgement").json()["sections"]]}).json()["unanswered"] == 0
     now = client.get(f"/api/packs/{pid}/completeness").json()
     # resolve screening FAILs with a stated resolution (the designer's), and upload every required slot with a valid author
     res = {b["detail"].split(":")[0]: "designer to resolve in PS1" for b in now["blockers"] if b["code"] == "compliance_fail"}
@@ -169,3 +171,52 @@ def test_flags_default_off(client):
     assert all(f["enabled"] is False for f in flags.all_flags())
     assert flags.enabled("never_defined") is False
     assert client.put("/api/flags/not_a_flag", json={"enabled": True}).status_code == 404
+
+
+# ---------------------------------------------------------------- AC1009 (Council lodgement checklist, v.21 June 2026)
+def test_ac1009_is_loaded_in_full():
+    from backend.app import consent_pack as cp
+    d = cp.ac1009(); items = [it for s in d["sections"] for it in s["items"]]
+    assert d["form"]["code"] == "AC1009" and d["form"]["version"] == "v.21" and len(d["sections"]) == 45 and len(items) == 151
+    assert len({it["id"] for it in items}) == 151 and sum(1 for it in items if it["ps"]) >= 8
+    assert {"G3", "G5", "F6", "C", "D1", "B1"} <= {s["title"].split()[0] for s in d["sections"]} | {"B1", "C"}
+    assert any("90 days" in r for r in d["rules"]) and set(d["fire_routes"]) == {"C/AS2", "C/VM2", "alternative_solution"}
+
+def test_lodgement_answers_validate_and_block_until_answered(client):
+    p = new_pack(client); pid = p["id"]; lv = client.get(f"/api/packs/{pid}/lodgement").json(); assert lv["unanswered"] == 151
+    assert client.put(f"/api/packs/{pid}/lodgement", json={"answers": {"nope.1": "yes"}}).status_code == 422
+    assert client.put(f"/api/packs/{pid}/lodgement", json={"answers": {"general.1": "maybe"}}).status_code == 422
+    r = client.put(f"/api/packs/{pid}/lodgement", json={"answers": {"general.1": "yes"}, "sections_na": ["f9"]}).json()
+    assert r["unanswered"] == 151 - 1 - 9 and next(s for s in r["sections"] if s["id"] == "f9")["section_na"] is True
+    assert client.put(f"/api/packs/{pid}/lodgement", json={"answers": {"general.1": None}}).json()["unanswered"] == 151 - 9
+    md = client.get(f"/api/packs/{pid}/documents/lodgement_checklist.md").text
+    assert "AC1009" in md and "TO COMPLETE" in md and STAMP in md
+
+def test_ninety_day_rule_and_fire_route(client):
+    from datetime import date, timedelta
+    p = new_pack(client); pid = p["id"]
+    url = f"/api/packs/{pid}/documents/record_of_title/upload"
+    old = client.post(url, files={"file": ("rot.pdf", pdf_bytes())}, data={"date_issued": str(date.today() - timedelta(days=120))}).json()
+    assert old["valid"] is False and any("90 days" in x for x in old["problems"])
+    assert client.post(url, files={"file": ("rot.pdf", pdf_bytes("new"))}, data={"date_issued": str(date.today() - timedelta(days=10))}).json()["valid"] is True
+    ps = client.post(f"/api/packs/{pid}/documents/ps1_structural/upload", files={"file": ("p.pdf", pdf_bytes())}, data={"author_name": "A", "author_company": "C", "date_issued": str(date.today() - timedelta(days=100))}).json()
+    client.post(f"/api/statements/{ps['id']}/register-check", json={"status": "valid", "checked_by": "o"})
+    st = [s for s in client.get(f"/api/packs/{pid}/statements").json() if s["id"] == ps["id"]][0]; assert st["valid"] is False and any("90 days" in x for x in st["problems"])
+    codes = lambda: {b["code"] for b in client.get(f"/api/packs/{pid}/completeness").json()["blockers"]}
+    assert "fire_route_not_chosen" in codes()
+    assert client.put(f"/api/packs/{pid}/fields", json={"fields": {"fire_route": "magic"}}).status_code == 422
+    docs = lambda: {d["doc_key"]: d["required"] for d in client.get(f"/api/packs/{pid}/completeness").json()["documents"]}
+    client.put(f"/api/packs/{pid}/fields", json={"fields": {"fire_route": "C/VM2"}}); d = docs()
+    assert d["fire_engineering_brief"] and d["ps2_review"] and not d["ps1_fire"]           # AC1009 p4: VM2 needs the brief and PS2 review evidence
+    client.put(f"/api/packs/{pid}/fields", json={"fields": {"fire_route": "C/AS2"}}); d = docs()
+    assert d["ps1_fire"] and not d["fire_engineering_brief"] and not d["ps2_review"]
+    client.put(f"/api/packs/{pid}/fields", json={"fields": {"fire_route": "alternative_solution"}}); d = docs()
+    assert d["ps1_fire"] and d["fire_engineering_brief"] and not d["ps2_review"]
+    assert not docs()["owner_authorisation"]; client.put(f"/api/packs/{pid}/fields", json={"fields": {"agent_name": "An Agent"}}); assert docs()["owner_authorisation"]
+
+def test_drawings_carry_the_ac1009_title_block(client):
+    p = new_pack(client); pid = p["id"]; client.put(f"/api/packs/{pid}/fields", json={"fields": {"designer_name": "D Signer Ltd", "owner_name": "Owner Co"}})
+    z = zipfile.ZipFile(io.BytesIO(client.get(f"/api/packs/{pid}/export.zip").content))
+    pdfn = [n for n in z.namelist() if n.startswith("Plans/Architectural Plan") and n.endswith(".pdf")][0]
+    txt = pymupdf.open(stream=z.read(pdfn), filetype="pdf")[0].get_text().replace("\n", " ")
+    for want in ("Address:", "Legal description:", "Drawing A-01", "D Signer Ltd", "Owner Co", "Dated:", "DRAFT: NOT FOR CONSENT"): assert want in txt, want

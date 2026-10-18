@@ -24,6 +24,14 @@ def tc(what: str) -> str: return f"[TO COMPLETE: {what}]"
 @lru_cache
 def checklist() -> dict: return yaml.safe_load((ROOT / "config" / "building_consent_checklist.yaml").read_text())
 @lru_cache
+def ac1009() -> dict:
+    d = yaml.safe_load((ROOT / "config" / "ac1009_lodgement_checklist.yaml").read_text())
+    for sec in d["sections"]:
+        sec["items"] = [{"id": f"{sec['id']}.{i}", "text": t.replace(" |PS", ""), "ps": t.endswith("|PS")} for i, t in enumerate(sec["items"], 1)]
+    return d
+def _ac_items() -> dict: return {it["id"]: (sec, it) for sec in ac1009()["sections"] for it in sec["items"]}
+FIRE_ROUTES = ("C/AS2", "C/VM2", "alternative_solution")
+@lru_cache
 def clauses() -> list[dict]: return yaml.safe_load((ROOT / "config" / "building_code_clauses.yaml").read_text())["clauses"]
 
 # Fields typed in by the owner / agent / designer. Portal order is assumed (unverified): applicant, property, work, then professionals.
@@ -35,7 +43,7 @@ FIELD_SECTIONS = [
     ("Professionals", [("designer_name", "Designer / architect name and company"), ("lbp_name", "Licensed building practitioner (restricted building work) name and LBP number")]),
 ]
 # Entered by or for the designer / fire engineer (the app never fills these in for them)
-PRO_FIELDS = {"cou_fire_group_existing": "fire engineer: existing fire risk group", "cou_fire_group_proposed": "fire engineer: proposed fire risk group", "cou_sprinklers_proposed": "fire engineer: sprinkler requirement",
+PRO_FIELDS = {"fire_route": "fire engineer: fire design route (C/AS2, C/VM2 or alternative_solution)", "vehicle_crossing_note": "vehicle crossing note (optional)", "cou_fire_group_existing": "fire engineer: existing fire risk group", "cou_fire_group_proposed": "fire engineer: proposed fire risk group", "cou_sprinklers_proposed": "fire engineer: sprinkler requirement",
               "cou_alarm_proposed": "fire engineer: alarm requirement", "cou_exits_proposed": "fire engineer: exits and escape", "spec_doors": "designer: door schedule", "spec_windows": "designer: window schedule",
               "spec_finishes": "designer: finishes schedule", "spec_fixtures": "designer: fixtures and fittings"}
 FIELD_KEYS = {k for _, fs in FIELD_SECTIONS for k, _ in fs} | set(PRO_FIELDS)
@@ -55,8 +63,9 @@ def build(parcel_id: int, option_id: int) -> dict:
     if opt["parcel_id"] != parcel_id: raise HTTPException(404, "option belongs to another property")
     cl = checklist(); run = run_checks(parcel_id, option_id)
     facts = {k: {"value": v["value"], "source": v["source"], "confidence": v["confidence"]} for k, v in rec["facts"].items()}
-    inputs = {"site": rec["site"], "option": {k: opt[k] for k in ("id", "scenario", "beds", "resident_rooms", "description", "binding_constraint", "new_work_items", "warnings", "levels")},
-              "facts": facts, "compliance_run_id": run["id"], "compliance": run["checks"], "fields": {}, "resolutions": {}, "built_at": datetime.now().isoformat(timespec="seconds")}
+    with conn() as c0: app_ = (c0.execute("SELECT appellation FROM core.sites WHERE parcel_id=%s", (parcel_id,)).fetchone() or {}).get("appellation")
+    inputs = {"site": {**rec["site"], "appellation": app_}, "option": {k: opt[k] for k in ("id", "scenario", "beds", "resident_rooms", "description", "binding_constraint", "new_work_items", "warnings", "levels")},
+              "facts": facts, "compliance_run_id": run["id"], "compliance": run["checks"], "fields": {}, "resolutions": {}, "lodgement": {"answers": {}, "sections_na": []}, "built_at": datetime.now().isoformat(timespec="seconds")}
     with conn() as c:
         ver = (c.execute("SELECT COALESCE(MAX(version),0)+1 AS v FROM core.rh_pack WHERE parcel_id = %s", (parcel_id,)).fetchone())["v"]
         p = c.execute("INSERT INTO core.rh_pack (parcel_id, option_id, version, checklist_version, inputs) VALUES (%s,%s,%s,%s,%s::jsonb) RETURNING id",
@@ -73,6 +82,7 @@ def set_fields(pack_id: int, fields: dict, resolutions: dict | None = None) -> d
     if p["status"] == "superseded": raise HTTPException(409, "this pack version is superseded: edit the current version")
     bad = [k for k in fields if not field_key_ok(k)]
     if bad: raise HTTPException(422, f"unknown field(s): {bad}")
+    if fields.get("fire_route") not in (None, "", *FIRE_ROUTES): raise HTTPException(422, f"fire_route must be one of {list(FIRE_ROUTES)}")
     inp = p["inputs"]
     for k, v in fields.items():
         if v in (None, ""): inp["fields"].pop(k, None)
@@ -84,6 +94,32 @@ def set_fields(pack_id: int, fields: dict, resolutions: dict | None = None) -> d
         c.execute("UPDATE core.rh_pack SET inputs=%s::jsonb, status=CASE WHEN status='ready_to_lodge' THEN 'draft' ELSE status END, ready_marked_at=NULL WHERE id=%s", (json.dumps(inp, default=str), pack_id)); c.commit()
     return get(pack_id)
 
+def set_lodgement(pack_id: int, answers: dict | None, sections_na: list | None) -> dict:
+    """AC1009: the applicant answers Yes or N/A to every line; a whole section can be marked N/A. The designer decides what applies: nothing is pre-answered."""
+    p = _pack(pack_id)
+    if p["status"] == "superseded": raise HTTPException(409, "superseded pack")
+    items = _ac_items(); secs = {x["id"] for x in ac1009()["sections"]}
+    bad = [k for k in (answers or {}) if k not in items] + [k for k in (sections_na or []) if k not in secs]
+    if bad: raise HTTPException(422, f"unknown AC1009 item or section: {bad[:5]}")
+    if any(v not in (None, "yes", "na") for v in (answers or {}).values()): raise HTTPException(422, "each answer must be yes, na, or null to clear")
+    inp = p["inputs"]; lg = inp.setdefault("lodgement", {"answers": {}, "sections_na": []})
+    for k, v in (answers or {}).items():
+        if v is None: lg["answers"].pop(k, None)
+        else: lg["answers"][k] = v
+    if sections_na is not None: lg["sections_na"] = sorted(set(sections_na))
+    with conn() as c:
+        c.execute("UPDATE core.rh_pack SET inputs=%s::jsonb, status=CASE WHEN status='ready_to_lodge' THEN 'draft' ELSE status END, ready_marked_at=NULL WHERE id=%s", (json.dumps(inp, default=str), pack_id)); c.commit()
+    return lodgement_view(pack_id)
+
+def lodgement_view(pack_id: int) -> dict:
+    p = _pack(pack_id); lg = p["inputs"].get("lodgement") or {"answers": {}, "sections_na": []}; a = lg["answers"]; na = set(lg["sections_na"]); out = []; open_n = 0
+    for sec in ac1009()["sections"]:
+        its = [{**it, "answer": ("na" if sec["id"] in na else a.get(it["id"]))} for it in sec["items"]]
+        unans = sum(1 for it in its if it["answer"] is None); open_n += unans
+        out.append({"id": sec["id"], "title": sec["title"], "hint": sec.get("hint"), "section_na": sec["id"] in na, "unanswered": unans, "items": its})
+    return {"pack_id": pack_id, "form": ac1009()["form"], "unanswered": open_n, "sections": out, "rules": ac1009()["rules"],
+            "note": "These are the Council's own checklist lines (AC1009). Answer Yes or N/A for each; the designer decides what applies. Attach the Council's form with your application: this is the answers sheet to copy from."}
+
 def set_not_required(pack_id: int, doc_key: str, required: bool, reason: str | None) -> dict:
     p = _pack(pack_id)
     if p["status"] == "superseded": raise HTTPException(409, "superseded pack")
@@ -93,6 +129,17 @@ def set_not_required(pack_id: int, doc_key: str, required: bool, reason: str | N
         if not r: raise HTTPException(404, "no such document in this pack")
         c.execute("UPDATE core.rh_pack SET status='draft', ready_marked_at=NULL WHERE id=%s AND status='ready_to_lodge'", (pack_id,)); c.commit()
     return get(pack_id)
+
+def _yaml_doc(key: str) -> dict: return next((d for d in checklist()["documents"] if d["key"] == key), {})
+
+def effective_required(doc: dict, inp: dict) -> tuple[bool, str | None]:
+    """-> (required, why). A document with required_when follows the stated field; otherwise the stored flag (which the owner can change with a reason)."""
+    rw = _yaml_doc(doc["doc_key"]).get("required_when")
+    if not rw: return doc["required"], None
+    v = inp["fields"].get(rw["field"])
+    if "in" in rw: return (v in rw["in"]), (None if v else f"{rw['field']} not chosen yet")
+    if rw.get("present"): return bool(v), None
+    return doc["required"], None
 
 # ------------------------------------------------------------------ rendering (generated documents)
 def _v(inp, k, fmt=lambda x: x):
@@ -117,7 +164,11 @@ def render(pack_id: int, doc_key: str) -> str:
         L = [head, f"# Application data sheet: {site['address']}", f"Pack version {p['version']}; checklist `{p['checklist_version']}` (Council-verified: {checklist()['council_verified']}).", "",
              "**This lists every field in the order the Council portal is expected to ask for it, to type in. The portal order is NOT verified against the live portal (the Council site could not be opened from here): follow the portal's own order and use this as the source of the values.**", ""]
         L += ["## Property", "| Field | Value | Source |", "|--|--|--|", f"| Street address | {site['address']}, {site['suburb']} | Council/LINZ data |", f"| Parcel ID (LINZ) | {site['parcel_id']} | LINZ |",
-              f"| Record of title no. | {site.get('title_no') or tc('title number')} | LINZ |", f"| Title type | {site.get('title_type') or tc('title type')} | LINZ |", f"| Site area (m2) | {site.get('area_m2')} | LINZ |", f"| Zone | {site.get('zone_name') or tc('zone')} | Auckland Unitary Plan |", ""]
+              f"| Record of title no. | {site.get('title_no') or tc('title number')} | LINZ |", f"| Title type | {site.get('title_type') or tc('title type')} | LINZ |", f"| Site area (m2) | {site.get('area_m2')} | LINZ |", f"| Zone | {site.get('zone_name') or tc('zone')} | Auckland Unitary Plan |", f"| Legal description (Lot / DP) | {site.get('appellation') or tc('legal description')} | LINZ |", ""]
+        lg = inp.get("lodgement") or {}; va = dict(lg.get("answers", {}))
+        for sec in lg.get("sections_na", []): va.update({it["id"]: "na" for x in ac1009()["sections"] if x["id"] == sec for it in x["items"]})
+        L += ["## Vehicle crossing and approvals (AC1009)", "| Field | Answer |", "|--|--|"] + [f"| {lbl} | {(va.get(k) or tc('answer on the lodgement checklist')).upper() if va.get(k) else tc('answer on the lodgement checklist')} |" for k, lbl in (("vehicle.1", "New vehicle crossing"), ("vehicle.2", "Building within 1.0 m of the road corridor"), ("vehicle.3", "Existing vehicle crossing"), ("works_over.1", "Works over a Council drain / near a main trunk line"), ("epa.1", "Major EPA required"))] + [""]
+        L += [f"- Fire design route: {inp['fields'].get('fire_route') or tc('fire engineer: route')}", ""]
         for sec, fs in FIELD_SECTIONS:
             L += [f"## {sec}", "| Field | Value |", "|--|--|"] + [f"| {lbl} | {_field(inp, k, lbl)} |" for k, lbl in fs] + [""]
         L += ["## Proposed work", "| Field | Value |", "|--|--|", f"| Type of consent | Building consent: change of use to a rest home / residential care, with alterations |",
@@ -154,12 +205,16 @@ def render(pack_id: int, doc_key: str) -> str:
             L.append(f"| {cl['clause']} | {cl['title']} | {cl['signs_off']} | {res} | {inp['fields'].get('clause_method.' + cl['clause']) or tc('designer: method for ' + cl['clause'])} | {inp['fields'].get('clause_evidence.' + cl['clause']) or tc('producer statement / report reference for ' + cl['clause'])} |")
         return "\n".join(L)
     if doc_key == "drawings":
-        _, missing = drawing_files(p)
+        missing = drawing_missing(p)
         L = [head, "# Drawing set", "", "Existing, change-of-use/strip-out and new-work drawings per level, from the human-confirmed plan reading (PDF in `Plans/`, DXF in `Plans/DXF/` for the designer). Room level only: walls, structure, fire and services are the designer's and engineers'.", ""]
         L += [f"- {lv['level_name']}: " + ("no scale set: **no drawing can be produced**" if lv['level_name'] in missing else "drawing included") for lv in opt["levels"]]
         return "\n".join(L)
     if doc_key == "lodgement_checklist":
-        return "\n".join([head, f"# Lodgement checklist: {site['address']}", ""] + _checklist_md(pack_id))
+        lv = lodgement_view(pack_id); L = [head, f"# Lodgement checklist answers (Council form {lv['form']['code']} {lv['form']['version']}, {lv['form']['date']}): {site['address']}", "",
+              "The Council's form is attached to the application by the applicant; these are the answers to copy onto it. Yes / N/A for every line.", ""]
+        for sec in lv["sections"]:
+            L += [f"## {sec['title']}" + (" (entire section N/A)" if sec["section_na"] else ""), "| Answer | Item |", "|--|--|"] + [f"| {(it['answer'] or tc('answer Yes or N/A')).upper() if it['answer'] else tc('answer Yes or N/A')} | {it['text']}{' (producer statement)' if it['ps'] else ''} |" for it in sec["items"]] + [""]
+        return "\n".join(L)
     if doc_key == "cover_index":
         L = [head, f"# Building consent pack (DRAFT): {site['address']}", f"Pack version {p['version']} | checklist `{p['checklist_version']}` | Council-verified checklist: **{checklist()['council_verified']}** | status: {p['status']}", "",
              "This pack is prepared for review by the designer and engineers. It is not a consent application until the professionals have issued their documents and the owner lodges it through the Council portal.", "", "| Folder | File | Document | Kind | Required |", "|--|--|--|--|--|"]
@@ -177,11 +232,24 @@ def _checklist_md(pack_id: int) -> list[str]:
     return L
 
 # ------------------------------------------------------------------ drawings
+def titleblock(p: dict, n: int, level: str) -> dict:
+    inp = p["inputs"]; f = inp["fields"]; s = inp["site"]
+    return {"address": f"{s['address']}, {s['suburb']}", "legal": s.get("appellation") or tc("legal description"), "number": f"A-{n:02d}", "title": f"Layout option {inp['option']['scenario']}: {level}",
+            "designer": f.get("designer_name") or tc("designer"), "owner": f.get("owner_name") or tc("owner"), "date": date.today().isoformat()}
+
+def drawing_missing(p: dict) -> list[str]:
+    """Levels that cannot be drawn (no scale). Cheap: does not render anything."""
+    opt = get_option(p["option_id"]); out = []
+    for i, lv in enumerate(opt["levels"]):
+        try: drawings._geom(opt["id"], i)
+        except HTTPException: out.append(lv["level_name"])
+    return out
+
 def drawing_files(p: dict) -> tuple[list[tuple[str, bytes, bytes]], list[str]]:
     """-> ([(level_name, pdf, dxf)], names of levels that cannot be drawn)"""
     opt = get_option(p["option_id"]); out, missing = [], []
     for i, lv in enumerate(opt["levels"]):
-        try: out.append((lv["level_name"], drawings.pdf(opt["id"], i), drawings.dxf(opt["id"], i)))
+        try: tb = titleblock(p, i + 1, lv["level_name"]); out.append((lv["level_name"], drawings.pdf(opt["id"], i, tb), drawings.dxf(opt["id"], i, tb)))
         except HTTPException: missing.append(lv["level_name"])
     return out, missing
 
@@ -192,6 +260,10 @@ def statements(pack_id: int) -> list[dict]:
 def statement_valid(s: dict, doc: dict) -> tuple[bool, list[str]]:
     """A statement counts only when: PDF on file, right type for the slot, author, company and date recorded (date not in the future), and the author found on the Council register (checked within MAX_AGE_DAYS)."""
     why = []
+    maxage = _yaml_doc(doc.get("doc_key", "")).get("max_age_days") or (90 if s["statement_type"] in ("PS1", "PS2", "PS3", "PS4") else None)       # AC1009: producer statements and the record of title no older than 90 days
+    if maxage:
+        if not s["date_issued"]: why.append("date issued not recorded")
+        elif (date.today() - s["date_issued"]).days > maxage: why.append(f"dated more than {maxage} days ago (AC1009): obtain a current one")
     if doc.get("statement_type") and s["statement_type"] != doc["statement_type"]: why.append(f"type {s['statement_type']} but the slot needs {doc['statement_type']}")
     if doc.get("statement_type"):
         if not s["author_name"]: why.append("author name not recorded")
@@ -265,8 +337,9 @@ def completeness(pack_id: int) -> dict:
     def block(code, detail): blockers.append({"code": code, "detail": detail})
     if not checklist()["council_verified"]:
         block("checklist_not_council_verified", "the pack is built to a checklist assembled from the spec and Council guidance summaries; Auckland Council's own checklist (AC1021 / portal) has not been opened and reconciled (docs/sources_manual/README.md)")
+    if not inp["fields"].get("fire_route"): block("fire_route_not_chosen", "the fire design route (C/AS2, C/VM2 or alternative solution) has not been chosen by the fire engineer: it decides which fire documents are needed (AC1009 page 4)")
     for d in docs:
-        status = "n/a"
+        status = "n/a"; d = {**d, "required": effective_required(d, inp)[0]}
         if d["kind"] == "upload_slot":
             live = [s for s in sts if s["doc_id"] == d["id"] and not s["superseded"]]
             if not live: status = "NOT UPLOADED"
@@ -280,8 +353,10 @@ def completeness(pack_id: int) -> dict:
             if n and d["required"]: block("placeholders_remaining", f"{d['title']}: {n} [TO COMPLETE] item(s): " + "; ".join(sorted(set(m[13:-1] for m in TC.findall(txt)))[:6]) + (" ..." if n > 6 else ""))
         rows.append({"doc_key": d["doc_key"], "title": d["title"], "kind": d["kind"], "folder": d["folder"], "file_name": d["file_name"], "required": d["required"], "reason": d["not_required_reason"], "status": status})
     if p["option_id"]:
-        _, missing = drawing_files(p)
+        missing = drawing_missing(p)
         if missing: block("drawings_unavailable", "no scale set on level(s): " + ", ".join(missing))
+    lv = lodgement_view(pack_id)
+    if lv["unanswered"]: block("lodgement_checklist_unanswered", f"AC1009 lodgement checklist: {lv['unanswered']} line(s) not yet answered Yes or N/A (first: " + "; ".join(f"{x['title']} ({x['unanswered']})" for x in lv["sections"] if x["unanswered"])[:160] + ")")
     for c_ in inp["compliance"]:
         if c_["status"] == "FAIL" and c_["id"] not in inp["resolutions"]:
             block("compliance_fail", f"{c_['id']}: {c_['detail']} (record how the design resolves it, or fix the design)")

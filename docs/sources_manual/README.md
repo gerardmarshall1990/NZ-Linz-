@@ -17,7 +17,7 @@ Page addresses below are the ones I found or know of; government sites move page
 
 | # | File | Folder | Download page | What to take |
 |---|---|---|---|---|
-| 5 | **AC1021 Building consent application pack 2 (commercial)** | `council_forms/` | aucklandcouncil.govt.nz, Building and consents, Building consents, forms (direct link recorded in `docs/council_forms/README.md`; the Council site answers scripts with 406) | The PDF, which holds the Council's checklist |
+| 5 | **AC1021 Building consent application pack 2 (commercial)** (AC1009 lodgement checklist v.21 June 2026: **received 2026-10-18, loaded**) | `council_forms/` | aucklandcouncil.govt.nz, Building and consents, Building consents, forms (direct link recorded in `docs/council_forms/README.md`; the Council site answers scripts with 406) | The PDF, which holds the Council's checklist |
 | 6 | **AC2205 Change of use of existing buildings**, **AC1826 Fire protection guide**, **AC2154 Notification of proposed change of use** | `council_forms/` | same, links in `docs/council_forms/README.md` | PDFs |
 | 7 | **Council's document file-naming page** and the **building consent fee schedule** | `council_forms/` | the file-naming page link is in `docs/council_forms/README.md`; the fee schedule is under Building consent fees on the Council site | Save each page as PDF (browser, Print, Save as PDF) |
 | 8 | **The online application screens in order** (portal field order) | `council_forms/` | Start (do not submit) a building consent application in your Council online account and take screenshots of each screen, or save the Council's "how to apply online" guide as PDF | One screenshot per screen, numbered. Lets me put the data sheet in the portal's real order |

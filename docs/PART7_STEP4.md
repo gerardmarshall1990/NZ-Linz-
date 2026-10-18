@@ -9,6 +9,9 @@
 - **Engineer reviews**: package per role (designer, fire, structural, services) with brief, wanted documents and drawings; download as zip, or (flag `engineer_review_links`, default OFF) a private 14-day link that records views, comments and return. Turnaround per role is measured (`/api/reviews/metrics`). The app sends nothing: you pass the link on. Engineer comments are comments, not approvals.
 - **Feature flags** (`core.user_flag`, `/api/flags`): everything defaults off.
 
+## Reconciled with the Council's AC1009 (2026-10-18)
+The owner supplied AC1009 v.21 (June 2026). The pack now: asks every one of its 151 lines (Yes / N/A, or a whole section N/A) and refuses "ready to lodge" while any is unanswered; puts the AC1009 address, legal description, drawing number and title, designer, owner and date on every drawing; applies the 90-day rule to producer statements and the record of title; follows the fire-design route table (the fire engineer picks C/AS2, C/VM2 or alternative solution, which decides whether PS1, the fire engineering brief or the PS2 review evidence is required: my reading of page 4, for the fire engineer to confirm); adds slots for the existing-buildings assessment (s112/s115, Building Score Sheet), the accessibility report and the owner's letter of authorisation (required when an agent lodges). The Council's own form is attached by you; the app gives the answers sheet to copy from.
+
 ## Honest limits
 - Auckland Council's checklist and forms (AC1021, AC2205, AC1826) could not be opened (the site refuses scripted requests and was not bypassed). The pack is built from the spec and from search-result summaries recorded in `docs/council_forms/README.md`. The portal field order is **not verified**. Fee schedule not found (placeholder in the pack).
 - Which documents are required for a care-home change of use is my assumption until the Council checklist is reconciled.

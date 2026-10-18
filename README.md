@@ -34,7 +34,7 @@ Install Tailscale on the iPhone, allow the Tailscale domains for the sandbox, th
 Map: click a listing dot or search an address. **Parcel / Listing / Rest Home / Offer** tabs show the verdict, layout options, compliance screening, retrofit, economics, what-if sliders, the Deal Sheet PDF, the consent pack and engineer review packages. **Rank** orders properties by profit per effort point within each confidence tier.
 
 ## Checks
-`make test` runs the test suite (211 tests). `make validate` regenerates `docs/VALIDATION.md`, the go/no-go report that must pass before you flip any outreach flag. Outreach, field capture and offer letters are **off** (`config/feature_flags.yaml`) and the routes answer 403; only you can turn them on, by editing that file.
+`make test` runs the test suite (215 tests). `make validate` regenerates `docs/VALIDATION.md`, the go/no-go report that must pass before you flip any outreach flag. Outreach, field capture and offer letters are **off** (`config/feature_flags.yaml`) and the routes answer 403; only you can turn them on, by editing that file.
 
 ## Where things are
 `backend/app/` the API and engines; `backend/app/static/` the phone UI; `config/` rules, rates, assumptions, checklists; `db/sql/` schema; `scripts/` pipelines and backups; `docs/` explanations (start with `docs/STATUS.md`, `docs/BLOCKERS.md`, `docs/LIMITATIONS.md`).

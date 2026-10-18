@@ -65,6 +65,14 @@ def export(pid: int): return Response(cp.export_zip(pid), media_type="applicatio
 @r.get("/api/packs/{pid}/upload-sheet.pdf")
 def upload_sheet(pid: int): return Response(md_to_pdf(cp.upload_sheet(pid), "Upload sheet"), media_type="application/pdf")
 
+class LodgIn(BaseModel):
+    answers: dict[str, str | None] = Field(default_factory=dict)
+    sections_na: list[str] | None = None
+@r.get("/api/packs/{pid}/lodgement")
+def get_lodgement(pid: int): return cp.lodgement_view(pid)
+@r.put("/api/packs/{pid}/lodgement")
+def put_lodgement(pid: int, body: LodgIn): return cp.set_lodgement(pid, body.answers, body.sections_na)
+
 # ---- reviews
 class RevIn(BaseModel):
     role: str

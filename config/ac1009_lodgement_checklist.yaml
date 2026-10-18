@@ -1,0 +1,164 @@
+# Auckland Council AC1009 (v.21, June 2026) "Lodgement Checklist: Commercial", read in full on 2026-10-18 from the PDF you supplied (docs/sources_manual/council_forms/AC1009_...pdf, 19 pages).
+# The Council's own checklist: the applicant answers Yes or N/A to every line ("Customer use" columns; the "Council use only" columns are the Council's). Item text is shortened, not re-worded in meaning.
+# Items marked |PS need a producer statement from an engineer on the Council's Producer Statement Authors list. `hint` is my note on what usually applies to an existing-building rest home conversion: it is NOT applied, the designer decides.
+# The form says to attach the completed checklist to the application; the app produces an answers sheet to copy from, and you attach the Council's own form.
+form: {code: AC1009, version: "v.21", date: "June 2026", last_verified: "2026-10-18", source_file: "docs/sources_manual/council_forms/AC1009_lodgement_checklist_commercial_v21_2026-06.pdf"}
+rules:     # stated in the guidance on pages 1 to 4
+  - "Drawings and specifications: prepared to the relevant principles of AS/NZS1100; clear, legible; black ink or colour (no freehand)"
+  - "Each drawing carries: site address and legal description (Lot and DP), drawing number and title, designer's name, owner's name, a date for version control"
+  - "Applications supported by a producer statement: architectural plans signed and dated by the engineer, or structural drawings, or a schedule listing the work the statement covers"
+  - "Producer statements must be dated no older than 90 days and within the author's professional competence"
+  - "Record of Title no older than 90 days"
+  - "A deposit is payable at lodgement (invoice after the consent is processed)"
+  - "A fire report is required unless the building work does not include fire cells"
+  - "If a Watercare connection is available, written confirmation from Watercare must be submitted with the application"
+fire_routes:   # page 4: for alterations and for a change of use that results in an alteration
+  C/AS2: "Acceptable Solution C/AS2: assessment of the existing building's means of escape from fire (MOE) required; FENZ design review only if the design has more than a minor effect on a specified fire-safety system; approval by Council regulatory review and/or PS1 from an engineer on the Auckland Council PS Register"
+  C/VM2: "Verification Method C/VM2: fire engineering brief (FEB) and meeting, MOE assessment, FENZ review as above; approval by Council review and/or review by a fire engineer on the PS Register evidenced by PS2"
+  alternative_solution: "Alternative Solution: FEB and meeting, MOE assessment and FENZ design review all required; approval by Council review and/or PS1 from an engineer on the PS Register"
+sections:
+  - id: site
+    title: "Site and application details"
+    items: ["Description of work accurately reflects the building work proposed", "Property address", "Lot and DP numbers (if multiple lots are part of the application)"]
+  - id: vehicle
+    title: "Vehicle crossing"
+    items: ["New vehicle crossing (separate application to Auckland Council as receiving agent for Auckland Transport)", "Building within 1.0 m of the road corridor", "Existing vehicle crossing will serve the building"]
+  - id: works_over
+    title: "Watercare / Healthy Waters: works over"
+    items: ["Building within 2 m of or over a Council drain and/or within 10 m of a Watercare main trunk line: Watercare Services or network utility operator approval (application made / approval attached)", "Bridging design and details to build over the drain; CCTV video and report for building over or near public stormwater drains"]
+    hint: "Usually N/A for an internal conversion"
+  - id: epa
+    title: "Engineering plan approval (EPA)"
+    items: ["Major EPA required: copy of the approved (stamped) plans attached", "Minor EPA required and already applied for: EPA reference number given"]
+    hint: "Usually N/A for an internal conversion"
+  - id: general
+    title: "General items"
+    items: ["Application form completed in full and signed", "Full Record of Title (no older than 90 days) including all consent notices and encumbrances; sale and purchase or lease agreement", "Letter of authorisation from the owner if the application is lodged by an agent, company, trust or anyone other than the owner", "Lease or tenancy agreements provided (includes Encroachment Licence if building in the road reserve or air space)"]
+  - id: site_plan
+    title: "Site plan (scale 1:100 urban, 1:200 rural)"
+    items: ["Legal description (Lot, DP, street address), north point, contours or spot levels with datum, siting dimensions of all existing and proposed buildings and common areas", "All existing and proposed sanitary drainage (including on-site treatment systems) with distances to boundaries", "Invert levels for new stormwater and wastewater outfall connections; water supply and drainage connections consistent with any approved EPA", "Retaining wall details (cut, fill, height of retained ground using spot levels)", "All buildings on site (whole building, or all jointly owned cross-leases / the whole unit-titled building including land owned by the body corporate)", "Datum stated on the site plan (new consents NZVD2016; existing or amendments AUK46 or NZVD2016)"]
+  - id: plans
+    title: "Plans"
+    items: ["Existing and proposed layout and use", "Internal and external stairs, handrails and flooring/decking shown", "Finished floor levels shown", "A minimum of two cross sections through the length and width of the building with finished ground and floor levels", "Cross-reference details on elevations (roof/wall junctions, eaves, balustrade, parapets, penetrations, control joints, window flashings, cladding clearances)"]
+  - id: planning
+    title: "Planning information"
+    items: ["Copy of approved resource consent and conditions with stamped plans, if applicable", "Location, dimension and gradient of car parking, manoeuvring and vehicle crossing", "All areas of impermeable coverage, building and landscaping, with calculations", "All streams and riparian margins shown", "All trees protected by the District Plan (height, girth, drip line) shown", "Height in relation to boundary controls shown at critical points", "Area and volume of proposed earthworks", "Details of any proposed signage"]
+  - id: epb
+    title: "B1 earthquake-prone building (EPB)"
+    items: ["Alterations or renovations to a building subject to an earthquake-prone building notice (check the substantial alteration trigger test)", "Application only for seismic strengthening of a building subject to an EPB notice (minimum 34% NBS)", "Building not yet assessed for seismic strength", "Has open street facades at ground level", "Pre-1976 building of three or more storeys or 12 m or more in height (other than URM)", "Pre-1976 residential building of 2+ storeys with 3+ household units, or pre-1976 hostel, boarding house or other specialised accommodation 2+ storeys high", "Other potential structural deficiencies (for example non-ductile columns)", "If any above is ticked or you are unsure about 'substantial alterations': notify the Council's seismic performance team (EQBproject@aucklandcouncil.govt.nz)"]
+    hint: "A care home with sleeping accommodation of 2+ storeys that was built before 1976 triggers this: structural engineer to advise"
+  - id: struct_ps
+    title: "Structural engineering producer statements"
+    items: ["Agreement to provide producer statement construction (AC2326), if applicable |PS", "Producer statements completed in full and signed (where provided) |PS", "Barrier-specific design: drawings and engineering calculations with producer statement |PS"]
+  - id: struct_reports
+    title: "B1 structural design reports (1:100 or 1:50)"
+    items: ["Geotechnical Completion Report for recent subdivisions (earthworks)", "Soil and ground stability or liquefaction risk identified: geotechnical design report(s), calculations, plans, specifications", "Suspended ceiling seismic design report, calculations and PS1 |PS", "Structural engineer's drawings and specifications for fire ratings to primary and secondary elements", "Structural steel quality means or compliance report to NZS 5131"]
+  - id: foundation
+    title: "B1 foundation design (1:100 or 1:50)"
+    items: ["Slab construction specified, detailed and dimensioned; engineer's design", "Cross section of footing details including height in relation to ground levels", "Construction methodology for excavation close to a boundary or existing building", "Underpinning details and neighbour's approval", "Method of temporary support for excavation", "Ground anchors: details, neighbour's approval and sub-grade lease agreement"]
+    hint: "Usually N/A for an internal conversion"
+  - id: fire_c
+    title: "C protection from fire"
+    items: ["Acceptable Solutions C/AS1 and/or C/AS2", "Verification Method (VM2) or Alternative Design: copy of stakeholder engagement (FENZ, Council, peer reviewer) and the fire engineering brief", "Details of all passive fire protection measures including fire dampers and collars, with product technical data sheets", "Details of all surface finishes"]
+  - id: existing
+    title: "Existing buildings s112 and s115"
+    items: ["Building Score Sheet in accordance with MBIE recommendation", "Assessment report of 'as near as is reasonably practicable' (s112)", "Relevant provisions of the Building Code for a change of use have been addressed (s115)"]
+  - id: d1
+    title: "D1 accessibility"
+    items: ["Accessibility Report or adequate provisions to address section 118 of the Building Act and clause D1, with the requirements shown on plans (new / existing)"]
+  - id: d2
+    title: "D2 lifts, escalators and elevators"
+    items: ["Manufacturer's specifications and design plans, engineering calculations, PS1 or CodeMark |PS"]
+  - id: e1
+    title: "E1 surface water"
+    items: ["Drainage plans showing existing and proposed stormwater pipes and connections", "Erosion and sediment control plan, report and plans", "Civil engineering plans, stormwater calculations or infrastructure capacity report", "Flooding and surface water (overland flow paths) assessment reports and plans", "Details of decentralised stormwater disposal (detention tanks, pumps, depths)", "Detention or retention tank: civil engineer's calculations, capacity report and specifications", "Stormwater on-site disposal design and calculations; soakage report"]
+    hint: "Usually N/A for an internal conversion"
+  - id: e2
+    title: "E2 external moisture"
+    items: ["Cladding system design summary and compliance methodology", "Envelope engineering design (test reports, calculations, plans)", "Producer Statement PS1 / PS2 (external envelope engineer) |PS", "Elevations for each external wall with cross references to construction details", "Detailing of all roof and wall junctions, flashings, eaves, balustrades, parapets, penetrations, cladding clearances", "3D detailing of complex roof and deck edge / perimeter wall junctions", "Cladding system technical specifications, installation instructions and maintenance requirements", "Reclad applications only: quality assurance programme (provisional format)", "Reclad applications only: agreement to provide a quality assurance programme during construction (AC2329)", "Retaining wall details (cut, fill, height, tanking membrane and drainage)", "Details of proposed exterior signage and louvres: durable fixing designed by a structural engineer"]
+    hint: "Usually N/A for an internal conversion with no external change"
+  - id: e3
+    title: "E3 internal moisture"
+    items: ["Waterproofing details and lining finishes specified for wet areas (floors / walls)"]
+  - id: f1
+    title: "F1 hazardous agents on site"
+    items: ["Site contamination report and plans", "Hazardous agents or contamination site investigation report with remedial action details"]
+  - id: f2
+    title: "F2 hazardous building materials"
+    items: ["Glazing (windows, doors, facade) specifications and compliance standards (for example NZS 4223.3:2016)", "Cover sheet for glazed barriers detailing the compliance method", "Handling and storage of hazardous materials (for example an asbestos report; management plan under the Asbestos Regulations 2015 if identified)"]
+    hint: "An asbestos report is normally needed for a pre-2000 building"
+  - id: f3
+    title: "F3 hazardous substances and processes"
+    items: ["Hazardous substances type, class and quantity", "Test certifier report for compliance with the Hazardous Substances and New Organisms (HSNO) Act", "HSNO Compliance Certificate details (name and certifier number)"]
+  - id: f4
+    title: "F4 safety from falling"
+    items: ["Barrier height on plans and infill specifications"]
+  - id: f5
+    title: "F5 construction and demolition hazards"
+    items: ["Details and measures for public safety during construction", "Whether a Certificate for Public Use application will be required for work within the existing building"]
+  - id: f6
+    title: "F6 visibility in escape routes"
+    items: ["Design shows location and illumination of the emergency lighting system including calculation and specification", "PS1 signed off by an engineer on the Council Producer Statement Authors list; plans and specifications for emergency lighting design |PS"]
+  - id: f7
+    title: "F7 warning systems"
+    items: ["Warning systems location and the standards they are designed to are identified in the fire report"]
+  - id: f8
+    title: "F8 signs"
+    items: ["All signage (exit signs, directional signs, manual call points) identified in the fire report and/or architectural plans", "Signs for hazardous substances and non-potable water outlets, or other required signs"]
+  - id: f9
+    title: "F9 means of restricting access to residential pools and pool specs"
+    items: ["Swimming pool / small heated pool", "Pool specifications", "Engineering calculations and producer statements for structural design elements", "Site plan with pool and pool fencing, gates and opening direction", "Immediate pool area specified (pool isolated)", "Manufacturer's specification for fencing", "Fencing details (materials, height, gate mechanisms, latch heights)", "Building used as part of fencing: floor plan, door closing/latching, elevations of windows", "Boundary fencing used as part of pool fencing: photos, cross-section"]
+    hint: "N/A unless a pool is part of the work"
+  - id: g1
+    title: "G1 personal hygiene"
+    items: ["Calculation for compliance with G1.3.1 for the number of sanitary facilities provided", "Sanitary facilities layout provided for the building", "Accessible sanitary facilities shown on the plans"]
+  - id: g2
+    title: "G2 laundering"
+    items: ["Plans and specifications showing adequate activity space (accessible facilities for camping grounds only)"]
+  - id: g3
+    title: "G3 food preparation and prevention of contamination (applies to old people's homes)"
+    items: ["Plans and specifications: appliances/fixtures for storage, preparation, cooking, utensil washing; impervious linings and work surfaces; exposed elements shaped to avoid dirt accumulation; adequate activity space and accessible facilities"]
+  - id: g4
+    title: "G4 ventilation"
+    items: ["Engineering calculations for ventilation systems in building spaces including basements and commercial kitchen range hoods", "All details shown on plans", "Manufacturer's specifications", "Natural ventilation / mechanical ventilation (state which)", "PS1 provided |PS"]
+  - id: g5
+    title: "G5 interior environment (applies to old people's homes)"
+    items: ["Heating to a minimum of 16 degrees in old people's homes", "Habitable space has adequate and accessible space in old people's homes", "Assistive listening systems where the building type requires them (old people's homes occupied by more than 20 people and similar)"]
+  - id: g6
+    title: "G6 airborne and impact sound"
+    items: ["Acoustic design: plans, specifications, calculations; sound transmission class STC not less than 55; impact insulation IIC not less than 55 for abutting floor/ceiling in apartment buildings", "Acoustic report for walls and floor/ceiling assemblies between abutting occupancies; PS1 signed off by an engineer on the Council PS Authors list |PS"]
+    hint: "Applies between abutting occupancies; likely N/A for a single-occupancy care home"
+  - id: g7
+    title: "G7 natural light (applies to old people's homes)"
+    items: ["Plans, specifications and modelling: natural light through external wall openings (not less than 30 lux at floor level for 75% of the standard year) and awareness of the outside"]
+  - id: g8
+    title: "G8 artificial light"
+    items: ["Lighting plans and specifications"]
+  - id: g9
+    title: "G9 electricity"
+    items: ["Plans and specifications to appropriate standards and electrical safety regulations; light switches and sockets accessible in accessible buildings"]
+  - id: g10
+    title: "G10 piped services"
+    items: ["Plans and specifications provided (medical gases, hot water heating, HVAC, gas, chilled water pipes)"]
+  - id: g11
+    title: "G11 gas as an energy source"
+    items: ["Specifications (pipe materials and appliance installation) for hazardous liquids and gas pipes appliances", "Clearances (window openings, drains, etc.)"]
+  - id: g12
+    title: "G12 water supplies"
+    items: ["Potable water supply: town supply connection or alternative source", "Water supply design and calculations for domestic supply including hot water and flow rates", "PS1 from a hydraulic engineer for water supply reticulation for mid-rise and high-rise buildings |PS", "Schematic plans showing location and number of fixtures and plumbing fittings (pipe sizes, gradients, vents, valves)", "Backflow prevention devices, if required", "Manufacturer's specifications for retention/storage tank if applicable"]
+  - id: g12h
+    title: "Water heaters (solar or heat pump)"
+    items: ["Solar panel frame connection and weatherproofing details", "At least two elevations showing position and inclination of solar panels", "Manufacturer's specifications and technical data sheets", "Engineering calculations / producer statements for structural design elements, taking account of the roof structure |PS"]
+  - id: g13
+    title: "G13 foul water"
+    items: ["Drainage schematic on plans and specifications (materials, sizes, gradient, venting, ORG, access points)", "PS1 from a hydraulic / civil engineer for plumbing waste and sanitary sewer for mid-rise and high-rise buildings (recommended) |PS", "Infrastructure capacity report (sanitary)", "On-site waste water disposal and TP58 report (septic tanks, pumps, effluent disposal)"]
+  - id: g14
+    title: "G14 industrial liquid waste"
+    items: ["Confirm whether the project is low-risk trade waste, prohibited trade waste or N/A (Trade Waste Bylaw 2013)", "Low-risk trade waste requirements met (Schedule 1)", "Conditional trade waste agreement (Schedule 3)"]
+    hint: "Check whether the commercial kitchen counts as trade premises"
+  - id: g15
+    title: "G15 solid waste"
+    items: ["Plans showing space for holding solid waste in the building", "Calculation for sizing the solid waste space and the longest carry distance", "Dedicated space: easy-clean impermeable walls and floor, ventilated, hose tap, graded floor, waste and vermin proof", "Refuse chutes adequately sized, easy to clean and fireproofed"]
+  - id: h1
+    title: "H1 energy efficiency"
+    items: ["Energy efficiency (H1) report and calculations"]

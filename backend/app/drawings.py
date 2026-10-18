@@ -19,7 +19,10 @@ def _geom(oid: int, level_idx: int):
 
 def _kind(a): return "new" if (a["items"] and a["action"] == "keep") else ("change" if a["action"] == "convert" else "existing")
 
-def dxf(oid: int, level_idx: int = 0) -> bytes:
+def _tb_lines(tb: dict) -> list[str]:
+    return [f"Address: {tb['address']}  |  Legal description: {tb['legal']}", f"Drawing {tb['number']}: {tb['title']}  |  Designer: {tb['designer']}  |  Owner: {tb['owner']}  |  Dated: {tb['date']}"]
+
+def dxf(oid: int, level_idx: int = 0, titleblock: dict | None = None) -> bytes:
     opt, lv, polys = _geom(oid, level_idx)
     d = ezdxf.new("R2010"); d.header["$INSUNITS"] = 6
     for name, col in (("EXISTING", 8), ("CHANGE_OF_USE_DEMOLITION", 30), ("NEW_WORK", 5), ("TEXT", 7), ("STAMP", 1)): d.layers.add(name, color=col)
@@ -38,9 +41,10 @@ def dxf(oid: int, level_idx: int = 0) -> bytes:
     y0 = min(ys) - 1.5
     m.add_text(STAMP, dxfattribs={"layer": "STAMP", "height": 0.3, "insert": (min(xs), y0)})
     m.add_text(f"Layout option: {opt['scenario']} | level: {lv['level_name']} | beds in option: {opt['beds']} | screening drawing, room level only", dxfattribs={"layer": "TEXT", "height": 0.2, "insert": (min(xs), y0 - 0.5)})
+    for j, ln in enumerate(_tb_lines(titleblock) if titleblock else []): m.add_text(ln, dxfattribs={"layer": "TEXT", "height": 0.18, "insert": (min(xs), y0 - 1.0 - j * 0.35)})
     s = io.StringIO(); d.write(s); return s.getvalue().encode()
 
-def pdf(oid: int, level_idx: int = 0) -> bytes:
+def pdf(oid: int, level_idx: int = 0, titleblock: dict | None = None) -> bytes:
     import pymupdf
     opt, lv, polys = _geom(oid, level_idx)
     W, H = 1190, 842   # A3 landscape in points
@@ -62,4 +66,5 @@ def pdf(oid: int, level_idx: int = 0) -> bytes:
     pg.insert_text((margin, 50), f"Option: {opt['scenario']} | Level: {lv['level_name']} | Beds in option: {opt['beds']} | Scaled to fit A3: not a stated drawing scale", fontsize=8)
     pg.insert_text((margin, H - 55), "Legend: grey = existing, unchanged | orange = change of use / strip-out | blue = new work. Room level only; wall changes, structure, fire and services are for the designer and engineers.", fontsize=7)
     pg.insert_text((margin, H - 40), STAMP + ". Screening drawing from a human-confirmed plan reading.", fontsize=7, color=(0.8, 0, 0))
+    for j, ln in enumerate(_tb_lines(titleblock) if titleblock else []): pg.insert_text((margin, H - 26 + j * 11), ln, fontsize=7)
     return doc.tobytes()
