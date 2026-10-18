@@ -1,0 +1,13 @@
+# Effort points for ranking (MASTER_SPEC 6.4). MY assumptions, not facts: edit them on the Ranking screen (stored in your inputs). effort = 1 + sum(weight x component).
+# Components are counted from the Property Record, layout option and compliance run; the scales below are a first guess to be tuned from real deals.
+weights:
+  parties: 2.0              # per point of the parties score (title type)
+  retrofit_scope: 1.0       # per point of retrofit scope (rooms changing use + new-work items, per 5)
+  consent_complexity: 1.0   # per point (screening FAILs + distinct professionals needed, halved)
+  beds_to_fill: 1.0         # per 10 beds
+title_parties_points:       # parties score by title type; unknown is treated cautiously
+  fee_simple: 0
+  freehold: 0
+  cross_lease: 3
+  unit_title: 4
+  unknown: 2

@@ -64,6 +64,7 @@ app-db:
 	$(PSQL) -f db/sql/95_listings.sql
 	$(PSQL) -f db/sql/96_settings.sql
 	$(PSQL) -f db/sql/97_consent_pack.sql
+	$(PSQL) -f db/sql/98_calibration_requests.sql
 	python3 scripts/load_rh_requirements.py
 	$(PSQL) -f db/sql/99_ai_grants.sql
 

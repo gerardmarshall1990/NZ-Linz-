@@ -3,7 +3,7 @@ from datetime import date
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from fastapi.responses import HTMLResponse, PlainTextResponse, Response
 from pydantic import BaseModel, Field
-from . import consent_pack as cp, flags, reviews
+from . import consent_pack as cp, dealsheet, flags, plan_request, ranking, retrofit_calibration as rcal, reviews
 from .facts import get_property
 from .layout import get_option
 from .pack_pdf import md_to_pdf
@@ -116,3 +116,79 @@ def get_flags(): return flags.all_flags()
 class FlagIn(BaseModel): enabled: bool
 @r.put("/api/flags/{key}")
 def put_flag(key: str, body: FlagIn): return flags.set_flag(key, body.enabled)
+
+# ---- deal sheet, ranking, what-if
+@r.get("/api/property/{parcel_id}/dealsheet.pdf")
+def deal_sheet_pdf(parcel_id: int, option_id: int | None = None): return Response(dealsheet.pdf(parcel_id, option_id), media_type="application/pdf")
+@r.get("/api/property/{parcel_id}/dealsheet", response_class=PlainTextResponse)
+def deal_sheet_md(parcel_id: int, option_id: int | None = None): return PlainTextResponse(dealsheet.build(parcel_id, option_id)["markdown"])
+@r.get("/api/ranking")
+def get_ranking(): return ranking.rank()
+class WeightsIn(BaseModel): weights: dict[str, float]
+@r.put("/api/ranking/weights")
+def put_weights(body: WeightsIn): return ranking.set_weights(body.weights)
+@r.get("/api/ranking/weights")
+def get_weights(): return ranking.weights()
+class WhatIfIn(BaseModel):
+    option_id: int
+    occupancy_pts: float = 0
+    fee_pct: float = 0
+    wage_pct: float = 0
+    retrofit_pct: float = 0
+@r.post("/api/property/{parcel_id}/whatif")
+def what_if(parcel_id: int, body: WhatIfIn): return ranking.whatif(parcel_id, **body.model_dump())
+
+# ---- retrofit calibration loop
+class QuoteIn(BaseModel):
+    line: str
+    source: str
+    quote_date: date
+    quantity: float
+    amount_ex_gst: float
+    description: str | None = None
+    unit: str | None = None
+    region: str = "Auckland"
+    parcel_id: int | None = None
+    option_id: int | None = None
+    note: str | None = None
+@r.post("/api/retrofit/quotes")
+def add_quote(body: QuoteIn): return rcal.add_quote(**body.model_dump())
+@r.get("/api/retrofit/calibration")
+def calibration_overview(): return rcal.overview()
+@r.get("/api/retrofit/calibration/history")
+def calibration_history(): return rcal.history()
+@r.get("/api/retrofit/calibration/{line}")
+def calibration_line(line: str): return rcal.summary_for(line)
+@r.delete("/api/retrofit/quotes/{qid}")
+def void_quote(qid: int): return rcal.void_quote(qid)
+class ApplyIn(BaseModel):
+    accept_single_quote: bool = False
+    note: str | None = None
+@r.post("/api/retrofit/calibration/{line}/apply")
+def apply_calibration(line: str, body: ApplyIn): return rcal.apply(line, body.accept_single_quote, body.note)
+
+# ---- plan request pack
+@r.get("/api/property/{parcel_id}/plan-request/email")
+def pr_email(parcel_id: int, sender: str | None = None): return plan_request.email(parcel_id, sender)
+@r.get("/api/property/{parcel_id}/plan-request/council")
+def pr_council(parcel_id: int): return plan_request.council_guidance(parcel_id)
+@r.get("/api/property/{parcel_id}/site-visit")
+def sv_form(parcel_id: int): return plan_request.site_visit_form(parcel_id)
+class SiteVisitIn(BaseModel):
+    values: dict[str, object]
+    visitor: str | None = None
+@r.post("/api/property/{parcel_id}/site-visit")
+def sv_submit(parcel_id: int, body: SiteVisitIn): return plan_request.submit_site_visit(parcel_id, body.values, body.visitor)
+class ReqLogIn(BaseModel):
+    kind: str
+    recipient: str | None = None
+    sent_on: date | None = None
+    follow_up_on: date | None = None
+    note: str | None = None
+@r.post("/api/property/{parcel_id}/plan-requests")
+def pr_log(parcel_id: int, body: ReqLogIn): return plan_request.log_request(parcel_id, **body.model_dump())
+@r.get("/api/property/{parcel_id}/plan-requests")
+def pr_list(parcel_id: int): return plan_request.list_requests(parcel_id)
+class StatusIn(BaseModel): status: str
+@r.put("/api/plan-requests/{rid}")
+def pr_status(rid: int, body: StatusIn): return plan_request.set_request_status(rid, body.status)

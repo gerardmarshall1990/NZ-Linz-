@@ -92,9 +92,9 @@ Tests: 191 pass (`make test`). Bootstrap proven on a slice (`docs/BOOTSTRAP.md`)
 | Capacity planner | Not started | |
 
 ## Platform work not in the spec's step lists (done)
-`make bootstrap` proven on a slice; owner login and Tailscale private access script; user-data backups with encrypted push to a private repo (needs setup); placeholders with banner and AMBER cap; My inputs, Placeholders and Import tabs.
+Deal Sheet PDF, ranking by effort point, what-if sliders, retrofit calibration loop, plan request pack with site visit form (docs/DEALSHEET_RANKING_CALIBRATION.md). `make bootstrap` proven on a slice; owner login and Tailscale private access script; user-data backups with encrypted push to a private repo (needs setup); placeholders with banner and AMBER cap; My inputs, Placeholders and Import tabs.
 
-## Tests by module (201 pass)
+## Tests by module (206 pass)
 | Module | Tests |
 |---|---|
 | Rules corpus (Stage 3) | 69 |
@@ -104,6 +104,7 @@ Tests: 191 pass (`make test`). Bootstrap proven on a slice (`docs/BOOTSTRAP.md`)
 | Property Record, DXF reader, plan review (Part 7 s1) | 10 |
 | Login and access control | 10 |
 | Part 7 step 2 (layouts, drawings, compliance, briefs, gaps) | 8 |
+| Deal sheet, ranking, what-if, calibration loop, plan request pack | 5 |
 | Part 7 step 4 (consent pack, statements, register check, ready gate, reviews, flag) | 10 |
 | Placeholders | 7 |
 | Scenarios API: retrofit, economics, proposal (Part 7 s3) | 6 |
