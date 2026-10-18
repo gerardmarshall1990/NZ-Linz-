@@ -23,5 +23,5 @@
 | 19 | Fill `config/bed_rules.yaml` regulatory values (min resident room area, ensuite ratio, double occupancy, communal area per bed) from Ngā Paerewa, with clause and date | Owner / me once the PDF is supplied | open |
 | 20 | Replace the 11 loaded placeholders (cook/cleaner/laundry, utilities, insurance, repairs, compliance, pre-opening, working capital, lease term, cost of capital, minimum and target profit) with real figures on the Placeholders page, plus your $10,000 per bed estimate; fill `config/rates.yaml` with QS rates. Cash limit still blank | Owner | open |
 | 21 | Open the app on your iPhone: create a Tailscale account, install the app, set `APP_PASSWORD` and `TS_AUTHKEY` in the environment settings, allow the Tailscale domains (docs/ACCESS.md) | Owner | open |
-| 22 | Write `README.md` with the 5-step setup (spec Part 1 stage 10): I can do this on request | Me | open |
+| 22 | ~~Write `README.md` with the 5-step setup~~ done 2026-10-18 | Me | closed |
 | 23 | Reply to the 10 numeric standards checks sent in chat (and later the rest of `docs/key_standards_check.html`) | Owner | open |

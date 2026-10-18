@@ -92,7 +92,7 @@ Tests: 191 pass (`make test`). Bootstrap proven on a slice (`docs/BOOTSTRAP.md`)
 | Capacity planner | Not started | |
 
 ## Platform work not in the spec's step lists (done)
-Deal Sheet PDF, ranking by effort point, what-if sliders, retrofit calibration loop, plan request pack with site visit form (docs/DEALSHEET_RANKING_CALIBRATION.md). `make bootstrap` proven on a slice; owner login and Tailscale private access script; user-data backups with encrypted push to a private repo (needs setup); placeholders with banner and AMBER cap; My inputs, Placeholders and Import tabs.
+`README.md` with the 5-step setup (Part 1 stage 10 docs item). Deal Sheet PDF, ranking by effort point, what-if sliders, retrofit calibration loop, plan request pack with site visit form (docs/DEALSHEET_RANKING_CALIBRATION.md). `make bootstrap` proven on a slice; owner login and Tailscale private access script; user-data backups with encrypted push to a private repo (needs setup); placeholders with banner and AMBER cap; My inputs, Placeholders and Import tabs.
 
 ## Tests by module (211 pass)
 | Module | Tests |
