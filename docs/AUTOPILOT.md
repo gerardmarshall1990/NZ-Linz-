@@ -25,9 +25,9 @@ Status key: [x] done, [~] partly done (what is left in the note), [ ] not starte
 - [x] C5 Certification checklist and lease conditions; policy templates only (done; Ministry steps PENDING, BLOCKERS 5)
 
 ## D. Part 6
-- [ ] D1 Digest and alerts (listing changes, follow-ups due, RFIs due; in-app only, no sending)
-- [ ] D2 CRM link (listing to owner contact record; behind outreach flag, off)
-- [ ] D3 Trade Me connector ready for keys (CSV until then; status pending_licence)
+- [x] D1 Digest and alerts, saved searches (in-app only; Digest tab) (done)
+- [x] D2 CRM link: leads from listings with guardrails (source + lawful basis, do-not-contact, no tenants), behind the outreach flag (done)
+- [x] D3 Trade Me connector ready for keys: off until terms read + keys set; CSV meanwhile; endpoint UNVERIFIED (done)
 
 ## E. Part 2 (development sites, Māori land)
 - [ ] E1 Rules evaluator

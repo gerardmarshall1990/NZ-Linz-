@@ -3,7 +3,7 @@ from datetime import date
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from fastapi.responses import HTMLResponse, PlainTextResponse, Response
 from pydantic import BaseModel, Field
-from . import approvals, capture_guide, certification, rfi, timeline, consent_pack as cp, dealsheet, flags, plan_request, ranking, retrofit_calibration as rcal, reviews, validation
+from . import approvals, crm, digest, trademe, capture_guide, certification, rfi, timeline, consent_pack as cp, dealsheet, flags, plan_request, ranking, retrofit_calibration as rcal, reviews, validation
 from .facts import get_property
 from .layout import get_option
 from .pack_pdf import md_to_pdf
@@ -297,3 +297,62 @@ class CertIn(BaseModel):
 def cert_set(parcel_id: int, key: str, body: CertIn): return certification.set_status(parcel_id, key, body.status, body.note)
 @r.get("/api/certification/templates/{key}", response_class=PlainTextResponse)
 def cert_template(key: str): return PlainTextResponse(certification.template(key))
+
+# ---- digest, saved searches
+@r.get("/api/digest")
+def digest_get(since: date | None = None): return digest.build(since)
+@r.post("/api/digest/run")
+def digest_run(since: date | None = None): return digest.run_and_store(since)
+@r.get("/api/digest/history")
+def digest_history(): return digest.history()
+class SearchIn(BaseModel):
+    name: str
+    filters: dict
+@r.post("/api/saved-searches")
+def ss_add(body: SearchIn): return digest.save_search(body.name, body.filters)
+@r.get("/api/saved-searches")
+def ss_list(): return digest.list_searches()
+@r.delete("/api/saved-searches/{sid}")
+def ss_del(sid: int): digest.delete_search(sid); return {"ok": True}
+
+# ---- Trade Me connector (off until terms are read and keys are set)
+@r.get("/api/trademe/status")
+def tm_status(): return trademe.status()
+class TmIn(BaseModel): params: dict = Field(default_factory=dict)
+@r.post("/api/trademe/sync")
+def tm_sync(body: TmIn): return trademe.sync(body.params)
+
+# ---- CRM (all under /api/crm: 403 while outreach_enabled is false)
+class LeadIn(BaseModel):
+    listing_id: int | None = None
+    parcel_id: int | None = None
+    notes: str | None = None
+@r.post("/api/crm/leads")
+def crm_create(body: LeadIn): return crm.create_lead(body.listing_id, body.parcel_id, body.notes)
+@r.get("/api/crm/leads/{lid}")
+def crm_get(lid: int): return crm.get(lid)
+@r.put("/api/crm/leads/{lid}")
+def crm_update(lid: int, body: dict): return crm.update_lead(lid, body)
+class ContIn(BaseModel): contactable: bool
+@r.put("/api/crm/leads/{lid}/contactable")
+def crm_contactable(lid: int, body: ContIn): return crm.set_contactable(lid, body.contactable)
+class ActIn(BaseModel):
+    kind: str
+    outcome: str | None = None
+    notes: str | None = None
+@r.post("/api/crm/leads/{lid}/activities")
+def crm_activity(lid: int, body: ActIn): return crm.add_activity(lid, body.kind, body.outcome, body.notes)
+class StageIn(BaseModel):
+    stage: str
+    lost_reason: str | None = None
+@r.put("/api/crm/leads/{lid}/stage")
+def crm_stage(lid: int, body: StageIn): return crm.set_stage(lid, body.stage, body.lost_reason)
+class DncIn(BaseModel):
+    reason: str
+    contact_name: str | None = None
+    business_detail: str | None = None
+    parcel_id: int | None = None
+@r.post("/api/crm/do-not-contact")
+def crm_dnc(body: DncIn): return crm.add_do_not_contact(body.reason, body.contact_name, body.business_detail, body.parcel_id)
+@r.get("/api/crm/funnel")
+def crm_funnel(): return crm.funnel()

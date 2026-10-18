@@ -31,3 +31,4 @@ Owner decisions are in MASTER_SPEC.md Part 0.4 (numbered 1 to 19; they override 
 - Plan currency: loaded zone layer = operative AUP (fully operative 23 Jul 2026). PC120 is proposed (submissions closed 24 Sep 2026) and not applied.
 - 2026-10-18 (autopilot): the earlier instruction "do not start the development-site flow until I say" is superseded by the owner's autopilot list, which includes it (item E). Order follows the owner's list.
 - 2026-10-18 (autopilot): demo data is labelled DEMO (source_id `DEMO-n`), uses invented rent and bedrooms on real addresses, is removable with `make demo-clear`, and never writes your saved inputs.
+- 2026-10-18 (autopilot): Trade Me connector built against the API as I know it, kept OFF and marked UNVERIFIED until keys and terms; CSV remains the route. CRM leads can be created only while outreach_enabled is true (routes gated).

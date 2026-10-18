@@ -94,7 +94,7 @@ Tests: 191 pass (`make test`). Bootstrap proven on a slice (`docs/BOOTSTRAP.md`)
 ## Platform work not in the spec's step lists (done)
 `README.md` with the 5-step setup (Part 1 stage 10 docs item). Deal Sheet PDF, ranking by effort point, what-if sliders, retrofit calibration loop, plan request pack with site visit form (docs/DEALSHEET_RANKING_CALIBRATION.md). `make bootstrap` proven on a slice; owner login and Tailscale private access script; user-data backups with encrypted push to a private repo (needs setup); placeholders with banner and AMBER cap; My inputs, Placeholders and Import tabs.
 
-## Tests by module (224 pass)
+## Tests by module (227 pass)
 | Module | Tests |
 |---|---|
 | Rules corpus (Stage 3) | 69 |
@@ -106,6 +106,7 @@ Tests: 191 pass (`make test`). Bootstrap proven on a slice (`docs/BOOTSTRAP.md`)
 | Part 7 step 2 (layouts, drawings, compliance, briefs, gaps) | 8 |
 | Feature flags gating and validation settings | 5 |
 | Deal sheet, ranking, what-if, calibration loop, plan request pack | 5 |
+| Digest, saved searches, CRM guardrails, Trade Me connector | 3 |
 | Workflow: approvals, RFI, timeline, tracks, metrics, certification, capture guide | 6 |
 | Part 7 step 4 (consent pack, AC1009, statements, register check, ready gate, reviews, flag) | 14 |
 | Placeholders | 7 |

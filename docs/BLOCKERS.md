@@ -27,3 +27,4 @@
 | 23 | Reply to the 10 numeric standards checks sent in chat (and later the rest of `docs/key_standards_check.html`) | Owner | open |
 | 24 | PENDING (owner): HealthCERT / Ministry certification steps and parallel-track lead times (recruitment, audit, long-lead orders): all blank in `config/parallel_tracks.yaml` and the certification checklist; set them on the Track tab when known. | Owner | open |
 | 25 | PENDING (owner): Council RFI due dates are entered by you from the Council's letter; no statutory period is assumed. | Owner | open |
+| 26 | PENDING (owner): Trade Me API keys (TRADEME_CONSUMER_KEY/SECRET, TRADEME_TOKEN/TOKEN_SECRET) after reading the developer terms, then set `trademe.status: live` in `config/listing_sources.yaml`. The connector's endpoint and field names are unverified against the live API. | Owner | open |
