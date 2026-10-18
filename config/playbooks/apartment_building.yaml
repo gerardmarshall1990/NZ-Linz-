@@ -1,0 +1,69 @@
+name: apartment_building
+title: Apartment building (conversion of part or all)
+applies_when:
+  title_type:
+  - unit_title
+  - cross_lease
+reviewed_by_engineer: null
+checks:
+- id: title_owners
+  title: 'Unit-title or cross-lease check: how many owners, body corporate rules and
+    consent, whether the whole building or only some units are available'
+  kind: manual
+  deal_breaker_if: several owners and no single party controls the building
+- id: fire_systems
+  title: 'Existing fire systems: sprinklers, alarm, fire-rated separations between
+    units and corridors, number and type of exits'
+  kind: facts
+  facts:
+  - sprinklers
+  - fire_alarm
+  - fire_rated_walls
+  - level_access_entrances
+- id: lift
+  title: Lift present and fits a stretcher or bed
+  kind: facts
+  facts:
+  - lifts
+- id: corridor_door_widths
+  title: Corridor and door widths against the discovered requirements
+  kind: requirements
+  requirements:
+  - corridor_width
+  - door_width
+- id: beds_after_communal
+  title: Beds after losing units to communal space (lounge, dining, kitchen, nurse
+    station, office, laundry, storage)
+  kind: beds
+- id: building_wide_allowances
+  title: 'Building-wide retrofit allowances: common-area fire upgrades, corridor works,
+    lift works, services, body-corporate approvals (ALLOWANCE until quoted)'
+  kind: allowances
+communal_roles:
+- lounge
+- dining
+- kitchen
+- nurse_station
+- office
+- laundry
+- storage
+layout_rules:
+- '[TO COMPLETE: engineer and designer]'
+fire_strategy_template: '[TO COMPLETE: fire engineer]'
+specification_template: '[TO COMPLETE: designer]'
+cost_model:
+  allowance_lines:
+  - common_area_fire_upgrades
+  - corridor_works
+  - lift_works
+  - services
+  - body_corporate_approvals
+  all_flagged: ALLOWANCE
+  rates: blank until quoted
+engineer_review_checklist:
+- Does the layout rule set suit this archetype?
+- Is the fire strategy template adequate, and what must change per property?
+- Which specification clauses are standard for this archetype?
+- Which gaps are typical, and which are never present?
+- Is a single party in control of the whole building?
+- Can residents be evacuated from upper floors without a lift?

@@ -3,7 +3,7 @@ from datetime import date
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from fastapi.responses import HTMLResponse, PlainTextResponse, Response
 from pydantic import BaseModel, Field
-from . import approvals, crm, digest, trademe, capture_guide, certification, rfi, timeline, consent_pack as cp, dealsheet, flags, plan_request, ranking, retrofit_calibration as rcal, reviews, validation
+from . import approvals, playbooks, bestuse, maori, layers, rcpack, devreport, devscenarios, services, crm, digest, trademe, capture_guide, certification, rfi, timeline, consent_pack as cp, dealsheet, flags, plan_request, ranking, retrofit_calibration as rcal, reviews, validation
 from .facts import get_property
 from .layout import get_option
 from .pack_pdf import md_to_pdf
@@ -356,3 +356,88 @@ class DncIn(BaseModel):
 def crm_dnc(body: DncIn): return crm.add_do_not_contact(body.reason, body.contact_name, body.business_detail, body.parcel_id)
 @r.get("/api/crm/funnel")
 def crm_funnel(): return crm.funnel()
+
+# ---- development scenarios (Site Panel button 1), services
+class DevIn(BaseModel):
+    typology: str = "houses"
+    unit: dict = Field(default_factory=dict)
+    finance: dict = Field(default_factory=dict)
+    access_width_m: float | None = None
+    timeline_weeks: dict = Field(default_factory=dict)
+@r.post("/api/dev/{parcel_id}/scenarios")
+def dev_run(parcel_id: int, body: DevIn): return devscenarios.run(parcel_id, body.model_dump())
+@r.get("/api/dev/{parcel_id}/latest")
+def dev_latest(parcel_id: int): return devscenarios.latest(parcel_id) or {"status": "none"}
+@r.get("/api/dev/runs/{run_id}")
+def dev_get(run_id: int): return devscenarios.get_run(run_id)
+@r.get("/api/property/{parcel_id}/services")
+def svc_get(parcel_id: int): return services.get(parcel_id)
+@r.put("/api/property/{parcel_id}/services")
+def svc_put(parcel_id: int, body: dict): return services.put(parcel_id, body)
+@r.get("/api/dev/{parcel_id}/report", response_class=PlainTextResponse)
+def dev_report_md(parcel_id: int, run_id: int | None = None): return PlainTextResponse(devreport.build(parcel_id, run_id)["markdown"])
+@r.get("/api/dev/{parcel_id}/report.pdf")
+def dev_report_pdf(parcel_id: int, run_id: int | None = None): return Response(devreport.pdf(parcel_id, run_id), media_type="application/pdf")
+
+# ---- resource consent pack (site panel button 3)
+class RcIn(BaseModel): run_id: int | None = None
+@r.post("/api/dev/{parcel_id}/rc-pack")
+def rc_build(parcel_id: int, body: RcIn): return rcpack.build(parcel_id, body.run_id)
+@r.get("/api/rc-packs/{pid}")
+def rc_get(pid: int): return rcpack.get(pid)
+class RcFieldsIn(BaseModel): fields: dict[str, str | None]
+@r.put("/api/rc-packs/{pid}/fields")
+def rc_fields(pid: int, body: RcFieldsIn): return rcpack.set_fields(pid, body.fields)
+@r.get("/api/rc-packs/{pid}/documents/{key}.md", response_class=PlainTextResponse)
+def rc_doc(pid: int, key: str): return PlainTextResponse(rcpack.render(pid, key))
+@r.post("/api/rc-packs/{pid}/documents/{key}/upload")
+async def rc_upload(pid: int, key: str, file: UploadFile = File(...)): return rcpack.add_upload(pid, key, file.filename or "upload.pdf", await file.read(cp.MAX_UPLOAD_BYTES + 1))
+@r.post("/api/rc-packs/{pid}/ready-to-lodge")
+def rc_ready(pid: int): return rcpack.mark_ready(pid)
+@r.get("/api/rc-packs/{pid}/export.zip")
+def rc_export(pid: int): return Response(rcpack.export_zip(pid), media_type="application/zip", headers={"Content-Disposition": f'attachment; filename="rc-pack-DRAFT-{pid}.zip"'})
+
+# ---- map layers
+@r.get("/api/layers")
+def layers_kinds(): return layers.kinds()
+@r.get("/api/layers/{kind}")
+def layers_get(kind: str, bbox: str, name: str | None = None): return layers.get(kind, bbox, name)
+
+# ---- Māori land
+@r.get("/api/maori/gap")
+def maori_gap(): return maori.tpk_gap()
+@r.post("/api/maori/{parcel_id}")
+def maori_get(parcel_id: int, body: dict | None = None): return maori.get(parcel_id, (body or {}).get("unit"))
+class EntIn(BaseModel):
+    name: str
+    role: str | None = None
+    source: str
+@r.put("/api/maori/{parcel_id}/entity")
+def maori_entity(parcel_id: int, body: EntIn): return maori.set_entity(parcel_id, body.name, body.role, body.source)
+@r.get("/api/maori/{parcel_id}/outline", response_class=PlainTextResponse)
+def maori_outline(parcel_id: int): return PlainTextResponse(maori.outline_md(parcel_id))
+
+# ---- Best Use
+class BestIn(BaseModel):
+    newbuild: dict = Field(default_factory=dict)
+    horizon_years: float | None = None
+@r.post("/api/bestuse/{parcel_id}")
+def best_use(parcel_id: int, body: BestIn): return bestuse.compare(parcel_id, body.newbuild, body.horizon_years)
+class HzIn(BaseModel): reviewed: bool
+@r.put("/api/bestuse/{parcel_id}/hazard-reviewed")
+def best_hz(parcel_id: int, body: HzIn): return bestuse.set_hazard_reviewed(parcel_id, body.reviewed)
+
+# ---- playbooks
+@r.get("/api/playbooks")
+def pb_list(): return playbooks.list_()
+@r.get("/api/property/{parcel_id}/playbooks/match")
+def pb_match(parcel_id: int): return playbooks.match(parcel_id)
+class AptIn(BaseModel):
+    units_total: int | None = None
+    units_per_role: dict[str, int] = Field(default_factory=dict)
+    owners: int | None = None
+    single_party_controls: bool | None = None
+@r.post("/api/property/{parcel_id}/playbooks/apartment")
+def pb_apartment(parcel_id: int, body: AptIn): return playbooks.apartment(parcel_id, body.units_total, body.units_per_role, body.owners, body.single_party_controls)
+@r.get("/api/property/{parcel_id}/playbooks/{name}/delta")
+def pb_delta(parcel_id: int, name: str, option_id: int | None = None): return playbooks.delta(parcel_id, option_id, name)

@@ -30,15 +30,15 @@ Status key: [x] done, [~] partly done (what is left in the note), [ ] not starte
 - [x] D3 Trade Me connector ready for keys: off until terms read + keys set; CSV meanwhile; endpoint UNVERIFIED (done)
 
 ## E. Part 2 (development sites, Māori land)
-- [ ] E1 Rules evaluator
-- [ ] E2 Development layout engine, fit_units, subdivision_yield
-- [ ] E3 Services module (licence rules respected)
-- [ ] E4 Site Panel buttons 1 to 3 for development sites
-- [ ] E5 Resource consent pack
-- [ ] E6 Best Use tab
-- [ ] E7 Zone / overlay / Māori map layers
-- [ ] E8 Māori land module
-- [ ] E9 Apartment playbook
+- [x] E1 Rules evaluator: yards, coverage, impervious, landscaped, height, HIRB, outdoor living, dwelling size; UNKNOWN when a rule is not loaded; badge logic (done)
+- [x] E2 Development layout engine, fit_units, subdivision_yield, dev financial engine (done)
+- [x] E3 Services module, licence-aware, capacity UNKNOWN until letter (done; Watercare/Healthy Waters data not loaded, BLOCKERS 27)
+- [x] E4 Site Panel buttons 1 to 3 for development sites: Develop tab, scenarios, report PDF, consent pack (done)
+- [x] E5 Resource consent pack (draft; Council RC checklist unseen, council_verified false) (done)
+- [x] E6 Best Use tab (done)
+- [x] E7 Zone / overlay / hazard / Māori map layers (done)
+- [x] E8 Māori land module (done; TPK export PENDING)
+- [x] E9 Apartment playbook (done)
 
 ## F. Part 4
 - [ ] F1 Bulk Auckland screening with map layers
@@ -53,7 +53,7 @@ Status key: [x] done, [~] partly done (what is left in the note), [ ] not starte
 - [~] G1 Approval Queue (basic queue and Approvals tab done; extend to all draft kinds in G-phase)
 - [ ] G2 Dashboard
 - [ ] G3 Capture portal
-- [ ] G4 Playbooks and delta view
+- [~] G4 Playbooks and delta view (playbook skeletons + delta view done; engineers to write content once; UI to add)
 - [ ] G5 Batch engineer workflow
 - [ ] G6 Capacity planner
 

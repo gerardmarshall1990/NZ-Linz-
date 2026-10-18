@@ -1,0 +1,29 @@
+name: home_and_income
+title: Home-and-income property
+applies_when:
+  building_count_min: 2
+reviewed_by_engineer: null
+layout_rules:
+- '[TO COMPLETE: engineer and designer to state the layout rules for this archetype
+  after a first review]'
+fire_strategy_template: '[TO COMPLETE: fire engineer]'
+specification_template: '[TO COMPLETE: designer]'
+cost_model:
+  lines_used:
+  - strip_out_demolition
+  - ensuite_build_or_upgrade
+  - room_change_of_use_fitout
+  - nurse_call
+  - fire_alarm_detection
+  - emergency_lighting_exit_signs
+  - furniture_fitout_per_bed
+  note: rates come from My inputs / quotes; blank until quoted
+typical_compliance_gaps: 'all requirements whose check is professional (see rh_requirements):
+  editable by the reviewing engineer'
+engineer_review_checklist:
+- Does the layout rule set suit this archetype?
+- Is the fire strategy template adequate, and what must change per property?
+- Which specification clauses are standard for this archetype?
+- Which gaps are typical, and which are never present?
+note: 'Skeleton: the content is the reviewing engineers'' to write once. Each consent
+  still needs per-property signed statements; nothing transfers automatically.'

@@ -1,0 +1,9 @@
+# Services cost lines (MASTER_SPEC Part 2 section 6). ALL BLANK: Watercare's Infrastructure Growth Charge and connection fees must come from Watercare's published schedule (not yet fetched: PENDING, BLOCKERS 27), the rest are your inputs.
+# Nothing is invented. A blank line shows "needs rate".
+lines:
+  water_connection_fee:         {unit: per connection, value: null, source: null, last_verified: null}
+  wastewater_connection_fee:    {unit: per connection, value: null, source: null, last_verified: null}
+  infrastructure_growth_charge: {unit: per dwelling (Watercare published schedule)., value: null, source: null, last_verified: null}
+  network_extension:            {unit: per metre, value: null, source: null, last_verified: null}
+  power_connection:             {unit: per connection (manual input), value: null, source: null, last_verified: null}
+  stormwater_management:        {unit: allowance for the site, value: null, source: null, last_verified: null}

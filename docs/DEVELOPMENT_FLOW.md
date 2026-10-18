@@ -1,0 +1,11 @@
+# Development-site flow (Part 2), Best Use (Part 9), Māori land, playbooks
+
+**Develop tab (Site Panel buttons 1 to 3).** 1: feasibility summary: top 3 compliant scenarios (or the nearest miss and the rule blocking more density), a concept sketch per scenario, financial snapshot and sensitivity, compliance table, open items. 2: detailed report PDF (enabled after 1; 11 sections; blank inputs say "set duration" / "needs rate"). 3: resource consent pack (DRAFT, upload slots for professional documents, completeness check; the Council's resource consent checklist has not been seen, so "ready to lodge" is refused).
+**Rules evaluator** (`devrules.py`): yards, building coverage, impervious, landscaped, height, height in relation to boundary, outdoor living space, dwelling size, outlook/daylight (professional); values come from `analytics.rules` (operative plan) and are flagged "not yet confirmed by you". A rule that is not loaded is UNKNOWN. Vehicle access standards are not in the corpus, so the badge is never "Rules-checked". Boundary and roof assumptions are listed in the module docstring.
+**Layout engine** (`devlayout.py`): envelope = parcel minus yards; units with their outdoor living space packed over orientations, offsets and driveway options (at least 20 arrangements); `fit_units`, `subdivision_yield` (area rule only), binding constraint.
+**Financials** (`devfin.py`): all inputs yours and blank by default; formulas shown; hand-calculated tests.
+**Services** (`services.py`): licence-aware; Watercare network data not loaded; capacity UNKNOWN until a confirmation letter is uploaded and linked; cost lines blank.
+**Map layers**: zones, Māori land, overlays, hazards (information only for conversions), zoom-gated.
+**Māori land**: partnership first, never "for sale"; entity unknown until you enter it with a source; TPK cross-check blank until an export is loaded; approval route is a checklist for a lawyer; proposal outline with [TO COMPLETE].
+**Best Use**: three columns; nothing is "best" unless all three can be compared and you give a horizon; flagged natural hazards block (b) and (c) from "best" until reviewed and never affect (a).
+**Playbooks**: apartment archetype with computed checks; the other archetypes are skeletons for your engineers to write once; the delta view says plainly when there is no reviewed baseline.

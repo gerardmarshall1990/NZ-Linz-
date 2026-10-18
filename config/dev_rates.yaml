@@ -1,0 +1,9 @@
+# Site works cost lines for development scenarios (MASTER_SPEC Part 2 section 1.3 item 6). ALL BLANK: rates are yours (QS, civil quotes); no invented prices. Earthworks volumes are indicative only and need elevation data (not loaded).
+lines:
+  demolition:             {unit: per existing building, value: null, source: null, date: null}
+  earthworks_retaining:   {unit: per m3 / allowance, value: null, source: null, date: null}
+  access_driveway:        {unit: per m2, value: null, source: null, date: null}
+  stormwater_management:  {unit: allowance, value: null, source: null, date: null}
+  wastewater_water:       {unit: per connection, value: null, source: null, date: null}
+  power_telecoms:         {unit: per connection, value: null, source: null, date: null}
+  landscaping_fencing:    {unit: allowance, value: null, source: null, date: null}

@@ -79,6 +79,7 @@ app-db:
 	$(PSQL) -f db/sql/98_calibration_requests.sql
 	$(PSQL) -f db/sql/98_workflow.sql
 	$(PSQL) -f db/sql/98_digest_crm.sql
+	$(PSQL) -f db/sql/98_dev.sql
 	python3 scripts/load_rh_requirements.py
 	$(PSQL) -f db/sql/99_ai_grants.sql
 
