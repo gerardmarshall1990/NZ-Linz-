@@ -1,0 +1,5 @@
+# Bulk screening settings (MASTER_SPEC Part 4 section 1). Estimates for dwellings with no plans or listing.
+# gfa_per_bed_m2 is a PLACEHOLDER: "placeholder: estimate". No published source found; a deliberately CAUTIOUS (high, so fewer beds) figure. Replace with your own on the Placeholders page / this file.
+# storeys: LINZ has no storey data, so 1 is assumed (conservative: fewer beds); plans or a licensed feed replace it.
+gfa_per_bed_m2: {value: 60, flag: placeholder, basis: cautious, source: "No published source found. Deliberately high so that bed counts are low; replace with your own figure."}
+storeys_assumed: 1

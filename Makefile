@@ -1,4 +1,4 @@
-.PHONY: app-private backup-github backup-full owner-review-table bootstrap app-db app up down refresh refresh-linz refresh-auckland core backup manual rules test feeds feeds-status check-page validate demo-seed demo-clear preflight
+.PHONY: app-private backup-github backup-full owner-review-table bootstrap app-db app up down refresh refresh-linz refresh-auckland core backup manual rules test feeds feeds-status check-page validate demo-seed demo-clear preflight screen screen-bg
 SHELL := /bin/bash
 PSQL = set -a; . ./.env; set +a; PGPASSWORD=$$POSTGRES_PASSWORD psql -h $${PGHOST:-localhost} -U $$POSTGRES_USER -d $$POSTGRES_DB -v ON_ERROR_STOP=1 -q
 
@@ -66,6 +66,12 @@ demo-clear:
 preflight:
 	@python3 scripts/preflight.py
 
+screen:
+	@python3 scripts/screen_bulk.py
+
+screen-bg:
+	@nohup python3 scripts/screen_bulk.py > bootstrap_screen.log 2>&1 &
+
 validate:
 	@python3 scripts/validate.py
 
@@ -80,6 +86,7 @@ app-db:
 	$(PSQL) -f db/sql/98_workflow.sql
 	$(PSQL) -f db/sql/98_digest_crm.sql
 	$(PSQL) -f db/sql/98_dev.sql
+	$(PSQL) -f db/sql/98_screen.sql
 	python3 scripts/load_rh_requirements.py
 	$(PSQL) -f db/sql/99_ai_grants.sql
 

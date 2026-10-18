@@ -3,7 +3,7 @@ from datetime import date
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from fastapi.responses import HTMLResponse, PlainTextResponse, Response
 from pydantic import BaseModel, Field
-from . import approvals, playbooks, bestuse, maori, layers, rcpack, devreport, devscenarios, services, crm, digest, trademe, capture_guide, certification, rfi, timeline, consent_pack as cp, dealsheet, flags, plan_request, ranking, retrofit_calibration as rcal, reviews, validation
+from . import approvals, portfolio, screen, screenapi, playbooks, bestuse, maori, layers, rcpack, devreport, devscenarios, services, crm, digest, trademe, capture_guide, certification, rfi, timeline, consent_pack as cp, dealsheet, flags, plan_request, ranking, retrofit_calibration as rcal, reviews, validation
 from .facts import get_property
 from .layout import get_option
 from .pack_pdf import md_to_pdf
@@ -441,3 +441,58 @@ class AptIn(BaseModel):
 def pb_apartment(parcel_id: int, body: AptIn): return playbooks.apartment(parcel_id, body.units_total, body.units_per_role, body.owners, body.single_party_controls)
 @r.get("/api/property/{parcel_id}/playbooks/{name}/delta")
 def pb_delta(parcel_id: int, name: str, option_id: int | None = None): return playbooks.delta(parcel_id, option_id, name)
+
+# ---- bulk screening
+class ScrIn(BaseModel):
+    filters: dict = Field(default_factory=dict)
+    sort: str = "profit_per_effort"
+    desc: bool = True
+    limit: int = 100
+    offset: int = 0
+@r.get("/api/screen/status")
+def scr_status(): return screen.status()
+@r.post("/api/screen/query")
+def scr_query(body: ScrIn): return screenapi.query(body.filters, body.sort, body.desc, body.limit, body.offset)
+class PtsIn(BaseModel):
+    bbox: list[float]
+    filters: dict = Field(default_factory=dict)
+@r.post("/api/screen/points")
+def scr_points(body: PtsIn):
+    if len(body.bbox) != 4: raise HTTPException(422, "bbox needs 4 numbers")
+    return screenapi.points(tuple(body.bbox), body.filters)
+@r.get("/api/screen/suburbs")
+def scr_suburbs(): return screenapi.suburbs()
+@r.get("/api/screen/parcel/{parcel_id}")
+def scr_parcel(parcel_id: int): return screenapi.explain_parcel(parcel_id)
+class SlIn(BaseModel):
+    name: str
+    filters: dict
+    weights: dict | None = None
+    notes: str | None = None
+@r.post("/api/shortlists")
+def sl_add(body: SlIn): return screenapi.save_shortlist(body.name, body.filters, body.weights, body.notes)
+@r.get("/api/shortlists")
+def sl_list(): return screenapi.list_shortlists()
+@r.post("/api/shortlists/{sid}/run")
+def sl_run(sid: int): return screenapi.run_shortlist(sid)
+@r.get("/api/shortlists/{sid}/audit")
+def sl_audit(sid: int): return screenapi.audit(sid)
+@r.get("/api/shortlists/{sid}/export")
+def sl_export(sid: int, fmt: str = "csv"):
+    rows = screenapi.run_shortlist(sid, 2000)["rows"]; b, mt, fn = screenapi.export(rows, fmt)
+    return Response(b, media_type=mt, headers={"Content-Disposition": f'attachment; filename="{fn}"'})
+
+# ---- portfolio
+class PfIn(BaseModel):
+    parcel_ids: list[int] = Field(default_factory=list)
+    homes: list[dict] = Field(default_factory=list)
+    overrides: dict = Field(default_factory=dict)
+    homes_per_manager: float | None = None
+    certification_cost_per_site: float | None = None
+    cash_limit_dollars: float | None = None
+    staff_positions_limit: float | None = None
+    horizon_months: int = 36
+@r.post("/api/portfolio")
+def pf_run(body: PfIn):
+    homes = body.homes or portfolio.homes_from_screen(body.parcel_ids)
+    return portfolio.evaluate(homes, body.overrides, {k: v for k, v in body.model_dump().items() if k not in ("parcel_ids", "homes", "overrides") and v is not None})
