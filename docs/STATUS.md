@@ -59,8 +59,8 @@ Tests: 191 pass (`make test`). Bootstrap proven on a slice (`docs/BOOTSTRAP.md`)
 |---|---|---|
 | 1 `core.feeds`, FEEDS.md, BLOCKERS.md, `make feeds-status` | Partly | all done except the admin page |
 | 2 Importers for pending feeds | Partly | manual-file loader and CSV listings done; licensed attributes and sales importer, Trade Me connector not built |
-| 3 Feature flags and gating | Not started | nothing outreach-related exists yet to gate |
-| 4 `make validate` and Validation Report | Not started | |
+| 3 Feature flags and gating | Done | `config/feature_flags.yaml` all false; outreach, CRM, call sheet, route, lead-export, field-capture and offer-letter routes answer 403 (tested); the app has no switch, only you edit the file. Nothing outreach-related is built yet |
+| 4 `make validate` and Validation Report | Done (report says NO-GO) | `docs/VALIDATION.md`: 3 of 7 pass; pending your spot-checks, tolerance and chosen properties, data coverage; feeds not all live/manual |
 | 5 CONFLICTS.md | Not started | |
 
 ## Part 6: Listings to offer (6.9 build order)
@@ -94,7 +94,7 @@ Tests: 191 pass (`make test`). Bootstrap proven on a slice (`docs/BOOTSTRAP.md`)
 ## Platform work not in the spec's step lists (done)
 Deal Sheet PDF, ranking by effort point, what-if sliders, retrofit calibration loop, plan request pack with site visit form (docs/DEALSHEET_RANKING_CALIBRATION.md). `make bootstrap` proven on a slice; owner login and Tailscale private access script; user-data backups with encrypted push to a private repo (needs setup); placeholders with banner and AMBER cap; My inputs, Placeholders and Import tabs.
 
-## Tests by module (206 pass)
+## Tests by module (211 pass)
 | Module | Tests |
 |---|---|
 | Rules corpus (Stage 3) | 69 |
@@ -104,6 +104,7 @@ Deal Sheet PDF, ranking by effort point, what-if sliders, retrofit calibration l
 | Property Record, DXF reader, plan review (Part 7 s1) | 10 |
 | Login and access control | 10 |
 | Part 7 step 2 (layouts, drawings, compliance, briefs, gaps) | 8 |
+| Feature flags gating and validation settings | 5 |
 | Deal sheet, ranking, what-if, calibration loop, plan request pack | 5 |
 | Part 7 step 4 (consent pack, statements, register check, ready gate, reviews, flag) | 10 |
 | Placeholders | 7 |

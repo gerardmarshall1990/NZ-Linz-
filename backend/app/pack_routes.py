@@ -3,7 +3,7 @@ from datetime import date
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from fastapi.responses import HTMLResponse, PlainTextResponse, Response
 from pydantic import BaseModel, Field
-from . import consent_pack as cp, dealsheet, flags, plan_request, ranking, retrofit_calibration as rcal, reviews
+from . import consent_pack as cp, dealsheet, flags, plan_request, ranking, retrofit_calibration as rcal, reviews, validation
 from .facts import get_property
 from .layout import get_option
 from .pack_pdf import md_to_pdf
@@ -192,3 +192,12 @@ def pr_list(parcel_id: int): return plan_request.list_requests(parcel_id)
 class StatusIn(BaseModel): status: str
 @r.put("/api/plan-requests/{rid}")
 def pr_status(rid: int, body: StatusIn): return plan_request.set_request_status(rid, body.status)
+
+# ---- validation gate settings
+class ValIn(BaseModel):
+    tolerance_pct: float | None = None
+    properties: list[int] | None = None
+@r.get("/api/validation/config")
+def val_get(): return validation.get_config()
+@r.put("/api/validation/config")
+def val_put(body: ValIn): return validation.set_config(body.tolerance_pct, body.properties)

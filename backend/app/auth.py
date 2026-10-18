@@ -2,6 +2,8 @@
 The password comes only from the APP_PASSWORD environment variable (never a file in the repo). Sessions are random 256-bit tokens kept on the server; the cookie is HttpOnly,
 SameSite=Strict and Secure over https. Failed logins are rate limited. API keys (Anthropic, database, backups) are read from the server environment only and are never sent to the browser."""
 import hashlib, hmac, os, secrets, time
+from . import flags
+from .flags import gate_response
 from fastapi import Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 
@@ -67,7 +69,9 @@ async def middleware(request: Request, call_next):
     if path in PUBLIC or path.startswith(REVIEW_PREFIXES): resp = await call_next(request)
     elif not configured(): resp = JSONResponse({"detail": "server not configured: set APP_PASSWORD"}, 503) if path.startswith("/api") else RedirectResponse("/login", 303)
     elif not valid(request.cookies.get(COOKIE)): resp = JSONResponse({"detail": "login required"}, 401) if path.startswith("/api") else RedirectResponse("/login", 303)
-    else: resp = await call_next(request)
+    else:
+        off = flags.blocked_by(path)
+        resp = gate_response(off) if off else await call_next(request)
     return _with(resp)
 
 def _with(resp: Response) -> Response:

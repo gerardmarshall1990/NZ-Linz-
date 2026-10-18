@@ -1,0 +1,5 @@
+# Feature flags (MASTER_SPEC Part 5 section 4). All OFF. Only the owner flips them, by editing this file, and only after `make validate` says go.
+# While a flag is false the matching API prefixes answer 403 and the UI hides the feature (see backend/app/flags.py GATED).
+outreach_enabled: false          # CRM, call sheets, route plans, lead-list exports
+field_capture_enabled: false     # the field capture app
+offer_letters_enabled: false     # offer letters sent to owners
