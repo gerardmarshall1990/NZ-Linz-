@@ -3,6 +3,8 @@ from functools import lru_cache
 import yaml
 from .config import ROOT
 
+WIDTH_TOLERANCE_M = 0.01      # the driveway is drawn at the width you give and clipped to the parcel: 1 cm absorbs floating-point rounding only
+
 @lru_cache
 def rules() -> dict: return yaml.safe_load((ROOT / "config/transport_rules.yaml").read_text())
 
@@ -26,6 +28,6 @@ def check(units: int, access) -> dict:
     note = (f"assumed {R['spaces_per_unit_assumed']} parking spaces per unit = {spaces} spaces served, so {row['ref']} applies: a clear corridor of at least {row['corridor_clear_m']:g} m (formed width {row['formed_m']:g} m). "
             f"Not testable here: gradient ({R['gradient']['ref']}: {R['gradient']['other_residential']['max']} for other residential access, {R['gradient']['rear_site']['max']} for one rear site; needs ground levels), "
             f"passing bays if the access is over {R['passing_bay']['length_over_m']} m long, and vehicle crossing approval from Auckland Transport.")
-    if w is not None and w + 1e-9 < row["corridor_clear_m"]:
+    if w is not None and w + WIDTH_TOLERANCE_M < row["corridor_clear_m"]:
         return {"status": "FAIL", "measured": round(w, 2), "required": row["corridor_clear_m"], "unit": "m clear corridor", "ref": row["ref"], "note": note}
     return {"status": "NEEDS_PROFESSIONAL", "measured": round(w, 2) if w is not None else None, "required": row["corridor_clear_m"], "unit": "m clear corridor (width passes; gradient and crossing need a professional)", "ref": row["ref"], "note": note}

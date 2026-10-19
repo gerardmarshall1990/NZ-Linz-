@@ -1,0 +1,27 @@
+# Building Code clauses to look up (identifiers and titles only), shown on the Standards tab. Separate from config/building_code_clauses.yaml, which the consent pack uses. NOT fetched: building.govt.nz and legislation.govt.nz answer scripts with a bot challenge and this project does not bypass it.
+# These identifiers are from general knowledge of Schedule 1 of the Building Regulations 1992 and are UNVERIFIED. No requirement text or number is recorded here.
+# Look up the Acceptable Solution / Verification Method for each clause yourself and type any number you rely on into the Standards screen with its clause and the date.
+verified: false
+clauses:
+  - {id: B1, title: Structure}
+  - {id: B2, title: Durability}
+  - {id: C1, title: "Objectives of clauses C2 to C6 (protection from fire)"}
+  - {id: C2, title: Prevention of fire occurring}
+  - {id: C3, title: Fire affecting areas beyond the source}
+  - {id: C4, title: Movement to place of safety}
+  - {id: C5, title: Access and safety for fire fighting operations}
+  - {id: C6, title: Structural stability during fire}
+  - {id: D1, title: Access routes}
+  - {id: D2, title: Mechanical installations for access}
+  - {id: E2, title: External moisture}
+  - {id: E3, title: Internal moisture}
+  - {id: F6, title: Visibility in escape routes}
+  - {id: F7, title: Warning systems}
+  - {id: G1, title: Personal hygiene}
+  - {id: G2, title: Laundering}
+  - {id: G3, title: Food preparation and prevention of contamination}
+  - {id: G4, title: Ventilation}
+  - {id: G5, title: Interior environment}
+  - {id: G12, title: Water supplies}
+  - {id: G13, title: Foul water}
+  - {id: H1, title: Energy efficiency}

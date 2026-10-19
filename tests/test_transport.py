@@ -19,3 +19,7 @@ def test_width_check():
     bad = transport.check(2, box(0, 0, 3.0, 20)); assert bad["status"] == "FAIL" and bad["required"] == 3.5
     big = transport.check(6, box(0, 0, 4.0, 20)); assert big["status"] == "FAIL" and big["required"] == 5.5                # 12 spaces -> two-way
     none = transport.check(1, None); assert none["status"] == "NEEDS_PROFESSIONAL" and "Auckland Transport" in none["note"]
+
+def test_driveway_drawn_at_exactly_the_required_width_passes_despite_rounding():
+    assert transport.check(3, box(0, 0, 3.4999999, 20))["status"] == "NEEDS_PROFESSIONAL"        # 6 spaces -> 3.5 m corridor
+    assert transport.check(3, box(0, 0, 3.4, 20))["status"] == "FAIL"

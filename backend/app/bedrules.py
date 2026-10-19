@@ -47,7 +47,7 @@ def save(values: dict) -> dict:
     return view()
 
 def view() -> dict:
-    cfg = load(); ref = yaml.safe_load((ROOT / "config/building_code_clauses.yaml").read_text())
+    cfg = load(); ref = yaml.safe_load((ROOT / "config/building_code_clause_checklist.yaml").read_text())
     return {"regulatory": cfg["regulatory"], "missing": missing_regulatory(), "building_code_clauses": ref["clauses"], "building_code_clauses_verified": ref["verified"],
             "note": "Values are blank until you type them from your own copy of the standard, with the clause and date. A blank rule is not applied and every layout option says so."}
 

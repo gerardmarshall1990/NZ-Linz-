@@ -1,27 +1,22 @@
-# Building Code clauses to look up (identifiers and titles only). NOT fetched: building.govt.nz and legislation.govt.nz answer scripts with a bot challenge and this project does not bypass it.
-# These identifiers are from general knowledge of Schedule 1 of the Building Regulations 1992 and are UNVERIFIED. No requirement text or number is recorded here.
-# Look up the Acceptable Solution / Verification Method for each clause yourself and type any number you rely on into the Standards screen with its clause and the date.
-verified: false
+# Building Code clauses for the compliance schedule. The list is the one in MASTER_SPEC Part 3 section 4.1 (not recalled from memory). Clause TEXT, acceptable solutions and thresholds are NOT included:
+# they come from MBIE documents that are behind a bot challenge (BLOCKERS 18). `checks` maps a clause to the compliance requirement ids it informs.
 clauses:
-  - {id: B1, title: Structure}
-  - {id: B2, title: Durability}
-  - {id: C1, title: "Objectives of clauses C2 to C6 (protection from fire)"}
-  - {id: C2, title: Prevention of fire occurring}
-  - {id: C3, title: Fire affecting areas beyond the source}
-  - {id: C4, title: Movement to place of safety}
-  - {id: C5, title: Access and safety for fire fighting operations}
-  - {id: C6, title: Structural stability during fire}
-  - {id: D1, title: Access routes}
-  - {id: D2, title: Mechanical installations for access}
-  - {id: E2, title: External moisture}
-  - {id: E3, title: Internal moisture}
-  - {id: F6, title: Visibility in escape routes}
-  - {id: F7, title: Warning systems}
-  - {id: G1, title: Personal hygiene}
-  - {id: G2, title: Laundering}
-  - {id: G3, title: Food preparation and prevention of contamination}
-  - {id: G4, title: Ventilation}
-  - {id: G5, title: Interior environment}
-  - {id: G12, title: Water supplies}
-  - {id: G13, title: Foul water}
-  - {id: H1, title: Energy efficiency}
+  - {clause: B1, title: "Structure", signs_off: "structural engineer", checks: [structure]}
+  - {clause: B2, title: "Durability", signs_off: designer, checks: []}
+  - {clause: C,  title: "Protection from fire (the C clauses; risk group for the proposed care use against the current use)", signs_off: "fire engineer", checks: [exits_and_escape, fire_risk_group, sprinklers_alarm]}
+  - {clause: D1, title: "Access and facilities for people with disabilities", signs_off: designer, checks: [corridor_width, door_width, level_access, ensuite_per_resident_room, min_resident_room_area]}
+  - {clause: D2, title: "Mechanical installations for access (lifts)", signs_off: "designer / lift engineer", checks: [lift_levels]}
+  - {clause: E2, title: "External moisture", signs_off: designer, checks: []}
+  - {clause: E3, title: "Internal moisture", signs_off: designer, checks: []}
+  - {clause: F6, title: "Visibility and lighting in escape routes", signs_off: "fire engineer / electrician", checks: [emergency_lighting]}
+  - {clause: F7, title: "Warning systems", signs_off: "fire engineer", checks: [sprinklers_alarm]}
+  - {clause: G1, title: "Personal hygiene", signs_off: designer, checks: [ensuite_per_resident_room, kitchen_laundry_communal]}
+  - {clause: G2, title: "Laundering", signs_off: designer, checks: [kitchen_laundry_communal]}
+  - {clause: G3, title: "Food preparation and prevention of contamination", signs_off: designer, checks: [kitchen_laundry_communal]}
+  - {clause: G4, title: "Ventilation", signs_off: "services engineer", checks: []}
+  - {clause: G5, title: "Interior environment", signs_off: designer, checks: []}
+  - {clause: G7, title: "Natural light", signs_off: designer, checks: []}
+  - {clause: G9, title: "Electricity", signs_off: "electrical engineer", checks: [nurse_call]}
+  - {clause: G12, title: "Water supplies", signs_off: "services engineer", checks: []}
+  - {clause: G13, title: "Foul water", signs_off: "services engineer", checks: []}
+  - {clause: H1, title: "Energy efficiency", signs_off: designer, checks: []}
