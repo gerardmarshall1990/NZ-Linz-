@@ -45,3 +45,6 @@ From the owner's own sums for a 6-bed home: fee $1,600 a bed a week, 2 staff in 
 
 ## Staffing basis (owner decision 2026-10-19, replaces the 1.0 saved earlier the same day)
 Default: $800 per person employed with the 1.4 cover multiplier, 1 position per 3 beds. The Quick answer shows the per-post alternative (multiplier 1.0) side by side, labelled, and the offers use the default row. Saved as owner-entered in My inputs.
+
+## Owner delegates rule sourcing and checking (2026-10-19)
+The owner said the rules are public and the tool should find and check them itself. Done where the source is reachable: (1) AUP Chapter E27 Transport vehicle access (width table, gradient table) is now used by the development flow (config/transport_rules.yaml, every quote tested against the Council text); (2) all 144 operative numeric rules were cross-checked against the Council PDFs by an independent script (docs/RULES_CROSSCHECK.md). This is a **tool cross-check, not an owner confirmation**: rules stay owner_verified=false, and the screens still say so. Not reachable by script, so not done: Ngā Paerewa (licensed), and the Building Code / Acceptable Solutions (building.govt.nz and legislation.govt.nz block scripts and are not bypassed).

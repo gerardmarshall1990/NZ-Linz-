@@ -1,0 +1,15 @@
+# Vehicle access rules for the development flow: Auckland Unitary Plan (operative, July 2026) Chapter E27 Transport. Public Council text, already in data/aup (E27 Transport.pdf).
+# Every quote below must occur verbatim (whitespace-normalised) in the extracted E27 text: tests/test_transport.py checks this, so no number here is unquoted.
+# NOT owner-confirmed. Parking spaces served is an ASSUMPTION (the plan sets no minimum for these zones): the table is chosen by units x spaces_per_unit.
+source: "AUP Chapter E27 Transport, standards E27.6.4.3 and E27.6.4.4"
+spaces_per_unit_assumed: 2
+width_rows:        # Table E27.6.4.3.2, Residential zone rows
+  - {ref: "E27.6.4.3 Table E27.6.4.3.2 (T149)", max_spaces: 2,    corridor_clear_m: 3.0, formed_m: 2.5, quote: "2.5m provided it is"}
+  - {ref: "E27.6.4.3 Table E27.6.4.3.2 (T150)", max_spaces: 9,    corridor_clear_m: 3.5, formed_m: 3.0, quote: "3.0m provided it is"}
+  - {ref: "E27.6.4.3 Table E27.6.4.3.2 (T151)", max_spaces: null, corridor_clear_m: 5.5, formed_m: 5.5, quote: "5.5m (providing for two-"}
+passing_bay: {ref: "E27.6.4.3 Table E27.6.4.3.1 (T148)", length_over_m: 50, quote: "Increase formed"}
+gradient:                                  # Table E27.6.4.4.1: needs ground levels, so a professional measures it
+  ref: "E27.6.4.4 Table E27.6.4.4.1"
+  rear_site: {max: "1 in 4 (25 per cent)", quote: "1 in 4 (25 per cent)"}
+  other_residential: {max: "1 in 5 (20 per cent)", quote: "1 in 5 (20 per cent)"}
+crossing_note: "Any new vehicle crossing or alteration of an existing vehicle crossing (e.g. replacement, widening or relocation) will require vehicle crossing approval from Auckland Transport as road controlling authority."

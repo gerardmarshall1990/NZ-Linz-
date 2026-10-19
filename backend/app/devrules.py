@@ -6,6 +6,7 @@ is tested at two points per unit against each non-front boundary: the nearest wa
 import math
 from shapely.geometry import LineString, Point, Polygon
 from .db import conn
+from . import transport
 
 ST = ("PASS", "FAIL", "NEEDS_PROFESSIONAL", "UNKNOWN", "NOT_APPLICABLE")
 
@@ -104,14 +105,15 @@ def evaluate(parcel: Polygon, zone: str, scenario: dict, front_point: tuple | No
     for pid, topic, keys in (("outlook", "Outlook", [k for k in R if k.startswith("outlook_")]), ("daylight", "Daylight", [k for k in R if k.startswith("daylight")])):
         if keys: out.append(_chk(pid, topic, "NEEDS_PROFESSIONAL", None, None, None, R[keys[0]], "design assessment: " + "; ".join(f"{k} {R[k]['operator']} {R[k]['v']:g} {R[k]['unit'] or ''}" for k in keys[:6])))
         else: out.append(_unknown(pid, topic, pid))
-    # access: no vehicle access standard is loaded
-    out.append(_chk("vehicle_access", "Access", "UNKNOWN", None, None, None, None, "driveway / JOAL width and gradient standards (transport chapter) are not in the rules corpus yet: never counted as a pass"))
+    # access: AUP E27 width test (config/transport_rules.yaml); gradient, passing bays and crossing approval always need a professional
+    t = transport.check(len(units), acc)
+    out.append(_chk("vehicle_access", "Access", t["status"], t["measured"], t["required"], t["unit"], {"v": None, "section_ref": t["ref"], "owner_verified": False, "last_verified": None, "source_url": "https://unitaryplan.aucklandcouncil.govt.nz/", "plan_version_id": None}, t["note"]))
     return {"checks": out, "boundaries": {k: [list(e.coords) for e in v] for k, v in B.items() if isinstance(v, list)}, "boundary_note": B["note"]}
 
 def summarize(checks: list[dict]) -> dict:
     c = {s: sum(1 for x in checks if x["status"] == s) for s in ST}
     unverified = sorted({x["rule"] for x in checks if x["rule"] and x["owner_verified"] is False})
-    badge = "does_not_comply" if c["FAIL"] else ("rules_checked" if not c["UNKNOWN"] else "incomplete")
+    badge = "does_not_comply" if c["FAIL"] else ("rules_checked" if not c["UNKNOWN"] and not c["NEEDS_PROFESSIONAL"] else "incomplete")
     return {"counts": c, "badge": badge, "unconfirmed_rule_values": unverified,
-            "badge_label": {"does_not_comply": "Does not comply", "rules_checked": "Rules-checked (no failures found)", "incomplete": "Incomplete: some rules could not be evaluated"}[badge],
+            "badge_label": {"does_not_comply": "Does not comply", "rules_checked": "Rules-checked (no failures found)", "incomplete": "Incomplete: some rules are unknown or need a professional"}[badge],
             "note": "Rule values come from the operative plan text in the corpus and are not yet confirmed by you (owner_verified false): confirm them on the key standards page before relying on a result." if unverified else None}
