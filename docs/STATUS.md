@@ -1,7 +1,7 @@
 # Status (last updated 2026-10-18, end of the autopilot run)
 
 Legend: **Done** = built and tested. **Done, needs you** = built; shows "needs input" or a flagged placeholder until you supply something (docs/BLOCKERS.md). **Partly** = what is left is listed. **Flagged off** = built, behind a feature flag that only you can switch on.
-Tests: 280 (`make test`). Bootstrap proven on a slice (docs/BOOTSTRAP.md). Validation report: `docs/VALIDATION.md` (`make validate`): NO-GO until your spot-checks and calibration data exist.
+Tests: 283 (`make test`). Bootstrap proven on a slice (docs/BOOTSTRAP.md). Validation report: `docs/VALIDATION.md` (`make validate`): NO-GO until your spot-checks and calibration data exist.
 Checklist of the autopilot run: docs/AUTOPILOT.md. Explanations: docs/IPHONE_TEST.md (start here), PART7_STEP4.md, DEALSHEET_RANKING_CALIBRATION.md, DEVELOPMENT_FLOW.md, SCREENING_OUTREACH.md, SCALE.md, CONFLICTS.md.
 
 ## Part 1: Master brief
