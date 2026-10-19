@@ -48,3 +48,9 @@ Default: $800 per person employed with the 1.4 cover multiplier, 1 position per 
 
 ## Owner delegates rule sourcing and checking (2026-10-19)
 The owner said the rules are public and the tool should find and check them itself. Done where the source is reachable: (1) AUP Chapter E27 Transport vehicle access (width table, gradient table) is now used by the development flow (config/transport_rules.yaml, every quote tested against the Council text); (2) all 144 operative numeric rules were cross-checked against the Council PDFs by an independent script (docs/RULES_CROSSCHECK.md). This is a **tool cross-check, not an owner confirmation**: rules stay owner_verified=false, and the screens still say so. Not reachable by script, so not done: Ngā Paerewa (licensed), and the Building Code / Acceptable Solutions (building.govt.nz and legislation.govt.nz block scripts and are not bypassed).
+
+## Pre-push gate and parking assumption (owner instructions, 2026-10-19)
+- Git hook `.githooks/pre-push` (installed with `make install-hooks`, which sets core.hooksPath) runs `scripts/run_tests_safely.sh`: the full suite must pass before any push; it saves and restores your saved inputs and demo listings because the suite clears them. Never push with `--no-verify`.
+- Parking spaces per unit is an editable, flagged assumption on the Develop tab (blank = 2, from config/transport_rules.yaml). The report shows the unit count and driveway result at 0, 1 and 2.
+- Rules stay `owner_verified = false` until the owner confirms the spot-checks; nothing was relabelled.
+- The four bed rules can each be typed with a clause, or marked "not stated in the standard" by the owner after checking their own copy.

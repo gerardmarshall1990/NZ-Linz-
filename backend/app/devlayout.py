@@ -60,7 +60,7 @@ def access_options(parcel: Polygon, env: Polygon, B: dict, width: float | None) 
     side = max(B["side"], key=lambda e: e.length, default=None); sidestrip = side.buffer(width, cap_style="flat").intersection(parcel) if side is not None else None
     return [("none", None), ("central driveway", centre)] + ([("side driveway", sidestrip)] if sidestrip is not None and not sidestrip.is_empty else [])
 
-def candidates(parcel: Polygon, zone: str, unit: dict, access_width: float | None, front_point=None, R: dict | None = None) -> dict:
+def candidates(parcel: Polygon, zone: str, unit: dict, access_width: float | None, front_point=None, R: dict | None = None, spaces_per_unit: float | None = None) -> dict:
     R = R if R is not None else devrules.zone_rules(zone); B = devrules.classify_boundaries(parcel, front_point); env = envelope(parcel, R, B)
     theta0 = principal_angle(parcel); thetas = sorted({round(theta0 % 180, 3), round((theta0 + 90) % 180, 3), 0.0}); seen = {}; out = []
     for acc_label, acc in access_options(parcel, env, B, access_width):
@@ -75,14 +75,14 @@ def candidates(parcel: Polygon, zone: str, unit: dict, access_width: float | Non
                             units = placed[:k]; key = (k, tuple(sorted((round(u["footprint"].centroid.x, 1), round(u["footprint"].centroid.y, 1)) for u in units)), acc is not None)
                             if key in seen: continue
                             seen[key] = 1
-                            sc = {"units": units, "access": acc, "meta": {"theta": th, "x_off": xo, "y_off": yo, "ols_front": of, "access": acc_label, "max_fit": len(placed)}}
+                            sc = {"units": units, "access": acc, "meta": {"theta": th, "x_off": xo, "y_off": yo, "ols_front": of, "access": acc_label, "max_fit": len(placed)}, "spaces_per_unit": spaces_per_unit}
                             ev = devrules.evaluate(parcel, zone, sc, front_point, R); sc["checks"] = ev["checks"]; sc["summary"] = devrules.summarize(ev["checks"]); sc["unit_count"] = k
                             out.append(sc)
                             if sc["summary"]["counts"]["FAIL"] == 0: break         # fewer units of this arrangement are also compliant: keep the largest only
     return {"envelope": env, "boundaries": B, "candidates": out, "rules_used": sorted(k for k in R)}
 
-def best(parcel, zone, unit, access_width, front_point=None, R=None) -> dict:
-    cs = candidates(parcel, zone, unit, access_width, front_point, R); ok = [c for c in cs["candidates"] if c["summary"]["counts"]["FAIL"] == 0]; bad = [c for c in cs["candidates"] if c["summary"]["counts"]["FAIL"] > 0]
+def best(parcel, zone, unit, access_width, front_point=None, R=None, spaces_per_unit=None) -> dict:
+    cs = candidates(parcel, zone, unit, access_width, front_point, R, spaces_per_unit); ok = [c for c in cs["candidates"] if c["summary"]["counts"]["FAIL"] == 0]; bad = [c for c in cs["candidates"] if c["summary"]["counts"]["FAIL"] > 0]
     ok.sort(key=lambda c: (-c["unit_count"], c["summary"]["counts"]["UNKNOWN"], c["summary"]["counts"]["NEEDS_PROFESSIONAL"]))
     bad.sort(key=lambda c: (c["summary"]["counts"]["FAIL"], -c["unit_count"]))
     return {**cs, "compliant": ok, "near_misses": bad[:3]}

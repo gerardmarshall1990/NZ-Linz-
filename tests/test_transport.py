@@ -23,3 +23,10 @@ def test_width_check():
 def test_driveway_drawn_at_exactly_the_required_width_passes_despite_rounding():
     assert transport.check(3, box(0, 0, 3.4999999, 20))["status"] == "NEEDS_PROFESSIONAL"        # 6 spaces -> 3.5 m corridor
     assert transport.check(3, box(0, 0, 3.4, 20))["status"] == "FAIL"
+
+def test_parking_assumption_changes_the_row_and_zero_means_no_driveway_standard():
+    d = box(0, 0, 3.0, 20)
+    assert transport.check(2, d, 1)["required"] == 3.0 and transport.check(2, d, 1)["status"] == "NEEDS_PROFESSIONAL"      # 2 spaces -> 3.0 m row
+    assert transport.check(2, d, 2)["required"] == 3.5 and transport.check(2, d, 2)["status"] == "FAIL"                      # 4 spaces -> 3.5 m row
+    z = transport.check(3, d, 0); assert z["status"] == "NOT_APPLICABLE" and "pedestrian" in z["note"].lower()
+    assert transport.check(2, d)["required"] == 3.5                                                                         # default is the config assumption (2)

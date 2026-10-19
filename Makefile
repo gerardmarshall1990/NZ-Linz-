@@ -1,4 +1,4 @@
-.PHONY: restart app-private backup-github backup-full owner-review-table bootstrap app-db app up down refresh refresh-linz refresh-auckland core backup manual rules test feeds feeds-status check-page validate demo-seed demo-clear preflight screen screen-bg
+.PHONY: install-hooks test-safe restart app-private backup-github backup-full owner-review-table bootstrap app-db app up down refresh refresh-linz refresh-auckland core backup manual rules test feeds feeds-status check-page validate demo-seed demo-clear preflight screen screen-bg
 SHELL := /bin/bash
 PSQL = set -a; . ./.env; set +a; PGPASSWORD=$$POSTGRES_PASSWORD psql -h $${PGHOST:-localhost} -U $$POSTGRES_USER -d $$POSTGRES_DB -v ON_ERROR_STOP=1 -q
 
@@ -108,6 +108,13 @@ backup-github:
 	bash scripts/backup_to_github.sh
 
 # Private access over Tailscale (needs APP_PASSWORD and TS_AUTHKEY in the environment). See docs/ACCESS.md
+install-hooks:
+	git config core.hooksPath .githooks
+	@echo 'pre-push gate installed: the full test suite must pass before any push'
+
+test-safe:
+	bash scripts/run_tests_safely.sh
+
 restart:
 	bash scripts/restart_app.sh
 

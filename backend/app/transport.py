@@ -19,13 +19,15 @@ def access_width_m(access) -> float | None:
     sides = [((c[i][0] - c[(i + 1) % 4][0]) ** 2 + (c[i][1] - c[(i + 1) % 4][1]) ** 2) ** 0.5 for i in range(2)]
     return min(sides)
 
-def check(units: int, access) -> dict:
-    """-> {status, measured, required, unit, ref, note}"""
-    R = rules(); crossing = R["crossing_note"]
+def check(units: int, access, spaces_per_unit: float | None = None) -> dict:
+    """-> {status, measured, required, unit, ref, note}. spaces_per_unit is an ASSUMPTION (default from config); 0 means no on-site parking."""
+    R = rules(); crossing = R["crossing_note"]; per = R["spaces_per_unit_assumed"] if spaces_per_unit is None else spaces_per_unit
+    if per == 0:
+        return {"status": "NOT_APPLICABLE", "measured": None, "required": None, "unit": None, "ref": "E27.6.4.3", "note": "no on-site parking assumed (0 spaces per unit): the E27.6.4.3 access width standard applies to on-site parking spaces, so no width is tested. The access strip is still drawn at your width as pedestrian and fire-fighting access, and that, any road crossing and the layout need a professional. " + crossing}
     if access is None or access.is_empty:
         return {"status": "NEEDS_PROFESSIONAL", "measured": None, "required": None, "unit": None, "ref": "E27.6.4.2", "note": "no shared driveway in this layout (direct frontage): vehicle crossing needs Auckland Transport approval; gradient needs ground levels. " + crossing}
-    spaces = units * R["spaces_per_unit_assumed"]; row = row_for(spaces); w = access_width_m(access)
-    note = (f"assumed {R['spaces_per_unit_assumed']} parking spaces per unit = {spaces} spaces served, so {row['ref']} applies: a clear corridor of at least {row['corridor_clear_m']:g} m (formed width {row['formed_m']:g} m). "
+    spaces = int(round(units * per)); row = row_for(spaces); w = access_width_m(access)
+    note = (f"assumed {per:g} parking spaces per unit = {spaces} spaces served, so {row['ref']} applies: a clear corridor of at least {row['corridor_clear_m']:g} m (formed width {row['formed_m']:g} m). "
             f"Not testable here: gradient ({R['gradient']['ref']}: {R['gradient']['other_residential']['max']} for other residential access, {R['gradient']['rear_site']['max']} for one rear site; needs ground levels), "
             f"passing bays if the access is over {R['passing_bay']['length_over_m']} m long, and vehicle crossing approval from Auckland Transport.")
     if w is not None and w + WIDTH_TOLERANCE_M < row["corridor_clear_m"]:

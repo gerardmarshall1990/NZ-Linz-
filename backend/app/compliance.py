@@ -36,7 +36,7 @@ def run(parcel_id: int, option_id: int | None = None) -> dict:
                 add(r, "FAIL" if need else "PASS", f"{need} resident room(s) need a new or converted ensuite in option '{opt['scenario']}'" if need else "every resident room in this option has an existing adjacent ensuite", quantity={"ensuites_to_add": need})
         elif k == "room_area":
             m = bedrules.reg("min_resident_room_m2")
-            if m is None: add(r, "NEEDS_PROFESSIONAL", "minimum resident room area not loaded (Ngā Paerewa not available to the tool)")
+            if m is None: add(r, "NEEDS_PROFESSIONAL", "minimum resident room area: not stated in the standard (you checked your copy); a professional confirms what applies" if bedrules.state("min_resident_room_m2") == "not_stated" else "minimum resident room area not loaded (Ngā Paerewa not available to the tool)")
             else: add(r, "UNKNOWN", "applied in the layout engine")
         elif k == "communal_area":
             add(r, "NEEDS_PROFESSIONAL" if bedrules.reg("communal_area_per_bed_m2") is None else "UNKNOWN", "communal area per bed requirement not loaded" if bedrules.reg("communal_area_per_bed_m2") is None else "compute from calibrated plan")

@@ -37,6 +37,9 @@ def save(values: dict) -> dict:
     if bad: raise HTTPException(422, f"unknown bed rule(s): {bad}")
     with conn() as c:
         for name, e in values.items():
+            if e.get("not_stated"):
+                _put(c, f"bedrule:{name}", {"value": None, "status": "not_stated", "clause": (e.get("clause") or "").strip() or None, "last_verified": e.get("last_verified") or datetime.date.today().isoformat(),
+                                            "source": (e.get("source") or "owner's own copy").strip(), "entered_by": "owner"}); continue
             if e.get("value") is None:
                 c.execute("DELETE FROM core.user_setting WHERE key = %s", (f"bedrule:{name}",)); continue
             _check(name, e["value"])
@@ -48,11 +51,16 @@ def save(values: dict) -> dict:
 
 def view() -> dict:
     cfg = load(); ref = yaml.safe_load((ROOT / "config/building_code_clause_checklist.yaml").read_text())
-    return {"regulatory": cfg["regulatory"], "missing": missing_regulatory(), "building_code_clauses": ref["clauses"], "building_code_clauses_verified": ref["verified"],
+    return {"regulatory": cfg["regulatory"], "states": {k: state(k) for k in cfg["regulatory"]}, "missing": missing_regulatory(), "building_code_clauses": ref["clauses"], "building_code_clauses_verified": ref["verified"],
             "note": "Values are blank until you type them from your own copy of the standard, with the clause and date. A blank rule is not applied and every layout option says so."}
 
 def reg(name: str):
     return (load()["regulatory"].get(name) or {}).get("value")
+
+def state(name: str) -> str:
+    """'entered' (owner typed a value with its clause), 'not_stated' (owner checked their copy: the standard does not state it) or 'blank'."""
+    e = load()["regulatory"].get(name) or {}
+    return "entered" if e.get("value") is not None else ("not_stated" if e.get("status") == "not_stated" else "blank")
 
 def missing_regulatory() -> list[str]:
     return [k for k in load()["regulatory"] if reg(k) is None]

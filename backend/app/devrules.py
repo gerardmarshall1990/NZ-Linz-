@@ -106,7 +106,7 @@ def evaluate(parcel: Polygon, zone: str, scenario: dict, front_point: tuple | No
         if keys: out.append(_chk(pid, topic, "NEEDS_PROFESSIONAL", None, None, None, R[keys[0]], "design assessment: " + "; ".join(f"{k} {R[k]['operator']} {R[k]['v']:g} {R[k]['unit'] or ''}" for k in keys[:6])))
         else: out.append(_unknown(pid, topic, pid))
     # access: AUP E27 width test (config/transport_rules.yaml); gradient, passing bays and crossing approval always need a professional
-    t = transport.check(len(units), acc)
+    t = transport.check(len(units), acc, scenario.get("spaces_per_unit"))
     out.append(_chk("vehicle_access", "Access", t["status"], t["measured"], t["required"], t["unit"], {"v": None, "section_ref": t["ref"], "owner_verified": False, "last_verified": None, "source_url": "https://unitaryplan.aucklandcouncil.govt.nz/", "plan_version_id": None}, t["note"]))
     return {"checks": out, "boundaries": {k: [list(e.coords) for e in v] for k, v in B.items() if isinstance(v, list)}, "boundary_note": B["note"]}
 

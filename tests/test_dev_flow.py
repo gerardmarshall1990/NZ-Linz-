@@ -77,3 +77,12 @@ def test_button_3_resource_consent_pack(client):
     assert "README.txt" in names and "Upload sheet.pdf" in names and any(n.startswith("01 ") for n in names) and any("MISSING" in z.read("README.txt").decode() for _ in [0])
     assert STAMP in text(z.read([n for n in names if n.startswith("04 ")][0]))
     p2 = client.post(f"/api/dev/{PARCEL}/rc-pack", json={}).json(); assert p2["version"] == p["version"] + 1 and client.get(f"/api/rc-packs/{pid}").json()["status"] == "superseded"
+
+def test_parking_assumption_is_an_editable_flagged_input_with_0_1_2_sensitivity(client):
+    r = client.post(f"/api/dev/{PARCEL}/scenarios", json={**INP, "parking_spaces_per_unit": 1}).json()
+    a = r["assumptions"][0]; assert a["key"] == "parking_spaces_per_unit" and a["value"] == 1 and a["flag"] == "assumption" and a["source"] == "your input"
+    assert [p["spaces_per_unit"] for p in r["parking_sensitivity"]] == [0, 1, 2] and r["parking_sensitivity"][0]["driveway"]["status"] == "NOT_APPLICABLE"
+    assert all(p["unit_count"] >= 1 for p in r["parking_sensitivity"])
+    assert client.post(f"/api/dev/{PARCEL}/scenarios", json={**INP, "parking_spaces_per_unit": 9}).status_code == 422
+    d = client.post(f"/api/dev/{PARCEL}/scenarios", json=INP).json()["assumptions"][0]; assert d["value"] == 2 and d["source"].startswith("default")
+    client.post(f"/api/dev/{PARCEL}/scenarios", json=INP)

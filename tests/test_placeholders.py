@@ -115,3 +115,13 @@ def test_bed_rules_typed_from_own_copy_need_a_clause(client):
     finally:
         client.put("/api/bed-rules", json={"values": {"min_resident_room_m2": {"value": None}}})
     assert bedrules.reg("min_resident_room_m2") is None and "min_resident_room_m2" in client.get("/api/bed-rules").json()["missing"]
+
+def test_bed_rule_can_be_marked_not_stated_in_the_standard(client):
+    from backend.app import bedrules
+    try:
+        r = client.put("/api/bed-rules", json={"values": {"communal_area_per_bed_m2": {"not_stated": True, "clause": "section 4.1 checked"}}}).json()
+        assert r["states"]["communal_area_per_bed_m2"] == "not_stated" and r["regulatory"]["communal_area_per_bed_m2"]["value"] is None
+        assert bedrules.reg("communal_area_per_bed_m2") is None and "communal_area_per_bed_m2" in r["missing"] and r["states"]["min_resident_room_m2"] in ("blank", "entered")
+    finally:
+        client.put("/api/bed-rules", json={"values": {"communal_area_per_bed_m2": {"value": None}}})
+    assert client.get("/api/bed-rules").json()["states"]["communal_area_per_bed_m2"] == "blank"

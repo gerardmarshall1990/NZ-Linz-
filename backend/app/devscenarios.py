@@ -4,7 +4,7 @@ import json
 from fastapi import HTTPException
 from shapely import wkt
 from shapely.geometry import Polygon
-from . import devfin, devlayout, devrules
+from . import devfin, devlayout, devrules, transport
 from .db import conn
 from .stamp import STAMP
 
@@ -55,10 +55,12 @@ def clean_inputs(inp: dict) -> dict:
         if v is not None and (isinstance(v, bool) or not isinstance(v, (int, float)) or v < 0): raise HTTPException(422, f"finance.{k} must be a non-negative number")
     aw = inp.get("access_width_m")
     if aw is not None and (isinstance(aw, bool) or not isinstance(aw, (int, float)) or aw <= 0): raise HTTPException(422, "access_width_m must be positive")
+    sp = inp.get("parking_spaces_per_unit")
+    if sp is not None and (isinstance(sp, bool) or not isinstance(sp, (int, float)) or not 0 <= sp <= 4): raise HTTPException(422, "parking_spaces_per_unit must be a number from 0 to 4 (an assumption: blank uses the default)")
     tw = inp.get("timeline_weeks") or {}
     bad = [k for k in tw if k not in TIMELINE_STAGES]
     if bad or any(v is not None and (isinstance(v, bool) or not isinstance(v, (int, float)) or v < 0) for v in tw.values()): raise HTTPException(422, f"timeline_weeks: stages must be from {TIMELINE_STAGES} with non-negative numbers")
-    return {"typology": t, "unit": unit, "finance": fin, "access_width_m": aw, "timeline_weeks": {k: tw.get(k) for k in TIMELINE_STAGES}}
+    return {"typology": t, "unit": unit, "finance": fin, "access_width_m": aw, "parking_spaces_per_unit": sp, "timeline_weeks": {k: tw.get(k) for k in TIMELINE_STAGES}}
 
 def _scenario_json(sc: dict, fin_inputs: dict, gfa: float) -> dict:
     f = devfin.feasibility(sc["unit_count"], gfa, fin_inputs)
@@ -81,7 +83,17 @@ def run(parcel_id: int, raw_inputs: dict) -> dict:
     else:
         missing = [k for k in UNIT_KEYS if inp["unit"].get(k) is None]
         if missing: res.update(status="needs_input", needs_input=[f"unit.{k}" for k in missing], scenarios=[]); return _store(parcel_id, inp, res)
-        best = devlayout.best(site["poly"], zone, inp["unit"], inp["access_width_m"], site["front_point"], R); res["binding_constraint"] = devlayout.binding_constraint(best)
+        spu = inp["parking_spaces_per_unit"]; default_spu = transport.rules()["spaces_per_unit_assumed"]
+        res["assumptions"] = [{"key": "parking_spaces_per_unit", "value": default_spu if spu is None else spu, "flag": "assumption", "source": "your input" if spu is not None else "default in config/transport_rules.yaml",
+                               "note": "The Plan sets no minimum parking for these zones; this sets which E27.6.4.3 width row applies and whether a driveway is drawn. A planner or designer confirms."}]
+        best = devlayout.best(site["poly"], zone, inp["unit"], inp["access_width_m"], site["front_point"], R, spu); res["binding_constraint"] = devlayout.binding_constraint(best)
+        if inp["access_width_m"]:
+            res["parking_sensitivity"] = []
+            for n in (0, 1, 2):
+                b2 = best if (spu if spu is not None else default_spu) == n else devlayout.best(site["poly"], zone, inp["unit"], inp["access_width_m"], site["front_point"], R, n)
+                t2 = b2["compliant"][0] if b2["compliant"] else None; va = next((c for c in (t2["checks"] if t2 else []) if c["id"] == "vehicle_access"), None)
+                res["parking_sensitivity"].append({"spaces_per_unit": n, "unit_count": t2["unit_count"] if t2 else 0, "binding": devlayout.binding_constraint(b2)["binding"],
+                                                   "driveway": {"status": va["status"], "required_corridor_m": va["required"], "measured_m": va["measured"], "rule": va["rule"]} if va else None})
         gfa = inp["unit"]["gfa_m2"]; top = best["compliant"][:3]; rank = lambda c: ((devfin.feasibility(c["unit_count"], gfa, inp["finance"]).get("profit") or 0), c["unit_count"])
         if all(not devfin.needs(inp["finance"]) for _ in [0]): top = sorted(best["compliant"], key=rank, reverse=True)[:3]
         res["scenarios"] = [{"rank": i + 1, "kind": "compliant", **_scenario_json(c, inp["finance"], gfa), "sketch_svg": sketch_svg(site, best["envelope"], c, f"Scenario {i + 1}")} for i, c in enumerate(top)]

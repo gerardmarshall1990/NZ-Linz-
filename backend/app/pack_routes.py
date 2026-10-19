@@ -366,6 +366,7 @@ class DevIn(BaseModel):
     unit: dict = Field(default_factory=dict)
     finance: dict = Field(default_factory=dict)
     access_width_m: float | None = None
+    parking_spaces_per_unit: float | None = None
     timeline_weeks: dict = Field(default_factory=dict)
 @r.post("/api/dev/{parcel_id}/scenarios")
 def dev_run(parcel_id: int, body: DevIn): return devscenarios.run(parcel_id, body.model_dump())

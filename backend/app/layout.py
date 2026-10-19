@@ -72,7 +72,8 @@ def plan_option(parcel_id: int, scenario: str) -> dict:
             "new_work_items": new_items, "unscaled_levels": unscaled,
             "rules_not_applied": bedrules.missing_regulatory(),
             "warnings": ["Room-level options only: wall moves, structure, fire, services and exits are for the designer and engineers.",
-                         *([f"Regulatory rules not applied (not yet sourced): {', '.join(bedrules.missing_regulatory())}. Beds shown ignore them."] if bedrules.missing_regulatory() else []),
+                         *([f"Regulatory rules not applied (not yet sourced): {', '.join(k for k in bedrules.missing_regulatory() if bedrules.state(k) == 'blank')}. Beds shown ignore them."] if any(bedrules.state(k) == "blank" for k in bedrules.missing_regulatory()) else []),
+                         *([f"Not stated in the standard (checked by you): {', '.join(k for k in bedrules.missing_regulatory() if bedrules.state(k) == 'not_stated')}. Not applied; the Building Code and Council still apply."] if any(bedrules.state(k) == "not_stated" for k in bedrules.missing_regulatory()) else []),
                          *([f"Levels without a scale: {', '.join(unscaled)}. Drawings cannot be produced for them."] if unscaled else []),
                          "Only levels with confirmed plans are counted; levels not uploaded are unknown."]}
 
