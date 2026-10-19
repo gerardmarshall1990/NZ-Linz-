@@ -128,7 +128,7 @@ def quick_offer_for_listing(listing_id: int, body: dict) -> dict:
     most = op["net"] - ch["weekly"] - floor
     costs = op["food"] + op["staffing"] + op["supplies"] + op["fixed_other"]
     offers = [{"multiple": m, "rent": cur * m, "my_net_per_week": op["net"] - ch["weekly"] - cur * m, "affordable": cur * m <= most} for m in (1.0, 1.1, 1.25, 1.5)]
-    out = {"beds": beds, "current_rent": cur, "occupancy": op["occupancy"], "revenue": op["revenue"], "running_costs": costs, "net_before_rent": op["net"], "retrofit_charge": ch["weekly"],
+    out = {"beds": beds, "current_rent": cur, "occupancy": op["occupancy"], "revenue": op["revenue"], "running_costs": costs, "cost_lines": {"Staff": op["staffing"], "Food": op["food"], "Supplies": op["supplies"], "Cook, cleaner, laundry": p["cook_cleaner_laundry_per_week"], "Everything else (managers, utilities, insurance, repairs, audits)": op["fixed_other"] - p["cook_cleaner_laundry_per_week"]}, "net_before_rent": op["net"], "retrofit_charge": ch["weekly"],
            "my_minimum_profit_per_week": floor, "most_you_could_pay": most, "most_as_multiple_of_current": most / cur if cur else None, "offers": offers, "scaled_by_beds_over_30": scale,
            "label": "Illustrative, from your saved assumptions (whole-home costs and the profit floor scaled to the number of beds). A quantity surveyor and an accountant must confirm. Not advice."}
     out.update(settings.banner_for(settings.used_not_decision_grade(settings.OFFER_NEEDED, body.get("assumptions"))))
