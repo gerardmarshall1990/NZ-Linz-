@@ -39,3 +39,6 @@ The owner changed the default from 4 positions per 8 beds to 1 per 3 beds (store
 
 ## Profit target: $1,000 net per bed per week (owner instruction)
 Saved as profit_per_bed_per_week = 1000 in config/deal_assumptions.yaml. The Quick answer on the Offer tab uses it as the profit floor (after running costs, retrofit repayment and the rent paid). At the owner's fee of $1,600 per bed per week and the current cost placeholders it cannot be met at any rent; the screen says so and shows the fee that would meet it.
+
+## Owner's cost figures saved as My inputs (2026-10-19)
+From the owner's own sums for a 6-bed home: fee $1,600 a bed a week, 2 staff in total at $800 each (1 per 3 beds, no cover multiplier), about $1,000 a week of everything else including food (saved as $167 per occupied bed), 100% occupancy, no separate manager, clinical lead, cook, utilities, insurance, repairs or audit lines (the owner counts them inside the misc figure). Saved in the database as owner-entered, not in the config files. The cautious placeholders for those lines are no longer used.
