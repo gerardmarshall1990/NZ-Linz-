@@ -242,3 +242,14 @@ def test_quick_offer_from_current_rent(client, addrs):
     assert client.post(f"/api/listings/{lid}/quick-offer", json={"current_rent": 2000, "assumptions": INPUTS}).json()["current_rent"] == 2000
     assert client.post(f"/api/listings/{lid}/quick-offer", json={}).json()["needs_input"]                 # nothing saved: needs input, no numbers
     assert client.post("/api/listings/999999/quick-offer", json={}).status_code == 404
+
+def test_quick_offer_profit_per_bed(client, addrs):
+    from tests.test_settings_map import INPUTS
+    full, num, road, sub, pid = addrs["single"]
+    post(client, CSV_HEAD + f"T-ppb,{num} {road},{sub},1000,10,4,rent,\n", dry_run=False)
+    with admin() as c: lid = c.execute("SELECT id FROM core.user_listing WHERE source_id = 'T-ppb'").fetchone()[0]
+    r = client.post(f"/api/listings/{lid}/quick-offer", json={"assumptions": INPUTS, "profit_per_bed_per_week": 100}).json()
+    assert r["my_minimum_profit_per_week"] == 1000 and r["most_you_could_pay"] == pytest.approx(r["net_before_rent"] - r["retrofit_charge"] - 1000)
+    assert r["net_per_bed_per_week_at_current_rent"] == pytest.approx((r["net_before_rent"] - r["retrofit_charge"] - 1000) / 10)
+    fee = r["fee_needed_at_current_rent"]; r2 = client.post(f"/api/listings/{lid}/quick-offer", json={"assumptions": INPUTS, "profit_per_bed_per_week": 100, "fee_per_bed_per_week": fee}).json()
+    assert r2["most_you_could_pay"] == pytest.approx(r2["current_rent"])                                 # at the needed fee, the current rent is exactly what you could pay

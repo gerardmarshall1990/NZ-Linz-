@@ -324,6 +324,7 @@ class QuickOfferIn(BaseModel):
     beds: int | None = None
     fee_per_bed_per_week: float | None = None
     stabilised_occupancy: float | None = None
+    profit_per_bed_per_week: float | None = None
     retrofit: float | None = None
     assumptions: dict | None = None
 
