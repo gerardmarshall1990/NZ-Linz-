@@ -34,7 +34,7 @@ a{color:var(--acc)}footer{margin:24px 0;color:var(--mut);font-size:.8rem}label{d
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
 const $=id=>document.getElementById(id);const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const money=x=>x==null?'n/a':'$'+Math.round(x).toLocaleString();const pct=x=>x==null?'n/a':(x*100).toFixed(0)+'%';
+const money=x=>x==null?'n/a':(x<0?'-':'')+'$'+Math.abs(Math.round(x)).toLocaleString();const pct=x=>x==null?'n/a':(x*100).toFixed(0)+'%';
 async function api(path,opt={}){const r=await fetch(path,{headers:opt.body&&!(opt.body instanceof FormData)?{'Content-Type':'application/json'}:{},...opt,body:opt.body&&!(opt.body instanceof FormData)?JSON.stringify(opt.body):opt.body});
  if(!r.ok){let m=r.statusText;try{const j=await r.json();m=typeof j.detail==='string'?j.detail:JSON.stringify(j.detail)}catch(e){}throw new Error(m)}return r.headers.get('content-type')?.includes('json')?r.json():r.text()}
 const COL={GREEN:'#1b7f3b',AMBER:'#d97706',RED:'#b91c1c',GREY:'#6b7280'};
