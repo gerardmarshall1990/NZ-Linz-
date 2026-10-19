@@ -253,3 +253,13 @@ def test_quick_offer_profit_per_bed(client, addrs):
     assert r["net_per_bed_per_week_at_current_rent"] == pytest.approx((r["net_before_rent"] - r["retrofit_charge"] - 1000) / 10)
     fee = r["fee_needed_at_current_rent"]; r2 = client.post(f"/api/listings/{lid}/quick-offer", json={"assumptions": INPUTS, "profit_per_bed_per_week": 100, "fee_per_bed_per_week": fee}).json()
     assert r2["most_you_could_pay"] == pytest.approx(r2["current_rent"])                                 # at the needed fee, the current rent is exactly what you could pay
+
+def test_quick_offer_staffing_views_side_by_side(client, addrs):
+    from tests.test_settings_map import INPUTS
+    full, num, road, sub, pid = addrs["single"]
+    post(client, CSV_HEAD + f"T-stv,{num} {road},{sub},1000,9,4,rent,\n", dry_run=False)
+    with admin() as c: lid = c.execute("SELECT id FROM core.user_listing WHERE source_id = 'T-stv'").fetchone()[0]
+    r = client.post(f"/api/listings/{lid}/quick-offer", json={"assumptions": INPUTS | {"roster_coverage_multiplier": 1.4}}).json()
+    d, a = r["staffing_views"]
+    assert d["multiplier"] == 1.4 and a["multiplier"] == 1.0 and d["staff_per_week"] == pytest.approx(1.4 * a["staff_per_week"])
+    assert d["most_you_could_pay"] == pytest.approx(r["most_you_could_pay"]) and a["most_you_could_pay"] > d["most_you_could_pay"]
