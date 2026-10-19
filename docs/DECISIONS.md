@@ -33,3 +33,6 @@ Owner decisions are in MASTER_SPEC.md Part 0.4 (numbered 1 to 19; they override 
 - 2026-10-18 (autopilot): demo data is labelled DEMO (source_id `DEMO-n`), uses invented rent and bedrooms on real addresses, is removable with `make demo-clear`, and never writes your saved inputs.
 - 2026-10-18 (autopilot): Trade Me connector built against the API as I know it, kept OFF and marked UNVERIFIED until keys and terms; CSV remains the route. CRM leads can be created only while outreach_enabled is true (routes gated).
 - 2026-10-18 (autopilot): bulk screening table is analytics.rh_screen (regenerable, rebuilt by make screen), not core.rh_screen as the spec names it, so it stays out of the small user-data backup. Screening gfa_per_bed is a flagged placeholder (60 m2, cautious).
+
+## Staffing default: 1 staff position per 3 beds (owner instruction)
+The owner changed the default from 4 positions per 8 beds to 1 per 3 beds (stored as 2.666667 positions per 8 beds in config/deal_assumptions.yaml). The roster cover multiplier (1.4) still applies on top. A value saved in My inputs still overrides this default.

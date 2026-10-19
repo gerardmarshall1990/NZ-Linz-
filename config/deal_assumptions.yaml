@@ -4,7 +4,7 @@ care_level: rest_home
 fee_per_bed_per_week: 1600            # spec: owner's figure; confirm vs market and funding rules (private-pay assumption)
 food_per_occupied_bed_per_week: 200   # spec: owner's figure
 staff_wage_per_week: 800              # spec: per staff position
-staff_positions_per_8_beds: 4         # spec: owner's reading of "2 staff per 8 residents on days plus 2 on nights": CONFIRM
+staff_positions_per_8_beds: 2.666667   # owner, 2026-10-19: 1 staff position per 3 beds (was 4 per 8 beds in the spec). Cover multiplier below still applies: CONFIRM
 roster_coverage_multiplier: null      # needed for 7-day cover
 roster_step_thresholds: []            # beds at which a roster step-up applies (blank: no step shown)
 clinical_lead_cost_per_week: null
