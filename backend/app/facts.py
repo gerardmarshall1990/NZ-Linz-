@@ -44,7 +44,7 @@ def set_fact(c, parcel_id: int, field: str, value, source: str, confidence: str,
 def get_property(parcel_id: int) -> dict:
     with conn() as c:
         p = c.execute("SELECT * FROM core.rh_property WHERE parcel_id = %s", (parcel_id,)).fetchone()
-        if not p: raise HTTPException(404, "no Property Record for this parcel (create it with POST /api/property/{parcel_id})")
+        if not p: raise HTTPException(404, "No Property Record for this parcel yet. Open the Rest Home tab and tap Create Property Record from open data.")
         rows = c.execute("SELECT field, value, source, confidence, method, note, updated_at, updated_by FROM core.rh_property_fact WHERE parcel_id = %s ORDER BY field", (parcel_id,)).fetchall()
         facts = {r["field"]: {k: (v.isoformat() if hasattr(v, "isoformat") else v) for k, v in r.items() if k != "field"} for r in rows}
         site = c.execute("""SELECT parcel_id, address, suburb, area_m2::float AS area_m2, zone_name, title_type, title_no, building_count, hazard_flags, overlays, pc120_depends
