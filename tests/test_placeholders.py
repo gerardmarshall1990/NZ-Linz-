@@ -101,3 +101,17 @@ def test_placeholders_page_lists_value_source_and_edit_removes_it(client):
     client.put("/api/settings/assumptions", json={"values": {"insurance_per_year": 41000}, "flags": {"insurance_per_year": "quote"}, "notes": {"insurance_per_year": "broker quote"}})
     d2 = client.get("/api/placeholders").json(); assert not any(x["key"] == "insurance_per_year" for x in d2["placeholders"]) and len(d2["placeholders"]) == len(d["placeholders"]) - 1
     assert client.put("/api/settings/assumptions", json={"values": {"insurance_per_year": 1}, "flags": {"insurance_per_year": "hopeful"}}).status_code == 422
+
+def test_bed_rules_typed_from_own_copy_need_a_clause(client):
+    from backend.app import bedrules
+    assert client.get("/api/bed-rules").json()["building_code_clauses_verified"] is False
+    r = client.put("/api/bed-rules", json={"values": {"min_resident_room_m2": {"value": 12}}}); assert r.status_code == 422        # no clause: refused
+    assert client.put("/api/bed-rules", json={"values": {"min_resident_room_m2": {"value": 0.5, "clause": "x"}}}).status_code == 422
+    assert client.put("/api/bed-rules", json={"values": {"ensuite_required": {"value": "sometimes", "clause": "x"}}}).status_code == 422
+    assert client.put("/api/bed-rules", json={"values": {"nonsense": {"value": 1, "clause": "x"}}}).status_code == 422
+    try:
+        r = client.put("/api/bed-rules", json={"values": {"min_resident_room_m2": {"value": 12, "clause": "owner's copy, clause 1.2"}}}).json()
+        assert r["regulatory"]["min_resident_room_m2"]["value"] == 12 and r["regulatory"]["min_resident_room_m2"]["clause"] and "min_resident_room_m2" not in r["missing"] and bedrules.reg("min_resident_room_m2") == 12
+    finally:
+        client.put("/api/bed-rules", json={"values": {"min_resident_room_m2": {"value": None}}})
+    assert bedrules.reg("min_resident_room_m2") is None and "min_resident_room_m2" in client.get("/api/bed-rules").json()["missing"]

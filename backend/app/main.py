@@ -5,7 +5,7 @@ from typing import Literal
 from fastapi import FastAPI, File, Form, HTTPException, Query, Request, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse, Response
 from pydantic import BaseModel, Field
-from . import agent, auth, briefs, settings, listings, proposal, scenarios, calibration, compliance, drawings, estimates, facts, gaps, layout, plans, uploads, vision_reader
+from . import agent, bedrules, auth, briefs, settings, listings, proposal, scenarios, calibration, compliance, drawings, estimates, facts, gaps, layout, plans, uploads, vision_reader
 from .config import upload_dir
 from .db import conn
 from .pack_routes import r as pack_router
@@ -361,6 +361,15 @@ class AssumptionsIn(BaseModel):
 
 @app.put("/api/settings/assumptions")
 def put_assumptions(body: AssumptionsIn): return settings.set_assumptions(body.values, body.flags, body.notes)
+
+class BedRulesIn(BaseModel):
+    values: dict
+
+@app.get("/api/bed-rules")
+def get_bed_rules(): return bedrules.view()
+
+@app.put("/api/bed-rules")
+def put_bed_rules(body: BedRulesIn): return bedrules.save(body.values)
 
 class RatesIn(BaseModel):
     lines: dict | None = None
