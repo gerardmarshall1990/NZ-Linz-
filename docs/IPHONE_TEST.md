@@ -26,5 +26,12 @@ Open the printed address in Safari. Enter `APP_PASSWORD`. Five wrong tries in 15
 9. After a confirmed plan: **Layout options**, **Compliance checks**, **What-if** sliders, **Deal sheet PDF**, **Consent pack** (answers sheet for the Council's AC1009 checklist; everything stamped DRAFT; "ready to lodge" refused until all required items are in).
 10. **Sign out**, then reload: you are back at the login page. Run `make demo-clear` to remove the demo listings.
 
+## Development site (steps 11 to 13)
+Pick any real address; these three were run and checked: **265 Don Buck Road, Massey** (Mixed Housing Urban), **51 Fern Glen Road South, Saint Heliers** (Mixed Housing Suburban), **89 Walmsley Road, Favona** (Terrace Housing and Apartment Building).
+11. Type the address in the search box, tap **Find**, tap **Open**. The **Parcel** tab shows the zone and area. Open the **Develop** tab. Choose **terraces** (or **houses**) and type an illustration unit: width 5.5, depth 11, ridge height 10.5, wall height 8.5, gross floor area 130, bedrooms 3 (for houses: 7, 10, 7.5, 5.5, 110, 3). Leave every money box blank. Tap **1. Feasibility summary**. You should see: the number of units that fit and which rule limits more (the binding constraint), a small site sketch, a rules table (PASS / FAIL / NEEDS_PROFESSIONAL / UNKNOWN, each with its plan rule number such as H5.6.8), the open items, a note when a result depends on proposed PC120 text, and the financial snapshot saying **Needs input** (not a number) for every blank box.
+12. Tap **2. Detailed report**. A PDF opens or downloads: 11 sections, DRAFT stamp, blank inputs saying "needs rate" or "set duration". (The button is greyed out until step 11 has run.)
+13. Tap **3. Consent pack**. It shows **draft**, a list of what is missing (the Council's resource consent checklist has not been seen, [TO COMPLETE] items, record of title not uploaded) and **Export pack zip (DRAFT)**. It must refuse to say "ready to lodge". Then **Sign out**.
+Note anything that looks wrong or confusing and send it in one message.
+
 ## What to expect honestly
 Verdicts and numbers use your inputs and clearly flagged placeholders. Regulatory values (room sizes, ensuite ratios) are blank until you supply the standards, so bed counts are upper bounds and say so. Chat ("Ask") says "not available" until the Anthropic key is set.
