@@ -124,7 +124,7 @@ def quick_offer_for_listing(listing_id: int, body: dict) -> dict:
     if op["net"] is None: return {"needs_input": op["needs_input"]}
     ch = economics.retrofit_charge_weekly(retro, p)
     if ch["weekly"] is None: return {"needs_input": ch["needs_input"]}
-    want = body.get("profit_per_bed_per_week")
+    want = body.get("profit_per_bed_per_week") if body.get("profit_per_bed_per_week") is not None else p.get("profit_per_bed_per_week")
     floor = want * beds if want is not None else (p.get("minimum_acceptable_profit_per_year") or 0.0) / economics.W
     most = op["net"] - ch["weekly"] - floor
     occ_beds = op["occupied_beds"]; fee_needed = (op["revenue"] - (op["net"] - ch["weekly"] - cur - floor)) / occ_beds if occ_beds else None      # fee per occupied bed at which the current rent still leaves the wanted profit

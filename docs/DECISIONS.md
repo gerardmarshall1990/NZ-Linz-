@@ -36,3 +36,6 @@ Owner decisions are in MASTER_SPEC.md Part 0.4 (numbered 1 to 19; they override 
 
 ## Staffing default: 1 staff position per 3 beds (owner instruction)
 The owner changed the default from 4 positions per 8 beds to 1 per 3 beds (stored as 2.666667 positions per 8 beds in config/deal_assumptions.yaml). The roster cover multiplier (1.4) still applies on top. A value saved in My inputs still overrides this default.
+
+## Profit target: $1,000 net per bed per week (owner instruction)
+Saved as profit_per_bed_per_week = 1000 in config/deal_assumptions.yaml. The Quick answer on the Offer tab uses it as the profit floor (after running costs, retrofit repayment and the rent paid). At the owner's fee of $1,600 per bed per week and the current cost placeholders it cannot be met at any rent; the screen says so and shows the fee that would meet it.

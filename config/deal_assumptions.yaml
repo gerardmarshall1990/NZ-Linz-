@@ -29,3 +29,4 @@ target_profit_per_year: null
 minimum_acceptable_profit_per_year: null
 retrofit_cost_per_bed_screening: null    # my screening figure for listings with no plans (QS to replace); used only for minimum beds and listing verdicts
 cash_limit: null                      # my stated cash limit; cash required above it is flagged red
+profit_per_bed_per_week: 1000           # owner, 2026-10-19: wants $1,000 net per bed per week after all costs, rent and retrofit repayment. Used by the Quick answer on the Offer tab
