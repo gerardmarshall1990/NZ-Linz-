@@ -228,3 +228,17 @@ def test_settings_flags_and_notes(client):
 def test_negative_walk_away_rent_is_stated_plainly():
     v = V.verdict(L(7, 1950), SITE, ROWS, PV, "DOCUMENTED"); e = v["economics"]
     assert e["offer_ceiling"] < 0 and e["rent_multiple_possible"] is None and "no rent makes this work" in e["ceiling_note"] and v["verdict"] == "RED"
+
+def test_quick_offer_from_current_rent(client, addrs):
+    from tests.test_settings_map import INPUTS
+    full, num, road, sub, pid = addrs["single"]
+    post(client, CSV_HEAD + f"T-quick,{num} {road},{sub},1000,7,4,rent,\n", dry_run=False)
+    with admin() as c: lid = c.execute("SELECT id FROM core.user_listing WHERE source_id = 'T-quick'").fetchone()[0]
+    r = client.post(f"/api/listings/{lid}/quick-offer", json={"assumptions": INPUTS}).json()
+    assert r["current_rent"] == 1000 and r["beds"] == 7 and r["scaled_by_beds_over_30"] == pytest.approx(7 / 30)
+    assert r["net_before_rent"] == pytest.approx(r["revenue"] - r["running_costs"])
+    assert r["most_you_could_pay"] == pytest.approx(r["net_before_rent"] - r["retrofit_charge"] - r["my_minimum_profit_per_week"])
+    assert [o["multiple"] for o in r["offers"]] == [1.0, 1.1, 1.25, 1.5] and all(o["affordable"] == (o["rent"] <= r["most_you_could_pay"]) for o in r["offers"])
+    assert client.post(f"/api/listings/{lid}/quick-offer", json={"current_rent": 2000, "assumptions": INPUTS}).json()["current_rent"] == 2000
+    assert client.post(f"/api/listings/{lid}/quick-offer", json={}).json()["needs_input"]                 # nothing saved: needs input, no numbers
+    assert client.post("/api/listings/999999/quick-offer", json={}).status_code == 404

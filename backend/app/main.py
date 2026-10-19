@@ -319,6 +319,17 @@ class ListingOfferIn(BaseModel):
 @app.post("/api/listings/{lid}/offer")
 def listing_offer(lid: int, body: ListingOfferIn): return scenarios.offer_for_listing(lid, body.model_dump())
 
+class QuickOfferIn(BaseModel):
+    current_rent: float | None = None
+    beds: int | None = None
+    fee_per_bed_per_week: float | None = None
+    stabilised_occupancy: float | None = None
+    retrofit: float | None = None
+    assumptions: dict | None = None
+
+@app.post("/api/listings/{lid}/quick-offer")
+def listing_quick_offer(lid: int, body: QuickOfferIn): return scenarios.quick_offer_for_listing(lid, body.model_dump())
+
 @app.get("/api/listings/{lid}")
 def listing_get(lid: int): return listings.verdict_for(lid)
 

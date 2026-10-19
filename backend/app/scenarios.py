@@ -101,3 +101,35 @@ def offer_for_listing(listing_id: int, body: dict) -> dict:
         r = c.execute("INSERT INTO core.rh_scenario (parcel_id, option_id, kind, inputs, output, confidence, created_by) VALUES (%s,NULL,'offer',%s::jsonb,%s::jsonb,%s,'owner') RETURNING id",
                       (l["parcel_id"], json.dumps({k: v for k, v in inp.items() if k != "N_fn"} | {"assumptions": p, "listing_id": listing_id}, default=str), json.dumps(out, default=str), conf)).fetchone(); c.commit()
     out["scenario_id"] = r["id"]; return out
+
+
+SCALED_PER_30_BEDS = ["cook_cleaner_laundry_per_week", "utilities_per_week", "insurance_per_year", "repairs_maintenance_per_year", "compliance_and_certification_per_year",
+                      "minimum_acceptable_profit_per_year", "target_profit_per_year"]
+
+def quick_offer_for_listing(listing_id: int, body: dict) -> dict:
+    """Simple view: current rent in, net revenue out, what you could offer. Uses the same operating model as the Offer Builder, but the saved figures sized for a ~30-bed home
+    (whole-home running costs and the profit floor) are scaled by beds/30, so a small home is not charged a big home's costs. Placeholders stay flagged."""
+    with conn() as c:
+        l = c.execute("SELECT * FROM core.user_listing WHERE id = %s", (listing_id,)).fetchone()
+    if not l: raise HTTPException(404, "no such listing")
+    beds = int(body.get("beds") or l["bedrooms"] or 0); cur = body.get("current_rent") or (float(l["rent_per_week"]) if l["rent_per_week"] else None)
+    if not beds: return {"needs_input": ["bedrooms"]}
+    if not cur: return {"needs_input": ["current_rent"]}
+    p = assumptions(body.get("assumptions")); ov = {k: body[k] for k in ("fee_per_bed_per_week", "stabilised_occupancy") if body.get(k) is not None}; p = {**p, **ov}
+    scale = min(beds / 30.0, 1.0)
+    for k in SCALED_PER_30_BEDS:
+        if p.get(k) is not None and k not in (body.get("assumptions") or {}): p[k] = p[k] * scale
+    per = p.get("retrofit_cost_per_bed_screening"); retro = float(body["retrofit"]) if body.get("retrofit") is not None else (beds * per if per is not None else None)
+    op = economics.operating(beds, p["stabilised_occupancy"], p) if p.get("stabilised_occupancy") is not None else {"needs_input": ["stabilised_occupancy"], "net": None}
+    if op["net"] is None: return {"needs_input": op["needs_input"]}
+    ch = economics.retrofit_charge_weekly(retro, p)
+    if ch["weekly"] is None: return {"needs_input": ch["needs_input"]}
+    floor = (p.get("minimum_acceptable_profit_per_year") or 0.0) / economics.W
+    most = op["net"] - ch["weekly"] - floor
+    costs = op["food"] + op["staffing"] + op["supplies"] + op["fixed_other"]
+    offers = [{"multiple": m, "rent": cur * m, "my_net_per_week": op["net"] - ch["weekly"] - cur * m, "affordable": cur * m <= most} for m in (1.0, 1.1, 1.25, 1.5)]
+    out = {"beds": beds, "current_rent": cur, "occupancy": op["occupancy"], "revenue": op["revenue"], "running_costs": costs, "net_before_rent": op["net"], "retrofit_charge": ch["weekly"],
+           "my_minimum_profit_per_week": floor, "most_you_could_pay": most, "most_as_multiple_of_current": most / cur if cur else None, "offers": offers, "scaled_by_beds_over_30": scale,
+           "label": "Illustrative, from your saved assumptions (whole-home costs and the profit floor scaled to the number of beds). A quantity surveyor and an accountant must confirm. Not advice."}
+    out.update(settings.banner_for(settings.used_not_decision_grade(settings.OFFER_NEEDED, body.get("assumptions"))))
+    return out
