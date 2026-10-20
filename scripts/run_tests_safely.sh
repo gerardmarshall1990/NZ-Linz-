@@ -15,5 +15,6 @@ with conn() as c:
         except Exception: c.rollback()
 print("database cache warmed")
 PY
-python3 -m pytest -q -p no:cacheprovider; rc=$?
+LOG=${TMPDIR:-/tmp}/nzlinz_last_test_run.log; python3 -m pytest -q -p no:cacheprovider 2>&1 | tee "$LOG"; rc=${PIPESTATUS[0]}
+[ $rc -ne 0 ] && { echo '--- failing tests ---'; grep -E '^(FAILED|ERROR)' "$LOG"; grep -E 'statement timeout|Connection refused' "$LOG" | sort | uniq -c | head -3; }
 python3 scripts/test_state_guard.py restore "$G"; rm -f "$G"; exit $rc
