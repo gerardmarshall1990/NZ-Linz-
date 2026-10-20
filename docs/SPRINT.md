@@ -16,3 +16,8 @@ Fix list, tests, docs, hosting scripts, and the next unblocked item. Anything th
 
 ## Not in this sprint
 Outreach and field-capture flags (stay off), Trade Me/realestate.co.nz connectors, Ngā Paerewa and Building Code values (you type them on the Standards tab if you want them applied).
+
+## Progress log
+- **Block 1 (done, waiting on a real CSV):** importer reads Excel/Numbers exports (UTF-8, UTF-16, Windows-1252; comma, semicolon or tab), rent as pw/pcm/per fortnight, prices as k/m/POA, and lists every row that looks wrong in the dry run; shown on the phone.
+- **Block 4 (scripts done, needs your server):** `deploy/server_setup.sh` and services, nightly encrypted backup with off-server copy, `scripts/restore_userdata.sh`, `scripts/restore_drill.sh` (PASS: 59 tables identical), pinned `requirements.txt`, `docs/SERVER.md`.
+- **Block 3 rehearsal (synthetic plan, demo parcel, then cleaned up):** Plans page: upload DXF, read, confirm; then layouts (2 / 4 / 5 beds), compliance, Deal Sheet PDF, draft consent pack with 18 listed blockers, export zip: all worked. Found and fixed: the Plans page status line called an endpoint that no longer returned the site count (page error on every load); new test guards page-to-endpoint mismatches.

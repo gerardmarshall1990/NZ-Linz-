@@ -37,7 +37,7 @@ const $=id=>document.getElementById(id);
 async function api(path,opt={}){const r=await fetch(path,{headers:opt.body&&!(opt.body instanceof FormData)?{'Content-Type':'application/json'}:{},...opt,body:opt.body&&!(opt.body instanceof FormData)?JSON.stringify(opt.body):opt.body});
  if(!r.ok){let m=await r.text();try{m=JSON.parse(m).detail||m}catch(e){}alert(typeof m==='string'?m:JSON.stringify(m));throw new Error(m)}return r.headers.get('content-type')?.includes('json')?r.json():r}
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-(async()=>{const h=await api('/api/health');$('status').textContent=`Database ok (${h.sites.toLocaleString()} sites). Vision reader: ${h.vision_available?'available':'not available (no API key): use DXF or manual tracing'}.`})();
+(async()=>{const h=await api('/api/status');$('status').textContent=`Database ok (${h.sites.toLocaleString()} sites). Vision reader: ${h.vision_available?'available':'not available (no API key): use DXF or manual tracing'}.`})();
 async function search(){const q=$('q').value.trim();if(q.length<3)return;const rs=await api('/api/sites/search?q='+encodeURIComponent(q));
  $('results').innerHTML=rs.map(r=>`<div class="card"><b>${esc(r.address)}</b><div class="mut">${esc(r.zone_name)} · ${Math.round(r.area_m2).toLocaleString()} m² · ${r.building_count||0} buildings</div><button class="pri" onclick="openSite(${r.parcel_id})">Open</button></div>`).join('')||'<div class="mut">No match.</div>'}
 async function openSite(id){const s=await api('/api/sites/'+id);const p=s.has_property_record?await api('/api/property/'+id):await api('/api/property/'+id,{method:'POST'});loadProp(p,s)}
