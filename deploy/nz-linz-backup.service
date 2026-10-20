@@ -1,0 +1,9 @@
+[Unit]
+Description=Rest Home Finder: nightly encrypted backup, copy off the server, keep the newest 30
+
+[Service]
+Type=oneshot
+User=nzlinz
+WorkingDirectory=/opt/nz-linz/app
+Environment=PATH=/opt/nz-linz/venv/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/usr/bin/bash scripts/nightly_backup.sh

@@ -1,0 +1,17 @@
+[Unit]
+Description=Rest Home Finder app (localhost only; reached privately through Tailscale)
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+User=nzlinz
+WorkingDirectory=/opt/nz-linz/app
+EnvironmentFile=/opt/nz-linz/app/.env
+Environment=PATH=/opt/nz-linz/venv/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/opt/nz-linz/venv/bin/python -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --proxy-headers --forwarded-allow-ips=*
+ExecStartPost=/usr/bin/bash -c 'for i in $(seq 1 30); do curl -fsS http://127.0.0.1:8000/api/health >/dev/null 2>&1 && break; sleep 2; done; tailscale serve --bg --https=443 http://127.0.0.1:8000 || true'
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

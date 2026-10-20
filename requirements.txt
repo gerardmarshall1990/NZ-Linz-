@@ -1,0 +1,18 @@
+# Pinned from the working sandbox (Python 3.13). Install: python3 -m venv venv && venv/bin/pip install -r requirements.txt
+fastapi==0.143.3
+uvicorn==0.53.0
+psycopg==3.3.6
+psycopg-binary==3.3.6
+pydantic==2.13.5
+python-multipart==0.0.32
+PyYAML==6.0.1
+shapely==2.2.0
+PyMuPDF==1.28.2
+pillow==12.3.0
+reportlab==5.0.1
+ezdxf==1.4.5
+anthropic==1.15.0
+httpx==0.28.1
+sqlglot==30.23.0
+Markdown==3.11.1
+pytest==9.1.1

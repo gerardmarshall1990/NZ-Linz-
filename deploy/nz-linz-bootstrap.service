@@ -1,0 +1,17 @@
+[Unit]
+Description=Rest Home Finder: build the database from public sources, create the app tables, then start the app
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=nzlinz
+WorkingDirectory=/opt/nz-linz/app
+Environment=PATH=/opt/nz-linz/venv/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/usr/bin/bash -c 'set -e; [ -f /opt/nz-linz/.bootstrap_done ] || { make bootstrap && make app-db && touch /opt/nz-linz/.bootstrap_done; }; [ ! -f /opt/nz-linz/restore_this.tar.gpg ] || { bash scripts/restore_userdata.sh /opt/nz-linz/restore_this.tar.gpg && mv /opt/nz-linz/restore_this.tar.gpg /opt/nz-linz/restored.tar.gpg; }'
+ExecStartPost=/usr/bin/systemctl start nz-linz-app.service
+TimeoutStartSec=infinity
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

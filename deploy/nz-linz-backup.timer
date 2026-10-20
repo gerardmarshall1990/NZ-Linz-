@@ -1,0 +1,10 @@
+[Unit]
+Description=Nightly encrypted backup of the user data
+
+[Timer]
+OnCalendar=*-*-* 02:46:00
+Persistent=true
+RandomizedDelaySec=300
+
+[Install]
+WantedBy=timers.target
