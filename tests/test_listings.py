@@ -263,3 +263,30 @@ def test_quick_offer_staffing_views_side_by_side(client, addrs):
     d, a = r["staffing_views"]
     assert d["multiplier"] == 1.4 and a["multiplier"] == 1.0 and d["staff_per_week"] == pytest.approx(1.4 * a["staff_per_week"])
     assert d["most_you_could_pay"] == pytest.approx(r["most_you_could_pay"]) and a["most_you_could_pay"] > d["most_you_could_pay"]
+
+# ---------------------------------------------------------------- real-world CSV exports
+def test_money_and_rent_text():
+    from backend.app import listings as L
+    assert L._rent_weekly("$1,950 pw")[0] == 1950 and L._rent_weekly("1950")[0] == 1950
+    v, note = L._rent_weekly("$4,200 pcm"); assert v == pytest.approx(4200 * 12 / 52, abs=0.01) and "per month" in note
+    assert L._rent_weekly("$2,000 per fortnight")[0] == 1000
+    v, note = L._rent_weekly("450-500 per week"); assert v == 450 and "range" in note
+    assert L._price_dollars("$1.2m")[0] == 1_200_000 and L._price_dollars("1200k")[0] == 1_200_000 and L._price_dollars("Offers over $1,200,000")[0] == 1_200_000
+    assert L._price_dollars("POA")[0] is None and L._price_dollars("POA")[1]
+
+def test_csv_with_bom_semicolons_tabs_and_cp1252(client, addrs):
+    from backend.app import listings as L
+    full, num, road, sub, pid = addrs["single"]
+    semi = f"﻿Listing ID;Street Address;Suburb;Weekly Rent;Beds\nT-semi;{num} {road};{sub};$1,950 pw;5\n"
+    rows, miss = L.read_rows(semi); assert rows[0]["address"] == f"{num} {road}" and rows[0]["bedrooms"] == "5" and rows[0]["source_id"] == "T-semi"
+    tab = f"Address\tRent per month\tbeds\n{num} {road}\t4200\t4\n"; rows, _ = L.read_rows(tab)
+    assert L._rent_weekly(rows[0]["rent_per_week"])[0] == pytest.approx(969.23, abs=0.01)                    # the column says per month, so the bare number is monthly
+    cp = (f"address,rent,beds\n{num} {road},$900 pw,3\nWhārangi Road,$500,2\n").encode("cp1252", errors="replace"); rows, _ = L.read_rows(cp); assert len(rows) == 2
+    u16 = (f"address,rent,beds\n{num} {road},$900 pw,3\n").encode("utf-16"); assert L.read_rows(u16)[0][0]["address"] == f"{num} {road}"
+
+def test_dry_run_lists_what_looks_wrong(client, addrs):
+    full, num, road, sub, pid = addrs["single"]
+    csv_ = CSV_HEAD + f"T-w1,{num} {road},{sub},95000,4,2,rent,\nT-w2,Nowhere Road,{sub},POA,x,1,rent,\nT-w1,{num} {road},{sub},900,4,2,rent,\n"
+    r = post(client, csv_, dry_run=True).json(); msgs = " | ".join(w["message"] for w in r["warnings"])
+    assert r["rows"] == 3 and "looks wrong" in msgs and "no street number" in msgs and "not a number" in msgs and "duplicate" in msgs and all("line" in w for w in r["warnings"])
+    assert client.post("/api/listings/search", json={"filters": {"source": "csv_manual"}}).json()["count"] >= 0

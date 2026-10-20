@@ -11,9 +11,11 @@ from .facts import set_fact
 STREET = {"st": "street", "rd": "road", "ave": "avenue", "av": "avenue", "dr": "drive", "cres": "crescent", "pl": "place", "tce": "terrace", "ln": "lane", "hwy": "highway", "cl": "close", "ct": "court",
           "pde": "parade", "bvd": "boulevard", "blvd": "boulevard", "esp": "esplanade", "sq": "square", "gr": "grove", "rise": "rise", "way": "way", "wy": "way", "cct": "circuit", "pk": "park"}
 FIELDS = {  # canonical field -> accepted CSV header names (lower case)
-    "source_id": ["source_id", "listing_id", "id", "listing id", "trademe_id"], "listing_type": ["listing_type", "type"], "address": ["address", "raw_address", "street_address", "full_address"],
-    "suburb": ["suburb"], "rent_per_week": ["rent_per_week", "rent", "weekly_rent", "rent per week"], "price": ["price", "asking_price"], "bedrooms": ["bedrooms", "beds", "bedroom"],
-    "bathrooms": ["bathrooms", "baths", "bathroom"], "property_type": ["property_type", "propertytype"], "floor_area_m2": ["floor_area_m2", "floor_area", "floor area"], "parking": ["parking", "carparks"],
+    "source_id": ["source_id", "listing_id", "id", "listing id", "listing number", "listing no", "listing_no", "trademe_id", "reference"], "listing_type": ["listing_type", "type", "listing type", "category"],
+    "address": ["address", "raw_address", "street_address", "full_address", "street address", "property address", "property", "location"],
+    "suburb": ["suburb", "area", "locality"], "rent_per_week": ["rent_per_week", "rent", "weekly_rent", "rent per week", "weekly rent", "rent pw", "rent_pw", "pw", "rent ($/wk)", "asking rent", "price per week", "rent per month", "monthly rent", "rent pcm", "pcm"],
+    "price": ["price", "asking_price", "asking price", "sale price", "price display"], "bedrooms": ["bedrooms", "beds", "bedroom", "bed", "no. of bedrooms", "number of bedrooms", "bedrooms_count"],
+    "bathrooms": ["bathrooms", "baths", "bathroom", "bath", "number of bathrooms"], "property_type": ["property_type", "propertytype"], "floor_area_m2": ["floor_area_m2", "floor_area", "floor area"], "parking": ["parking", "carparks"],
     "available_from": ["available_from", "available"], "listed_date": ["listed_date", "listed"], "agent_name": ["agent_name", "agent"], "agent_business_contact": ["agent_business_contact", "agent_contact"],
     "url": ["url", "link"], "has_floor_plan": ["has_floor_plan", "floor_plan"], "has_photos": ["has_photos", "photos"], "description": ["description"]}
 
@@ -73,15 +75,60 @@ def _date(x):
         except ValueError: pass
     return None
 
+def _money(x):
+    """'$1,950 pw', '450-500 per week', '$1.2m', '1200k', 'POA' -> (value, unit, note). unit is 'week', 'month', 'fortnight' or None; note is a plain-English problem or None."""
+    if x in (None, ""): return None, None, None
+    t = str(x).strip().lower()
+    if re.search(r"\b(poa|price on application|negotiable|enquir|tender|auction|deadline|by negotiation|offers)\b", t) and not re.search(r"\d", t): return None, None, f"no price in {x!r}"
+    unit = "month" if re.search(r"\b(pcm|p\.c\.m|per month|per calendar month|monthly|/\s*m(on)?th|pm)\b", t) else "fortnight" if re.search(r"\b(pf|per fortnight|fortnightly|/\s*fortnight)\b", t) else "week" if re.search(r"\b(pw|p/w|per week|weekly|/\s*w(ee)?k|p\.w)\b", t) else None
+    nums = re.findall(r"(\d[\d,]*\.?\d*)\s*([km])?(?![a-z])", t)
+    vals = []
+    for n, suf in nums:
+        try: v = float(n.replace(",", ""))
+        except ValueError: continue
+        vals.append(v * (1000 if suf == "k" else 1_000_000 if suf == "m" else 1))
+    if not vals: return None, unit, f"could not read a number in {x!r}"
+    note = f"a range ({x!r}): the lower figure is used" if len(vals) > 1 else None
+    return min(vals), unit, note
+
+def _rent_weekly(x):
+    v, unit, note = _money(x)
+    if v is None: return None, note
+    if unit == "month": return round(v * 12 / 52, 2), (note + "; " if note else "") + f"read as per month, converted to per week"
+    if unit == "fortnight": return round(v / 2, 2), (note + "; " if note else "") + "read as per fortnight, converted to per week"
+    return v, note
+
+def _price_dollars(x):
+    v, unit, note = _money(x)
+    return v, note
+
+def _norm_header(h: str) -> str: return re.sub(r"[\s_\-]+", " ", (h or "").strip().lower().replace("\ufeff", ""))
+
+def _decode(text) -> str:
+    if isinstance(text, bytes):
+        if text[:2] in (b"\xff\xfe", b"\xfe\xff"): text = text.decode("utf-16", errors="replace")
+        else:
+            try: text = text.decode("utf-8-sig")
+            except UnicodeDecodeError: text = text.decode("cp1252", errors="replace")          # Excel's default CSV on Windows
+    return str(text).lstrip("\ufeff")
+
+def _dialect(sample: str):
+    head = sample.splitlines()[0] if sample.strip() else ""
+    best = max([",", ";", "\t", "|"], key=lambda d: head.count(d))
+    return best if head.count(best) else ","
+
 def read_rows(text: str) -> tuple[list[dict], list[str]]:
-    rdr = csv.DictReader(io.StringIO(text)); hdr = {h.strip().lower(): h for h in (rdr.fieldnames or [])}
-    colmap = {f: next((hdr[a] for a in alts if a in hdr), None) for f, alts in FIELDS.items()}
-    if not colmap["address"]: raise HTTPException(422, f"CSV needs an address column (accepted names: {FIELDS['address']})")
+    text = _decode(text); rdr = csv.DictReader(io.StringIO(text), delimiter=_dialect(text)); hdr = {_norm_header(h): h for h in (rdr.fieldnames or [])}
+    colmap = {f: next((hdr[_norm_header(a)] for a in alts if _norm_header(a) in hdr), None) for f, alts in FIELDS.items()}
+    if not colmap["address"]: raise HTTPException(422, f"CSV needs an address column (accepted names: {FIELDS['address']}); the file's columns are: {list(hdr.values())}")
     rows = []
-    for r in rdr:
+    for i, r in enumerate(rdr, start=2):
         g = lambda f: (r.get(colmap[f]) or "").strip() if colmap[f] else ""
         if not g("address"): continue
-        rows.append({k: g(k) for k in FIELDS})
+        row = {k: g(k) for k in FIELDS}; row["_line"] = i
+        monthly_col = colmap["rent_per_week"] and re.search(r"month|pcm", _norm_header(colmap["rent_per_week"]))
+        if monthly_col and row["rent_per_week"] and not re.search(r"[a-z]", row["rent_per_week"].lower()): row["rent_per_week"] += " pcm"       # the column itself says per month
+        rows.append(row)
     return rows, [f for f, c_ in colmap.items() if c_ is None]
 
 def import_csv(text: str, source: str = "csv_manual", dry_run: bool = True, snapshot: bool = False, today: date | None = None) -> dict:
@@ -89,7 +136,7 @@ def import_csv(text: str, source: str = "csv_manual", dry_run: bool = True, snap
     snapshot=True marks active listings of this source that are missing from the file as removed (use only for a complete export)."""
     today = today or date.today()
     if source not in yaml.safe_load((ROOT / "config/listing_sources.yaml").read_text())["sources"]: raise HTTPException(422, "unknown source")
-    rows, missing_cols = read_rows(text); res = {"rows": len(rows), "new": 0, "changed": 0, "unchanged": 0, "removed": 0, "matched": {"high": 0, "medium": 0, "low": 0, "none": 0}, "missing_columns": missing_cols, "details": [], "dry_run": dry_run}
+    rows, missing_cols = read_rows(text); warnings = []; res = {"rows": len(rows), "new": 0, "changed": 0, "unchanged": 0, "removed": 0, "matched": {"high": 0, "medium": 0, "low": 0, "none": 0}, "missing_columns": missing_cols, "details": [], "warnings": warnings, "dry_run": dry_run}
     seen_ids = set()
     with conn() as c:
         for r in rows:
@@ -97,12 +144,23 @@ def import_csv(text: str, source: str = "csv_manual", dry_run: bool = True, snap
             if ltype not in ("rent", "sale"): raise HTTPException(422, f"listing_type must be rent or sale (got {ltype!r})")
             sid = r["source_id"] or hashlib.sha1(f"{p.get('unit')}|{p.get('number')}{p.get('suffix')}|{p.get('street')}|{ltype}".encode()).hexdigest()[:16]
             m = match_address(c, r["address"], r["suburb"] or None); res["matched"][m["confidence"]] += 1
-            vals = {"listing_type": ltype, "raw_address": r["address"], "suburb": r["suburb"] or (p.get("suburb") or None), "rent_per_week": _num(r["rent_per_week"]), "price": _num(r["price"]),
+            rent_w, rent_note = _rent_weekly(r["rent_per_week"]); price_v, price_note = _price_dollars(r["price"])
+            w = lambda msg: warnings.append({"line": r["_line"], "address": r["address"], "message": msg})
+            if rent_note: w(f"rent: {rent_note}")
+            if price_note: w(f"price: {price_note}")
+            if rent_w is not None and not 40 <= rent_w <= 15000: w(f"rent {rent_w:g} a week looks wrong (check the unit: per week, per month or per year?)")
+            if price_v is not None and ltype == "sale" and price_v < 10000: w(f"price {price_v:g} looks wrong for a sale")
+            if not p: w("no street number found: it cannot be matched to a parcel")
+            if r["bedrooms"] and _num(r["bedrooms"]) is None: w(f"bedrooms {r['bedrooms']!r} is not a number")
+            if ltype == "rent" and rent_w is None: w("a rental with no rent: the verdict will say needs input")
+            if m["confidence"] in ("low", "none"): w(f"address match is {m['confidence']}: review it in the review queue")
+            vals = {"listing_type": ltype, "raw_address": r["address"], "suburb": r["suburb"] or (p.get("suburb") or None), "rent_per_week": rent_w, "price": price_v,
                     "bedrooms": int(_num(r["bedrooms"])) if _num(r["bedrooms"]) is not None else None, "bathrooms": int(_num(r["bathrooms"])) if _num(r["bathrooms"]) is not None else None,
                     "property_type": r["property_type"] or None, "floor_area_m2": _num(r["floor_area_m2"]), "parking": int(_num(r["parking"])) if _num(r["parking"]) is not None else None,
                     "available_from": _date(r["available_from"]), "listed_date": _date(r["listed_date"]), "agent_name": r["agent_name"] or None, "agent_business_contact": r["agent_business_contact"] or None,
                     "url": r["url"] or None, "description_hash": hashlib.sha256(r["description"].encode()).hexdigest() if r["description"] else None,
                     "has_floor_plan": _bool(r["has_floor_plan"]), "has_photos": _bool(r["has_photos"])}
+            if sid in seen_ids: w("duplicate of an earlier row in this file (same listing): the last one wins")
             seen_ids.add(sid)
             old = c.execute("SELECT * FROM core.user_listing WHERE source = %s AND source_id = %s", (source, sid)).fetchone()
             if not old:

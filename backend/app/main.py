@@ -293,7 +293,7 @@ def listing_sources(): return listings.sources()
 
 @app.post("/api/listings/import")
 async def listing_import(file: UploadFile = File(...), source: str = Form("csv_manual"), dry_run: bool = Form(True), snapshot: bool = Form(False)):
-    return listings.import_csv((await file.read(5_000_000)).decode("utf-8-sig", errors="replace"), source, dry_run, snapshot)
+    return listings.import_csv(await file.read(5_000_000), source, dry_run, snapshot)
 
 @app.get("/api/listings/review-queue")
 def listing_review_queue(): return listings.review_queue()
