@@ -295,6 +295,14 @@ def listing_sources(): return listings.sources()
 async def listing_import(file: UploadFile = File(...), source: str = Form("csv_manual"), dry_run: bool = Form(True), snapshot: bool = Form(False)):
     return listings.import_csv(await file.read(5_000_000), source, dry_run, snapshot)
 
+@app.get("/api/listings/template.csv")
+def listing_template():
+    from fastapi.responses import Response
+    body = ("source_id,address,suburb,rent_per_week,bedrooms,bathrooms,listing_type,url\n"
+            "EXAMPLE-1,80 Hinemoa Street,Birkenhead,$4800 pw,30,12,rent,https://example.invalid/listing-1\n"
+            "EXAMPLE-2,14 Shipherds Avenue,Epsom,$8450 pcm,7,3,rent,\n")
+    return Response(body, media_type="text/csv", headers={"Content-Disposition": "attachment; filename=listings_template.csv"})
+
 @app.get("/api/listings/review-queue")
 def listing_review_queue(): return listings.review_queue()
 

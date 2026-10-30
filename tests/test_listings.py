@@ -290,3 +290,9 @@ def test_dry_run_lists_what_looks_wrong(client, addrs):
     r = post(client, csv_, dry_run=True).json(); msgs = " | ".join(w["message"] for w in r["warnings"])
     assert r["rows"] == 3 and "looks wrong" in msgs and "no street number" in msgs and "not a number" in msgs and "duplicate" in msgs and all("line" in w for w in r["warnings"])
     assert client.post("/api/listings/search", json={"filters": {"source": "csv_manual"}}).json()["count"] >= 0
+
+def test_template_csv_reads_back_and_dry_runs(client, addrs):
+    from backend.app import listings as L
+    r = client.get("/api/listings/template.csv"); assert r.status_code == 200 and "attachment" in r.headers["content-disposition"]
+    rows, missing = L.read_rows(r.content); assert len(rows) == 2 and rows[0]["source_id"] == "EXAMPLE-1" and L._rent_weekly(rows[1]["rent_per_week"])[0] == pytest.approx(8450 * 12 / 52, abs=0.01)
+    d = client.post("/api/listings/import", files={"file": ("t.csv", r.content)}, data={"source": "csv_manual", "dry_run": "true"}).json(); assert d["rows"] == 2 and d["dry_run"] is True
