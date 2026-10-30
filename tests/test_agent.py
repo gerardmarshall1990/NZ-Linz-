@@ -41,7 +41,7 @@ def run(client, msg, conv):
 
 # ------------------------------------------------------------------ tool loop
 def test_tool_loop_sql_then_answer_with_data_wrapping_and_persistence():
-    c = FakeClient([turn_tool("run_sql", {"query": "SELECT zone_name, count(*) AS n FROM core.sites GROUP BY 1 ORDER BY 2 DESC", "limit": 3}, "Treating this as: zone counts."), turn_text("Top zones above. Source: core.sites. Confirm with a council planner.")])
+    c = FakeClient([turn_tool("run_sql", {"query": "SELECT zone, count(*) AS n FROM analytics.rules GROUP BY 1 ORDER BY 2 DESC", "limit": 3}, "Treating this as: zone counts."), turn_text("Top zones above. Source: analytics.rules. Confirm with a council planner.")])
     ev = run(c, "which zones have the most parcels?", "test-1")
     kinds = [e["type"] for e in ev]
     assert kinds == ["conversation", "text", "tool_call", "tool_result", "text", "done"]
@@ -93,7 +93,7 @@ def test_sql_guard_rejects(q):
 
 def test_sql_guard_allows_normal_selects_and_caps_rows():
     assert agent_tools.run_sql("SELECT parcel_id FROM core.sites WHERE zone_name ILIKE '%single house%' LIMIT 3")["row_count"] == 3
-    r = agent_tools.run_sql("WITH z AS (SELECT zone_name FROM core.sites) SELECT zone_name, count(*) FROM z GROUP BY 1"); assert "rows" in r
+    r = agent_tools.run_sql("WITH z AS (SELECT zone FROM analytics.rules) SELECT zone, count(*) FROM z GROUP BY 1"); assert "rows" in r      # small table: a full scan of the 559k-row sites table can exceed the 15 s role timeout on a cold or busy database
     big = agent_tools.run_sql("SELECT parcel_id FROM core.sites", limit=10_000); assert big["row_count"] == agent_tools.ROW_CAP and big["truncated"] is True
     assert "error" in agent_tools.run_sql("SELECT " + ",".join(["1"] * 3000))                     # query length limit
 
