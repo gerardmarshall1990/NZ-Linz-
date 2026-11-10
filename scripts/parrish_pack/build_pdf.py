@@ -81,7 +81,6 @@ S += [tbl(dev, [3.2, W - 3.2], fills=auto(dev)), Spacer(1, 3)]
 fe = [["Scenario", "Dwellings", "Consent route", "Relies on"],
  ["T10 target: one site, MHU standards, no on-site parking, deck outdoor living", "10", "RD (H5.4.1 A4) + E36 RD", "No parking minimum; deck accepted as outdoor living; lot 2 SHZ rezoning not limiting"],
  ["T9 target: one site, MHU standards, 1 space per unit, standard outdoor living", "9", "RD (H5.4.1 A4) + E36 RD", "Lot 2 SHZ rezoning not limiting"],
- ["Operative zones, 2+4 and 6+8, 2 spaces per unit (earlier case)", "8", "RD + E36 RD", "Operative zoning only"],
  ["Current legal position, four separate titles (lot 2 Single House)", "6", "Permitted (3 per MHU site, 1 on lot 2) + E36 RD", "Immediate-effect PC120 rules"],
  ["PC120 as amended Aug 2026 (all Single House), four titles / amalgamated", "4 / 2", "1 + minor dwelling per site", "Council amendments adopted (decisions due June 2027)"]]
 note = P_("Units shown are flood-clear (flood changes no count) and pass the tests the app can run; outlook and daylight standards are untested and are the likely limit at this density. T9 and T10 are not lot-by-lot: units straddle title lines, so the whole site is one site (4 or more dwellings = restricted discretionary). Sensitivity: with 2 parking spaces per unit the same site fits only 4; 1 space gives 9; none gives 9, or 10 with the deck. Zoning_Feasibility.xlsx (sheet Target_Scheme) holds the formulas.", sm)

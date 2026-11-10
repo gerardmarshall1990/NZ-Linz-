@@ -147,6 +147,8 @@ for n in range(1, last):
     rw = n + 1; m = f"MATCH($A{rw},Scenarios!$N$2:$N${last},0)"
     wr.cell(rw, 1, n); wr.cell(rw, 2, f"=INDEX(Scenarios!$A$2:$A${last},{m})"); wr.cell(rw, 3, f"=INDEX(Scenarios!$C$2:$C${last},{m})"); wr.cell(rw, 4, f"=INDEX(Scenarios!$D$2:$D${last},{m})")
     wr.cell(rw, 5, f"=INDEX(Scenarios!$E$2:$E${last},{m})"); wr.cell(rw, 6, f"=INDEX(Scenarios!$H$2:$H${last},{m})"); wr.cell(rw, 7, f"=INDEX(Scenarios!$I$2:$I${last},{m})"); wr.cell(rw, 8, f"=INDEX(Scenarios!$M$2:$M${last},{m})")
+wr["J1"] = "Target schemes T10 (10 dwellings) and T9 (9) on sheet Target_Scheme outrank every row here. This ranking compares the title-by-title and zoning-regime cases (2 parking spaces per unit)."
+wr.column_dimensions["J"].width = 70
 wr.cell(last + 2, 1, "Ranking is by units delivered (high first) then risk (low first). Risk is an ASSUMED 1-6 judgement (Sites sheet). Regime A is the operative-only upside case and is NOT the current legal position; regime B is the working legal position; D is the downside if PC120 amendments are adopted.").alignment = Alignment(wrap_text=True)
 # ---------------- Reconciliation
 ws4 = wb.create_sheet("Reconciliation")
