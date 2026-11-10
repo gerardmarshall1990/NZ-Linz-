@@ -8,7 +8,7 @@ def chs(D, t):
     d = D - 2 * t; A = math.pi / 4 * (D ** 2 - d ** 2); I = math.pi / 64 * (D ** 4 - d ** 4); Z = I / (D / 2); return A, I, Z
 A, I, Z = chs(B["post_OD"], B["post_t"])
 units = E_["units"]; hexp = max(u["levels"]["1.2"]["pile_exposed_max_m"] for u in units); worst = next(u["id"] for u in units if u["levels"]["1.2"]["pile_exposed_max_m"] == hexp)
-Ueff = max(x["per_pile_kN"] for x in E_["uplift"]); VULS = E_["gravity"]["per_pile_kN"]
+Ueff = max(max(x["per_pile_kN"] for x in E_["uplift"]), max(x["per_pile_kN"] for x in E_["uplift_W"])); VULS = max(E_["gravity"]["per_pile_kN"], E_["gravity_W"]["per_pile_kN"])
 # debris
 Fd = B["debris_kg"] * B["v"] / B["debris_dt"] / 1000.0           # kN, impulse-momentum
 h_app = hexp + B["scour"] * 0.5                                    # lever arm to fixity (m)
@@ -50,11 +50,19 @@ W = 10.0; aff = {}
 for d in DEPTHS:
     for v in VELS:
         F = E_["lookup"][f"{d}|{v}"]["unit_total_drag_kN_max"]; aff[f"{d}|{v}"] = round(F * 1000 / (RHO * G * W * d) * 1000, 1)     # mm per unit
-runoff = {f"{mm} mm": [round(a * mm / 1000, 2) for a in (600 + 140.8, 540 + 140.8 + 9 * 12.5)] for mm in (10, 20, 30)}
+roof = sum(u["area"] for u in units)
+runoff = {f"{mm} mm": [round(a * mm / 1000, 2) for a in (roof, roof + 10 * 12.5)] for mm in (10, 20, 30)}
+Lem_ = round(max(L_up, L_lat, 2.5), 2)
+piling = {}
+for u in units:
+    top = u["levels"]["1.2"]["chassis_underside_RL"]; posts = sum(max(top - p["ground"], 0.0) + 0.6 for p in u["piles"])
+    piling[u["id"]] = {"type": u["type"], "piles": u["n_piles"], "pier_m": round(u["n_piles"] * Lem_, 1), "post_m": round(posts, 1)}
+piling_alt = {"embedment_m": 2.5, "pier_m": round(sum(x["piles"] for x in piling.values()) * 2.5, 1), "basis": "design event only (no exceedance uplift): lateral/bearing minimum 2.5 m, ASSUMED"}
+piling_total = {"piles": sum(x["piles"] for x in piling.values()), "pier_m": round(sum(x["pier_m"] for x in piling.values()), 1), "post_m": round(sum(x["post_m"] for x in piling.values()), 1)}
 res = {"basis": B, "section": {"A_mm2": round(A, 0), "I_mm4": round(I, 0), "Z_mm3": round(Z, 0)}, "worst_pile_unit": worst, "exposed_max_m": hexp,
        "debris": {"F_kN": round(Fd, 1), "lever_m": round(h_app, 2), "M_debris_kNm": round(Mdeb, 2), "M_drag_kNm": Mdrag, "M_total_kNm": round(Mtot, 2), "M_cap_kNm": round(Mcap, 2), "util": round(Mtot / Mcap, 2)},
        "buckling": {"Le_m": round(Le, 2), "Pcr_kN": round(Pcr, 1), "Pyield_kN": round(Pyield, 1), "demand_kN": VULS, "util_Pcr": round(VULS / Pcr, 2), "util_yield": round(VULS / Pyield, 2)},
        "embedment": {"uplift_demand_kN": Ueff, "L_uplift_m": L_up, "L_lateral_m": L_lat, "L_adopted_m": round(max(L_up, L_lat, 2.5) + 0.0, 2), "lateral_demand_kN": round(H_dem, 2), "uplift_cap_at_adopted_kN": round(upl_cap(Lem), 1), "down_capacity_kN": round(Rdown, 1), "down_demand_kN": VULS},
        "connection": {"tie_cap_kN": round(Nt, 1), "tie_demand_kN": Ueff, "brace_cap_kN": round(brace, 1), "brace_demand_kN": E_["lookup"]["1.2|2.0"]["brace_axial_kN"]},
-       "afflux_mm_per_unit": aff, "runoff_m3": runoff}
+       "afflux_mm_per_unit": aff, "runoff_m3": runoff, "roof_m2": roof, "piling": piling, "piling_total": piling_total, "piling_alt": piling_alt}
 jdump(res, DATA / "design.json"); print(json.dumps(res, indent=0)[:2500])

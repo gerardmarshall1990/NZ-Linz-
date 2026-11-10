@@ -65,26 +65,38 @@ def furniture(d, v, bounds, legend, note):
     d.text((W - 400, H - 330), "\n".join(note), font=F(15), fill=(40, 40, 40))
     d.rectangle([W - 400, H - 90, W - 20, H - 25], outline=(190, 0, 0), width=4); d.text((W - 385, H - 80), "DRAFT - NOT FOR CONSTRUCTION\nNot surveyed. Not engineer-checked.", font=F(15, True), fill=(190, 0, 0))
 def site_plan(L, runs, E):
-    allp = [p for p in L.values()]; b = (min(p.bounds[0] for p in allp) - 12, min(p.bounds[1] for p in allp) - 12, max(p.bounds[2] for p in allp) + 12, max(p.bounds[3] for p in allp) + 12)
-    im, d, v = base("Drawing 1: Site plan (indicative, 10 x 60 m2 relocatables)", "2, 4, 6 and 8 Parrish Road, Sandringham. EPSG:2193 (NZTM). Layout is a screening result from this app, not a design.", b)
-    for n, p in L.items():
-        poly(d, v, p, outline=(0, 0, 0), width=4)
-        c = p.centroid; cx, cy = v.p(c.x, c.y + 3); d.text((cx - 30, cy), f"Lot {n}", font=F(22, True), fill=(0, 0, 0))
+    global SHADE_KEY; SHADE_KEY = False
+    from shapely.geometry import Polygon as Pg
+    LAY = jload(DATA / "forde_layout.json"); allp = [p for p in L.values()]; b = (min(p.bounds[0] for p in allp) - 14, min(p.bounds[1] for p in allp) - 14, max(p.bounds[2] for p in allp) + 14, max(p.bounds[3] for p in allp) + 14)
+    im, d, v = base("Drawing 1: Site plan, 10 relocatable houses (Forde Brothers)", "2, 4, 6 and 8 Parrish Road. NZTM. House sizes ASSUMED (7 x 12 m, 5 x 13 m). 1.5 m front, 1 m side and rear, 0.8 m end-to-end gaps. Not surveyed.", b, shade=False)
+    for n, p in L.items(): poly(d, v, p, outline=(40, 40, 120), width=3)
     for g in ofp(b):
-        for L2 in [g]:
-            if True: d.line([v.p(x, y) for x, y in L2.coords], fill=(0, 60, 220), width=6)
-    for key, col in (("T10", (255, 235, 120)),):
-        r = runs[key]
-        if r.get("access_geom"):
-            for g in ([r["access_geom"]] if isinstance(r["access_geom"], dict) else r["access_geom"]): poly(d, v, shape(g), fill=(200, 200, 200), outline=(90, 90, 90), width=2)
-        for g in r["units_geom"]: poly(d, v, shape(g), fill=(250, 220, 190), outline=(120, 60, 0), width=3)
-        for g in r.get("ols_geom", []): poly(d, v, shape(g), outline=(30, 120, 30), width=2)
+        d.line([v.p(x, y) for x, y in g.coords], fill=(0, 60, 220), width=6)
+        bb = g.buffer(2).intersection(__import__("shapely.geometry", fromlist=["box"]).box(*b))
+        for part in ([bb] if bb.geom_type == "Polygon" else list(getattr(bb, "geoms", []))):
+            if part.geom_type == "Polygon" and not part.is_empty: d.polygon([v.p(x, y) for x, y in part.exterior.coords], fill=(190, 210, 250), outline=(120, 160, 230))
+    for g in ofp(b): d.line([v.p(x, y) for x, y in g.coords], fill=(0, 60, 220), width=5)
+    for n, p in L.items(): poly(d, v, p, outline=(40, 40, 120), width=3)
+    types = {"D": ((28, 128, 118), "Dulwich 25 type, 7 x 12 m (84 m2; listed 85 m2), 3 bed"), "W": ((184, 90, 20), "Williams 1 type minor dwelling, 5 x 13 m (65 m2), 2 bed")}
     for u in E["units"]:
-        c = wkt.loads(u["geom"]).centroid; x, y = v.p(c.x, c.y); d.text((x - 24, y - 10), u["id"], font=F(16, True), fill="black")
-    furniture(d, v, b, [("box", ((250, 220, 190), (120, 60, 0)), "Relocatable 4 x 15 m (60 m2)"), ("box", ((200, 200, 200), (90, 90, 90)), "Shared driveway 3.5 m"), ("line", (0, 60, 220), "Council overland flow path"), ("box", ((255, 255, 255), (30, 120, 30)), "Outdoor living 20 m2"), ("box", ((255, 255, 255), (0, 0, 0)), "Title boundary (LINZ)")],
-              ["Whole site is inside the Council 100-year", "flood plain (S2) and a flood prone area (S3).", "FFL per unit: see Table 6 / Appendix A.", "Datum: NZVD2016 (LiDAR) - Council flood", "layers use NZVD2016; flow path layer uses", "NZVD1946. UNVERIFIED conversion.", "Zone-standard yards and coverage: see", "Zoning_Feasibility.xlsx (S7, S14)."])
+        g = wkt.loads(u["geom"]); col = types[u["type"]][0]; d.polygon([v.p(x, y) for x, y in g.exterior.coords], fill=col, outline="white")
+        c = g.centroid; x, y = v.p(c.x, c.y); d.text((x - 22, y - 20), u["id"], font=F(18, True), fill="white"); d.text((x - 30, y + 2), f"{u['w']:.0f}x{u['l']:.0f} m", font=F(15), fill="white")
+    import math as _m
+    byl = {}
+    for u in E["units"]: byl.setdefault(u["lot"], []).append(u)
+    covs = []
+    for n, p in L.items():
+        hs = byl[n]; cov = sum(u["area"] for u in hs) / p.area * 100; covs.append(f"Lot {n}: {len(hs)} houses, coverage {cov:.1f}%")
+        for i, u in enumerate(hs):
+            ax_, ay_ = u["axis"]; sx, sy = u["street_end"]
+            if i == 0: px_, py_ = v.p(sx - ax_ * 0.75, sy - ay_ * 0.75); d.text((px_ - 9, py_ - 8), "1.5", font=F(13, True), fill=(180, 0, 0))
+            if i + 1 < len(hs):
+                ex, ey = sx + ax_ * u["l"], sy + ay_ * u["l"]; nx, ny = hs[i + 1]["street_end"]; px_, py_ = v.p((ex + nx) / 2, (ey + ny) / 2); d.text((px_ - 9, py_ - 8), "0.8", font=F(13, True), fill=(180, 0, 0))
+    furniture(d, v, b, [("box", (types["D"][0], (255, 255, 255)), "Dulwich 7 x 12 m (x9)"), ("box", (types["W"][0], (255, 255, 255)), "Williams 5 x 13 m (x1, lot 2)"), ("box", ((190, 210, 250), (120, 160, 230)), "Flow path + 2 m clearance"), ("line", (0, 60, 220), "Council overland flow path"), ("box", ((255, 255, 255), (40, 40, 120)), "Title boundary (LINZ)")],
+              covs + ["", "Red numbers: yard / gap in m.", "Ground RL, FFL per house: Tables 6-8.", "Whole site is in the Council flood plain (S2)", "and flood prone area (S3).", "Gaps 0.8 m end to end (ASSUMED).", "Yards used: 1.5 front, 1 side/rear", "(owner brief). Zone yards differ:", "see Zoning_Feasibility.xlsx."])
     im.save(OUTD / "01_site_plan.png"); return im
 def flow_plan(L, runs, E, pk):
+    global SHADE_KEY; SHADE_KEY = True
     allp = list(L.values()); b = (min(p.bounds[0] for p in allp) - 18, min(p.bounds[1] for p in allp) - 18, max(p.bounds[2] for p in allp) + 18, max(p.bounds[3] for p in allp) + 18)
     im, d, v = base("Drawing 2: Flood and overland flow path plan", "Council layers over LiDAR ground. 2 m offset is an ASSUMED planning figure. Sources S2, S3, S5, S6.", b)
     for n, p in L.items(): poly(d, v, p, outline="black", width=4); c = p.centroid; x, y = v.p(c.x, c.y); d.text((x - 24, y - 10), f"Lot {n}", font=F(24, True), fill="black")
@@ -108,33 +120,34 @@ def flow_plan(L, runs, E, pk):
               ["Flood plain: 100% of each lot (S2).", "Flood prone area FPA 30836607: spill level", "37.03 m RL (S3), so 'specific calculation", "required'. Depths here are NOT modelled.", "Only a Council/engineer flood model gives", "depth and velocity (Confirmed Input 1, 3)."])
     im.save(OUTD / "02_flow_path_plan.png")
 def pile_plan(E):
-    us = E["units"]; xs = [wkt.loads(u["geom"]).bounds for u in us]; b = (min(a[0] for a in xs) - 8, min(a[1] for a in xs) - 8, max(a[2] for a in xs) + 8, max(a[3] for a in xs) + 8)
-    im, d, v = base("Drawing 3: Indicative pile layout (10 piles per unit)", "Pile grid ASSUMED (5 rows x 2). Engineer sets the real grid. Sources S6, S14.", b, shade=False)
+    global SHADE_KEY; SHADE_KEY = False
+    us = E["units"]; xs = [wkt.loads(u["geom"]).bounds for u in us]; b = (min(a[0] for a in xs) - 6, min(a[1] for a in xs) - 6, max(a[2] for a in xs) + 6, max(a[3] for a in xs) + 6)
+    im, d, v = base("Drawing 3: Pile layout, one grid per house", "12 piles per Dulwich (4 rows x 3 lines), 10 per Williams (5 x 2), ASSUMED. Piling quantity in Part B3. Sources S6, S14.", b, shade=False)
     for u in us:
-        poly(d, v, wkt.loads(u["geom"]), outline=(120, 60, 0), width=3, fill=(250, 235, 215))
+        g = wkt.loads(u["geom"]); poly(d, v, g, outline=(120, 60, 0), width=3, fill=(250, 235, 215))
         for p in u["piles"]:
             x, y = v.p(p["x"], p["y"]); d.rectangle([x - 5, y - 5, x + 5, y + 5], fill="black")
-        c = wkt.loads(u["geom"]).centroid; x, y = v.p(c.x, c.y); d.text((x - 30, y - 12), u["id"], font=F(18, True), fill=(120, 60, 0))
-    furniture(d, v, b, [("box", ((250, 235, 215), (120, 60, 0)), "Unit footprint 4 x 15 m"), ("box", ((0, 0, 0), (0, 0, 0)), "Pile (300 mm pier or 114 mm CHS)")],
-              ["Pile ground RL (LiDAR) is listed in", "Appendix A, Table A1.", "Stepped pile heights follow the ground", "under each pile (ASSUMED floor frame", "0.30 m deep)."])
+        c = g.centroid; x, y = v.p(c.x, c.y); d.text((x - 22, y - 28), u["id"], font=F(17, True), fill=(120, 60, 0)); d.text((x - 36, y - 8), f"{u['w']:.0f}x{u['l']:.0f} m, {u['n_piles']} piles", font=F(13), fill=(120, 60, 0))
+    furniture(d, v, b, [("box", ((250, 235, 215), (120, 60, 0)), "House footprint"), ("box", ((0, 0, 0), (0, 0, 0)), "Pile (300 mm pier or 114 mm CHS)")],
+              ["Pile ground RL (LiDAR): Appendix A.", "Stepped pile heights follow the ground", "(ASSUMED floor frame 0.30 m deep)."])
     im.save(OUTD / "03_pile_layout.png")
 def section(E):
-    u = next(x for x in E["units"] if x["id"] == "L2-U1"); lv = u["levels"]["0.9"]; im = Image.new("RGB", (W, 900), "white"); d = ImageDraw.Draw(im)
-    d.text((60, 30), "Drawing 4: Indicative long section through L2-U1 (design flood depth 0.9 m: ASSUMED)", font=F(30, True), fill="black")
+    u = E["units"][0]; lv = u["levels"]["0.9"]; im = Image.new("RGB", (W, 900), "white"); d = ImageDraw.Draw(im)
+    d.text((60, 30), "Drawing 4: Indicative long section through H1 (design flood depth 0.9 m: ASSUMED)", font=F(30, True), fill="black")
     d.text((60, 75), "Ground profile from LiDAR (S6) along the unit centreline. Flood level = lot minimum ground + 0.9 m (ASSUMED depth); FFL = flood level + 0.5 m. Vertical exaggeration x4.", font=F(18), fill=(60, 60, 60))
     prof = []; sx, sy = u["street_end"]; ax, ay = u["axis"]
-    for s in np.arange(0, 15.01, 0.5): prof.append((s, ground.sample(sx + ax * s, sy + ay * s)))
+    for s in np.arange(0, u["l"] + 0.01, 0.5): prof.append((s, ground.sample(sx + ax * s, sy + ay * s)))
     zlo, zhi = 31.8, 34.6; X0, X1, Y0, Y1 = 120, 1500, 150, 800
-    px = lambda s: X0 + s / 15 * (X1 - X0); py = lambda z: Y1 - (z - zlo) / (zhi - zlo) * (Y1 - Y0)
+    px = lambda s: X0 + s / u["l"] * (X1 - X0); py = lambda z: Y1 - (z - zlo) / (zhi - zlo) * (Y1 - Y0)
     fl = lv["flood_level_RL"]; ffl = lv["ffl_RL"]; cu = lv["chassis_underside_RL"]
-    d.rectangle([px(0), py(fl), px(15), Y1], fill=(215, 235, 255)); d.line([px(0), py(fl), px(15), py(fl)], fill=(0, 90, 220), width=4); d.text((px(15) + 10, py(fl) - 10), f"Flood level {fl:.2f} m RL (ASSUMED)", font=F(16), fill=(0, 90, 220))
-    d.polygon([(px(0), Y1)] + [(px(s), py(z)) for s, z in prof] + [(px(15), Y1)], fill=(180, 150, 110), outline="black")
-    d.rectangle([px(0), py(ffl), px(15), py(cu)], fill=(250, 220, 190), outline=(120, 60, 0), width=3)
-    d.line([px(0), py(ffl + .0), px(15), py(ffl)], fill=(120, 60, 0)); d.text((px(15) + 10, py(ffl) - 10), f"FFL {ffl:.2f} m RL", font=F(16), fill=(120, 60, 0))
-    d.text((px(15) + 10, py(cu) + 6), f"Chassis underside {cu:.2f}", font=F(16), fill=(120, 60, 0))
+    d.rectangle([px(0), py(fl), px(u["l"]), Y1], fill=(215, 235, 255)); d.line([px(0), py(fl), px(u["l"]), py(fl)], fill=(0, 90, 220), width=4); d.text((px(u["l"]) + 10, py(fl) - 10), f"Flood level {fl:.2f} m RL (ASSUMED)", font=F(16), fill=(0, 90, 220))
+    d.polygon([(px(0), Y1)] + [(px(s), py(z)) for s, z in prof] + [(px(u["l"]), Y1)], fill=(180, 150, 110), outline="black")
+    d.rectangle([px(0), py(ffl), px(u["l"]), py(cu)], fill=(250, 220, 190), outline=(120, 60, 0), width=3)
+    d.line([px(0), py(ffl + .0), px(u["l"]), py(ffl)], fill=(120, 60, 0)); d.text((px(u["l"]) + 10, py(ffl) - 10), f"FFL {ffl:.2f} m RL", font=F(16), fill=(120, 60, 0))
+    d.text((px(u["l"]) + 10, py(cu) + 6), f"Chassis underside {cu:.2f}", font=F(16), fill=(120, 60, 0))
     for p in u["piles"][::2]:
         s = (p["x"] - sx) * ax + (p["y"] - sy) * ay; d.rectangle([px(s) - 5, py(cu), px(s) + 5, py(p["ground"]) + 10], fill="black")
-    d.text((X0, Y1 + 20), "Street end (0 m)", font=F(16), fill="black"); d.text((px(15) - 120, Y1 + 20), "Far end (15 m)", font=F(16), fill="black")
+    d.text((X0, Y1 + 20), "Street end (0 m)", font=F(16), fill="black"); d.text((px(u["l"]) - 120, Y1 + 20), "Far end", font=F(16), fill="black")
     d.text((X0, Y1 + 50), f"Pile exposed height {lv['pile_exposed_min_m']:.2f} to {lv['pile_exposed_max_m']:.2f} m (CALCULATED from LiDAR + ASSUMED inputs). Piles embedded below ground to depth set by geotech (not shown).", font=F(16), fill="black")
     d.rectangle([W - 460, 820, W - 20, 885], outline=(190, 0, 0), width=4); d.text((W - 445, 830), "DRAFT - NOT FOR CONSTRUCTION\nNot surveyed. Not engineer-checked.", font=F(15, True), fill=(190, 0, 0))
     im.save(OUTD / "04_section.png")

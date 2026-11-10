@@ -27,6 +27,7 @@ SOURCES = {
  "S12": ("Owner's draft documents: Flood Mitigation & Relocatable Foundation Specification (Draft for CPEng) and Development Term Sheet, both dated 10 Nov 2026", "supplied by the owner in this session", "2026-11-10"),
  "S13": ("Web search snippets of MBIE determinations and council guidance on Building Act ss71-74, Building Code E1 and B2 (full official text not read)", "building.govt.nz and council sites via web search", "2026-11-07 to 2026-11-10"),
  "S14": ("This app's layout engine (devlayout/devrules) run with the zone standards in S7", "scripts/hazard_report.py and scripts/parrish_pack", "run 2026-11-10"),
+ "S16": ("Forde Brothers relocatable house data (Dulwich 25 type, Williams 1 type) as given in the owner's brief; fordebrothers.co.nz is outside this session's network allow-list and was not fetched", "https://fordebrothers.co.nz (not reached)", "owner's brief 2026-11-10"),
  "S15": ("AUP Chapter E27 Transport, vehicle access widths (config/transport_rules.yaml, quotes tested)", "data/aup E27 Transport.pdf (S7)", "2026-10-20"),
 }
 RHO = 1000.0; G = 9.81

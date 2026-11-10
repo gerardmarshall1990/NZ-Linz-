@@ -4,16 +4,16 @@ from common import *
 def build(d, E, DS):
     B = DS["basis"]; u = {x["id"]: x for x in E["units"]}
     d.add_heading("Part B: Complete engineering design and specification (adopted basis)", 1)
-    para(d, "Part B is the complete engineering design and specification for the 10-unit scheme. Inputs that a flood model, geotechnical report or survey would normally supply are set at stated conservative ADOPTED values, so the design stands on its own and is ready for the engineer's check and signature. If confirmed site values are less onerous the design stays valid; if more onerous the affected line is re-run (scripts/parrish_pack/design.py). Methods are named and values stated; standard references are UNVERIFIED.", fill=ORG)
+    para(d, "Part B is the complete engineering design and specification for the 10 Forde Brothers houses. Inputs that a flood model, geotechnical report or survey would normally supply are set at stated conservative ADOPTED values, so the design stands on its own and is ready for the engineer's check and signature. If confirmed site values are less onerous the design stays valid; if more onerous the affected line is re-run (scripts/parrish_pack/design.py). Methods are named and values stated; standard references are UNVERIFIED.", fill=ORG)
     d.add_heading("B1 Adopted design basis (all ASSUMED unless stated)", 2)
     rows = [("Design flood depth on lowest lot ground", f"{B['depth']} m (top of the 0.3 to 1.2 m planning range)", "ASSUMED: replaces Confirmed Input 1. Above this the piled concept is not viable (stair and ramp lengths, Table 8)."),
      ("Design flow velocity", f"{B['v']} m/s", "ASSUMED upper bound: replaces Confirmed Input 3."),
      ("Soil model", f"Cohesive, undrained shear strength su = {B['su']} kPa (soft to firm), adhesion factor {B['alpha']}, geotechnical reduction {B['phi_geo']}, groundwater at ground surface", "ASSUMED: replaces Confirmed Input 2."),
      ("Scour allowance", f"{B['scour']} m below ground ignored for resistance", "ASSUMED upper end of 0.3 to 1.0 m."),
      ("Pile system", f"Bored concrete pier {int(B['pier_D']*1000)} mm diameter with galvanised steel post CHS {B['post_OD']} x {B['post_t']} mm cast in; steel grade fy {B['fy']} MPa", "ADOPTED. Section availability UNVERIFIED."),
-     ("Pile grid", "10 piles per unit: 5 rows at 0.5, 4.0, 7.5, 11.0, 14.5 m from the street end, 2 per row at 3.0 m centres", "ADOPTED (Drawing 3)."),
+     ("Pile grid", "Dulwich: 12 piles, 4 rows at 0.75, 4.25, 7.75, 11.25 m from the street end x 3 lines at 3.0 m centres. Williams: 10 piles, 5 rows at 0.75, 3.9, 7.0, 10.1, 12.25 m x 2 lines at 3.5 m centres", "ADOPTED (Drawing 3)."),
      ("Floor frame depth", "0.30 m below top of floor; FFL = design flood level + 0.5 m", "ASSUMED; manufacturer drawings to confirm."),
-     ("Loads", "Dead 120 kg/m2; live 1.5 kPa; 1.2G + 1.5Q for gravity; strength reduction 0.9 steel", "ASSUMED; combinations from AS/NZS 1170.0 UNVERIFIED."),
+     ("Loads", "House dead load 150 kg/m2 (ASSUMED older timber houses; replace with house data); live 1.5 kPa; 1.2G + 1.5Q for gravity; strength reduction 0.9 steel", "ASSUMED; combinations from AS/NZS 1170.0 UNVERIFIED."),
      ("Flood actions", "Hydrostatic 0.5 rho g h2; drag 0.5 rho Cd A v2 (Cd 2.0 square, 1.2 round, blockage 1.5); uplift = buoyancy less 0.9 x dead load; debris by impulse-momentum", "Methods named; coefficients ASSUMED; ASCE 7 Ch.5 and FEMA P-259 not read: UNVERIFIED."),
      ("Debris", f"{B['debris_kg']:.0f} kg object at {B['v']} m/s stopping in {B['debris_dt']} s on one pile", "ASSUMED."),
      ("Uplift case", "Water 1.1 m above the design level (event above design)", "ASSUMED; governs embedment and tie-downs."),
@@ -36,9 +36,13 @@ def build(d, E, DS):
      ("Adopted embedment", f"{em['L_adopted_m']} m bored pier length (uplift governs)", "ADOPTED", "-")]
     table(d, ["Check", "Result", "Basis", "Utilisation"], rows, widths=[4, 8.4, 2.2, 2.6], size=8, rule=False)
     para(d, "Finding the engineer should read first: the event-above-design uplift case, not flood drag, sets the foundation. At su = 25 kPa a 300 mm pier needs about 7.75 m embedment to hold 46.6 kN. Options for the engineer: (a) accept bored piers of that depth (adopted here); (b) helical screw piles; (c) design uplift only to the design event (no exceedance tie-down; zero uplift at design because the chassis underside is 0.2 m above the design level). A real geotechnical report may change this either way.", fill=ORG)
+    pl = DS["piling"]; pt = DS["piling_total"]; pa = DS["piling_alt"]
+    d.add_heading("Piling quantity per house (adopted embedment " + str(em['L_adopted_m']) + " m)", 3)
+    table(d, ["House", "Type", "Piles", "Bored pier length (m)", "Steel post length (m, incl. 0.6 m cast in)"], [(k, "Dulwich" if v["type"] == "D" else "Williams", v["piles"], v["pier_m"], v["post_m"]) for k, v in pl.items()] + [("Total", "", pt["piles"], pt["pier_m"], pt["post_m"])], widths=[2.4, 3, 2.4, 4.2, 5.2], rule=False)
+    para(d, f"If uplift is designed only for the design event (no exceedance tie-down), the embedment falls to the lateral and bearing minimum of {pa['embedment_m']} m and the bored pier total to {pa['pier_m']} m (CALCULATED, ASSUMED: {pa['basis']}).", fill=ORG)
     d.add_heading("B4 Connections and bracing", 2)
     rows = [("Chassis to post", f"Steel cap plate welded to post, {B['nbolts']} x M16 grade 8.8 (As = {B['bolt_As']:.0f} mm2) through the chassis rail; tie capacity {cn['tie_cap_kN']} kN (phi 0.8 x fu x As x 2)", f"demand {cn['tie_demand_kN']} kN", "CALCULATED; bolt standard UNVERIFIED"),
-     ("Post to pier", "Post cast 600 mm into the pier with a welded stud ring; galvanised", "to carry the 46.6 kN uplift into the pier", "ADOPTED detail, not calculated: engineer"),
+     ("Post to pier", "Post cast 600 mm into the pier with a welded stud ring; galvanised", f"to carry the {DS['embedment']['uplift_demand_kN']} kN uplift into the pier", "ADOPTED detail, not calculated: engineer"),
      ("Bracing", f"Tension-only 50 x 50 x 5 EA diagonals (A = {B['brace_A']:.0f} mm2) between post lines, bolted M12; capacity {cn['brace_cap_kN']} kN", f"flood demand {cn['brace_demand_kN']} kN", "CALCULATED; minimum practical section governs; wind/seismic not calculated"),
      ("Underfloor", "Open timber or galvanised lattice at least 90% void or breakaway panels; no solid skirts", "-", "ADOPTED"),
      ("Fixings in the wetting zone", "Hot-dip galvanised or stainless steel; no untreated steel below the design level plus 0.5 m", "-", "ADOPTED; coating standard UNVERIFIED")]
@@ -52,7 +56,7 @@ def build(d, E, DS):
     para(d, "At 2.0 m/s the estimate is 14 to 34 mm per unit row and would stack across several rows: no-worsening cannot be assumed at that velocity, and the engineer's model must show it. At 1.0 m/s or less it is under 9 mm per unit. Pile displacement of flood storage is in Table 13.", fill=ORG)
     d.add_heading("B6 Stormwater (indicative storage volumes)", 2)
     rr = DS["runoff_m3"]
-    table(d, ["Runoff depth stored", "10-unit scheme, no on-site parking (740.8 m2 impervious), m3", "9-unit scheme, 1 space per unit (793.3 m2), m3"], [(k, str(v[0]), str(v[1])) for k, v in rr.items()], widths=[4, 6.6, 6.6], rule=False)
+    table(d, ["Runoff depth stored", "10 houses, no parking (821 m2 roof), m3", "plus 10 parking spaces (946 m2), m3"], [(k, str(v[0]), str(v[1])) for k, v in rr.items()], widths=[4, 6.6, 6.6], rule=False)
     para(d, "The Council's required attenuation depth (Stormwater Code of Practice / GD01) was not retrievable: UNVERIFIED. Read the required depth from this table. Storage can be an underfloor tank per unit.", fill=ORG)
     d.add_heading("B7 Construction specification", 2)
     cl = [("1 General", "Work to the drawings in this report and the engineer's issued-for-construction set. Setout by a registered surveyor on the datum stated on every drawing. Hold points H1 to H9 are binding: no stage starts before the previous hold point is signed."),
