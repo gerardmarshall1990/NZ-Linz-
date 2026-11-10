@@ -57,13 +57,14 @@ S += [P_("Flood hazard and mitigation", h2), P_("The units are designed to be li
 bul = [
  "<b>Floor level:</b> 1% AEP flood level plus 500 mm freeboard (owner's specification), intended to sit above the Building Code 2% AEP level (E1.3.2, UNVERIFIED: not read officially). At ASSUMED depths of 0.3 to 1.2 m the floor sits 0.8 to 1.7 m above ground; stairs need 0 to 9 risers and ramps up to 17 m at 1.2 m depth (CALCULATED).",
  "<b>Depth is the open question:</b> if the lot hollows fill to the published 37.03 m RL spill level, depth would be 2.9 to 4.8 m (CALCULATED from LiDAR), far above the 0.3 to 1.2 m planning range used here. The engineer's model decides whether piled units work (ORANGE until confirmed).",
- "<b>Structure:</b> open piled sub-floor designed for flood, debris and uplift loads, with no fill. Preliminary loads only (drag, buoyancy 177 kN per unit at 0.5 m above design level); debris, geotechnical and wind/seismic design are the engineer's.",
+ "<b>Structure (designed in the report, Part B):</b> bored 300 mm concrete piers about 7.75 m deep with galvanised steel posts, open lattice underfloor, bolted tie-downs (46.6 kN uplift case sets the depth) and diagonal bracing; debris, drag, buoyancy, buckling and bearing checked on an adopted conservative basis (design depth 1.2 m, 2.0 m/s, soft clay). Values are ASSUMED until the survey, geotech and flood model confirm them.",
  "<b>Flow paths:</b> designed to be kept clear and used as shared open space; units sit on the higher ground. A 2 m offset each side of the Council centreline removes only 73 m² on lot 2 and no unit.",
  "<b>Neighbours:</b> pre and post development modelling is to show no worse flooding on other land. Not yet run.",
  "<b>Safety:</b> raised walkways, an assessed egress route and a flood plan for every tenancy (to be prepared once route depths are known).",
- "<b>Compliance:</b> each measure is mapped to AUP chapter E36 (rows checked against the operative July 2026 text), the Building Act ss71–73 and the Building Code (those two UNVERIFIED). A CPEng is to sign off the report and producer statement; none is appointed."]
+ "<b>Sign-off:</b> the engineering design and specification are complete in the report; the CPEng checks the adopted values and calculations (checklist in Part B9) and signs the report and PS1. None is appointed.",
+ "<b>Compliance:</b> each measure is mapped to AUP chapter E36 (rows checked against the operative July 2026 text), the Building Act ss71–73 and the Building Code (those two UNVERIFIED)."]
 for b in bul: S.append(P_("• " + b, sty))
-S += [Spacer(1, 4), P_("Site plan and legend (indicative 8-unit layout, operative-zoning case)", h2), Image(str(OUT / "drawings" / "01_site_plan.png"), width=15.2 * cm, height=15.2 * 1250 / 1800 * cm),
+S += [Spacer(1, 4), P_("Site plan and legend (indicative 8-unit layout, operative-zoning case)", h2), Image(str(OUT / "drawings" / "01_site_plan.png"), width=12.6 * cm, height=12.6 * 1250 / 1800 * cm),
       P_("Orange boxes = relocatable 4 x 15 m (60 m²); grey = 3.5 m shared driveway; blue line = Council overland flow path (centreline); green outline = 20 m² outdoor living; black = title boundaries (LINZ); background = LiDAR ground 32.0 to 34.4 m RL. Indicative screening layout, not surveyed, not engineer-checked. North up.", sm)]
 S.append(PageBreak())
 # ---- page 2
