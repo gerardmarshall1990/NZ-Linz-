@@ -12,3 +12,4 @@ docs/sources_manual/*/*
 !docs/sources_manual/*/.gitkeep
 .pytest_cache/
 bootstrap_timings.log
+out/
