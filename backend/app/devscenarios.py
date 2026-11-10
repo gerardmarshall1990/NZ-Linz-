@@ -14,6 +14,24 @@ OPT_UNIT_KEYS = ("bedrooms", "storeys", "wall_height_m")
 TIMELINE_STAGES = ["pre_application", "professional_reports", "lodgement", "council_processing_incl_rfi", "engineering_plan_approval", "site_works", "building_consent", "construction", "code_compliance", "s223_s224_survey_and_title", "sales"]
 FOOTER = "Screening and preparation tool. Not planning, legal, engineering or financial advice. Council decides applications. Confirm with a qualified planner and the relevant professionals."
 
+def street_front_point(c, parcel_id: int, poly: Polygon, address_pt: tuple | None) -> tuple | None:
+    """Midpoint of the lot edge that faces the street. An edge of 5 m or more whose outward side (1.5 m out from its middle) lies in no other titled parcel faces a road, lane or reserve (roads are not titled parcels).
+    On a corner lot with two such edges, the one nearest the address point is used. The address point alone is unreliable on narrow lots (it can sit nearer a side boundary than the street). None when no edge qualifies."""
+    from shapely.geometry import Point, LineString
+    free = []
+    pts = list(poly.exterior.coords)
+    for a, b in zip(pts, pts[1:]):
+        e = LineString([a, b])
+        if e.length < 5: continue
+        mx, my = (a[0] + b[0]) / 2, (a[1] + b[1]) / 2; nx, ny = (b[1] - a[1]) / e.length, -(b[0] - a[0]) / e.length
+        out = (mx + nx * 1.5, my + ny * 1.5)
+        if poly.contains(Point(out)): out = (mx - nx * 1.5, my - ny * 1.5)
+        hit = c.execute("SELECT 1 FROM core.sites WHERE parcel_id <> %s AND geom && ST_SetSRID(ST_MakePoint(%s,%s),2193) AND ST_Contains(geom, ST_SetSRID(ST_MakePoint(%s,%s),2193)) LIMIT 1", (parcel_id, out[0], out[1], out[0], out[1])).fetchone()
+        if not hit: free.append((e.length, (mx, my)))
+    if not free: return None
+    if address_pt: ap = Point(address_pt); return min(free, key=lambda f: Point(f[1]).distance(ap))[1]
+    return max(free)[1]
+
 def load_site(parcel_id: int) -> dict:
     with conn() as c:
         s = c.execute("""SELECT parcel_id, address, suburb, zone_name, area_m2::float AS area, title_type, hazard_flags, overlays, maori_land_linz, ST_AsText((ST_Dump(geom)).geom) AS wkt, building_count, pc120_depends
@@ -21,8 +39,9 @@ def load_site(parcel_id: int) -> dict:
         if not s: raise HTTPException(404, "no such parcel")
         pt = c.execute("""SELECT ST_X(ST_Centroid(a.geom)) x, ST_Y(ST_Centroid(a.geom)) y FROM raw.linz_addresses a, core.sites s WHERE s.parcel_id=%s AND ST_Intersects(s.geom, a.geom) LIMIT 1""", (parcel_id,)).fetchone()
         bl = c.execute("SELECT ST_AsText(geom) AS w FROM core.building_site WHERE parcel_id=%s LIMIT 40", (parcel_id,)).fetchall()
-    poly = wkt.loads(s["wkt"])
-    return {**s, "poly": poly, "front_point": (pt["x"], pt["y"]) if pt else None, "buildings": [wkt.loads(b["w"]) for b in bl if b["w"]]}
+    poly = wkt.loads(s["wkt"]); addr = (pt["x"], pt["y"]) if pt else None
+    with conn() as c2: street = street_front_point(c2, parcel_id, poly, addr)
+    return {**s, "poly": poly, "front_point": street or addr, "address_point": addr, "front_from": "street-facing edge (no neighbouring titled parcel beyond it)" if street else ("address point" if addr else "none: longest edge assumed"), "buildings": [wkt.loads(b["w"]) for b in bl if b["w"]]}
 
 def _coords(g): return [[round(x, 2), round(y, 2)] for x, y in g.exterior.coords]
 

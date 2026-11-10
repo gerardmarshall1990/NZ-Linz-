@@ -28,7 +28,7 @@ def classify_boundaries(parcel: Polygon, front_point: tuple | None) -> dict:
     es = [e for e in edges(parcel) if e.length > 0.5]
     if not es: return {"front": [], "rear": [], "side": [], "assumed": True, "note": "degenerate parcel"}
     if front_point is None: front = max(es, key=lambda e: e.length); note = "no address point on the parcel: the longest edge is assumed to be the front"
-    else: fp = Point(front_point); front = min(es, key=lambda e: e.distance(fp)); note = "front boundary = edge nearest the address point (assumed; a surveyor confirms)"
+    else: fp = Point(front_point); front = min(es, key=lambda e: e.distance(fp)); note = "front boundary = edge nearest the given front point: the street-facing edge found from the neighbouring titled parcels, else the address point (assumed; a surveyor confirms)"
     others = [e for e in es if e is not front]
     mid = front.interpolate(0.5, normalized=True)
     rear = max(others, key=lambda e: e.distance(mid)) if others else None

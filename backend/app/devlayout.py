@@ -60,29 +60,58 @@ def access_options(parcel: Polygon, env: Polygon, B: dict, width: float | None) 
     side = max(B["side"], key=lambda e: e.length, default=None); sidestrip = side.buffer(width, cap_style="flat").intersection(parcel) if side is not None else None
     return [("none", None), ("central driveway", centre)] + ([("side driveway", sidestrip)] if sidestrip is not None and not sidestrip.is_empty else [])
 
-def candidates(parcel: Polygon, zone: str, unit: dict, access_width: float | None, front_point=None, R: dict | None = None, spaces_per_unit: float | None = None) -> dict:
+def _pack_greedy(env: Polygon, unit: dict, R: dict, theta: float, flip: bool, blocked: Polygon | None, mode: str = "side", step: float = 0.5) -> list[dict]:
+    """Greedy fine-grid packing (0.5 m steps) of each unit together with its ground-floor outdoor living space, so layouts are not limited to the coarse aligned grid.
+    mode "side": the outdoor space sits BESIDE the unit (width = the zone's minimum dimension, length = minimum area / that width), which suits long narrow units such as relocatables.
+    mode "end": the outdoor space is in line with the unit, at its end. flip puts the outdoor space on the other side/end. Units and their outdoor spaces must lie inside the envelope, outside `blocked`
+    and must not overlap each other."""
+    a, m = R.get("ols_ground_floor_min_area"), R.get("ols_ground_floor_min_dimension")
+    if not (a and m): return []
+    c = env.centroid; e = affinity.rotate(env, -theta, origin=c); bl = affinity.rotate(blocked, -theta, origin=c) if blocked is not None else None
+    w, d = unit["width_m"], unit["depth_m"]; minx, miny, maxx, maxy = e.bounds; placed = []; taken = []; ee = e.buffer(1e-6)
+    if mode == "side": ow, oh = m["v"], max(a["v"] / m["v"], m["v"]); cw, ch = w + ow, max(d, oh)
+    else: ow = max(w, m["v"]); oh = max(a["v"] / ow, m["v"]); cw, ch = ow, d + oh
+    y = miny
+    while y + ch <= maxy + 1e-9:
+        x = minx
+        while x + cw <= maxx + 1e-9:
+            if mode == "side":
+                fx = x + (ow if flip else 0); fp = box(fx, y, fx + w, y + d); ols = box(x if flip else x + w, y, (x if flip else x + w) + ow, y + oh)
+            else:
+                fy = y + (oh if flip else 0); fp = box(x + (ow - w) / 2, fy, x + (ow - w) / 2 + w, fy + d); ols = box(x, y if flip else y + d, x + ow, (y + oh) if flip else (y + d + oh))
+            comp = fp.union(ols)
+            if ee.contains(comp) and (bl is None or not comp.intersects(bl)) and not any(comp.intersection(t).area > 1e-6 for t in taken):
+                taken.append(comp); placed.append((fp, ols)); x += cw
+            else: x += step
+        y += step
+    return [{"id": f"u{i}", "footprint": affinity.rotate(fp, theta, origin=c), "ols": affinity.rotate(ols, theta, origin=c), "height_m": unit["height_m"], "wall_height_m": unit.get("wall_height_m"), "gfa_m2": unit["gfa_m2"], "bedrooms": unit.get("bedrooms", 2)} for i, (fp, ols) in enumerate(placed, 1)]
+
+def candidates(parcel: Polygon, zone: str, unit: dict, access_width: float | None, front_point=None, R: dict | None = None, spaces_per_unit: float | None = None, exclusion: Polygon | None = None, ols_modes: tuple = ("end",)) -> dict:
+    """ols_modes: \"end\" (outdoor space in line with the unit, the default) and/or \"side\" (beside it, greedy). exclusion: ground the units (with their outdoor living space) must keep clear of, for example an overland flow path corridor."""
     R = R if R is not None else devrules.zone_rules(zone); B = devrules.classify_boundaries(parcel, front_point); env = envelope(parcel, R, B)
     theta0 = principal_angle(parcel); thetas = sorted({round(theta0 % 180, 3), round((theta0 + 90) % 180, 3), 0.0}); seen = {}; out = []
     for acc_label, acc in access_options(parcel, env, B, access_width):
         for th in thetas:
             for xo in (0.0, 0.5):
                 for yo in (0.0, 0.5):
-                    for of in (False, True):
-                        placed = _pack(env, unit, R, th, xo, yo, of, acc)
+                    blk = acc if exclusion is None else (exclusion if acc is None else acc.union(exclusion))
+                    packs = [(_pack(env, unit, R, th, xo, yo, of, blk), of, "end") for of in (False, True)]
+                    if xo == 0.0 and yo == 0.0: packs += [(_pack_greedy(env, unit, R, th, of, blk, md), of, md) for md in ("side", "end") if md in ols_modes for of in (False, True)]
+                    for placed, of, mode in packs:
                         if not placed: continue
                         for k in range(len(placed), 0, -1):
                             if access_width and acc is None and k > 1: continue          # several units need a driveway: a layout with no driveway is only offered for a single unit
                             units = placed[:k]; key = (k, tuple(sorted((round(u["footprint"].centroid.x, 1), round(u["footprint"].centroid.y, 1)) for u in units)), acc is not None)
                             if key in seen: continue
                             seen[key] = 1
-                            sc = {"units": units, "access": acc, "meta": {"theta": th, "x_off": xo, "y_off": yo, "ols_front": of, "access": acc_label, "max_fit": len(placed)}, "spaces_per_unit": spaces_per_unit}
+                            sc = {"units": units, "access": acc, "meta": {"theta": th, "x_off": xo, "y_off": yo, "ols_front": of, "ols_mode": mode, "access": acc_label, "max_fit": len(placed)}, "spaces_per_unit": spaces_per_unit}
                             ev = devrules.evaluate(parcel, zone, sc, front_point, R); sc["checks"] = ev["checks"]; sc["summary"] = devrules.summarize(ev["checks"]); sc["unit_count"] = k
                             out.append(sc)
                             if sc["summary"]["counts"]["FAIL"] == 0: break         # fewer units of this arrangement are also compliant: keep the largest only
     return {"envelope": env, "boundaries": B, "candidates": out, "rules_used": sorted(k for k in R)}
 
-def best(parcel, zone, unit, access_width, front_point=None, R=None, spaces_per_unit=None) -> dict:
-    cs = candidates(parcel, zone, unit, access_width, front_point, R, spaces_per_unit); ok = [c for c in cs["candidates"] if c["summary"]["counts"]["FAIL"] == 0]; bad = [c for c in cs["candidates"] if c["summary"]["counts"]["FAIL"] > 0]
+def best(parcel, zone, unit, access_width, front_point=None, R=None, spaces_per_unit=None, exclusion=None, ols_modes=("end",)) -> dict:
+    cs = candidates(parcel, zone, unit, access_width, front_point, R, spaces_per_unit, exclusion, ols_modes); ok = [c for c in cs["candidates"] if c["summary"]["counts"]["FAIL"] == 0]; bad = [c for c in cs["candidates"] if c["summary"]["counts"]["FAIL"] > 0]
     ok.sort(key=lambda c: (-c["unit_count"], c["summary"]["counts"]["UNKNOWN"], c["summary"]["counts"]["NEEDS_PROFESSIONAL"]))
     bad.sort(key=lambda c: (c["summary"]["counts"]["FAIL"], -c["unit_count"]))
     return {**cs, "compliant": ok, "near_misses": bad[:3]}
