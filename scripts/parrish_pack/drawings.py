@@ -14,6 +14,7 @@ def F(sz, bold=False):
         except Exception: pass
     return ImageFont.load_default()
 W, H = 1800, 1250
+SHADE_KEY = True
 class View:
     def __init__(s, bounds, box):
         s.minx, s.miny, s.maxx, s.maxy = bounds; s.x0, s.y0, s.x1, s.y1 = box
@@ -49,10 +50,11 @@ def furniture(d, v, bounds, legend, note):
         elif kind == "line": d.line([x, y + 11, x + 36, y + 11], fill=col, width=5)
         elif kind == "dot": d.ellipse([x + 12, y + 3, x + 24, y + 15], fill=col)
         d.text((x + 50, y), txt, font=F(17), fill="black"); y += 36
-    d.text((x, y + 20), "Elevation (LiDAR 1 m DEM)", font=F(17, True), fill="black")
-    for i in range(10):
-        d.rectangle([x + i * 34, y + 50, x + (i + 1) * 34, y + 70], fill=ramp(32.0 + i * .26, 32.0, 34.4))
-    d.text((x, y + 74), "32.0 m", font=F(15), fill="black"); d.text((x + 270, y + 74), "34.4 m RL", font=F(15), fill="black")
+    if SHADE_KEY:
+        d.text((x, y + 20), "Elevation (LiDAR 1 m DEM)", font=F(17, True), fill="black")
+        for i in range(10):
+            d.rectangle([x + i * 34, y + 50, x + (i + 1) * 34, y + 70], fill=ramp(32.0 + i * .26, 32.0, 34.4))
+        d.text((x, y + 74), "32.0 m", font=F(15), fill="black"); d.text((x + 270, y + 74), "34.4 m RL", font=F(15), fill="black")
     # scale bar
     L = 10; a = v.p(bounds[0] + 2, bounds[1] + 2); b = v.p(bounds[0] + 2 + L, bounds[1] + 2); d.rectangle([a[0], a[1] - 8, b[0], a[1]], fill="black"); d.text((a[0], a[1] + 4), "10 m", font=F(16), fill="black")
     # north

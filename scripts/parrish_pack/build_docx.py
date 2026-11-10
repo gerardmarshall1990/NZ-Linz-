@@ -270,7 +270,7 @@ para(d, "Item (f) in E36.9(2) concerns coastal relocation and does not apply to 
 d.add_heading("Drawings and building consent pack", 1)
 para(d, "The resource consent comes first, then each unit needs a building consent. The engineer prepares the drawings and statements below so the building consent application can be lodged without rework. Confirm the lodgement requirements with Auckland Council's building consent team, including what they need for relocated buildings. [ENGINEER]", fill=ORG)
 table(d, ["Item", "Content", "Status"], [
- ("Site plan", "Boundaries, unit positions, flood extents, overland flow paths, FFL for each unit, parking and access, datum stated.", "Generated: Drawing 1 (below), DRAFT. FFLs in Table 6. No modelled flood extent."),
+ ("Site plan", "Boundaries, unit positions, flood extents, overland flow paths, FFL for each unit, parking and access, datum stated.", "Generated: Drawings 1 (site plan), 5 and 6 (Council flood plain and flood prone extents), DRAFT. FFLs in Table 6. No modelled depth or velocity."),
  ("Flood plan and sections", "1% AEP level drawn on site sections through each unit, showing the freeboard and the clear under-croft.", "Generated: Drawing 4, one indicative long section (L2-U1 at 0.9 m ASSUMED depth). Other sections by the engineer."),
  ("Pile layout plan", "Pile positions, sizes, embedment depths and setout dimensions.", "Generated: Drawing 3, positions only. Sizes and embedment PENDING."),
  ("Foundation details", "Pile-to-chassis connection, tie-downs, bracing, underfloor lattice or breakaway panels.", ""),
@@ -282,7 +282,7 @@ table(d, ["Item", "Content", "Status"], [
  ("Producer statements", "PS1 design from the CPEng. Council may also ask for PS2 design review.", ""),
  ("Natural hazard information", "The flood hazard assessment, answering Building Act ss71–73.", ""),
  ("Resource consent", "The decision and conditions, attached once issued.", "")], widths=[3.6, 8, 5.6], size=8)
-for f, cap in (("01_site_plan.png", "Drawing 1: site plan (indicative)"), ("02_flow_path_plan.png", "Drawing 2: flood and overland flow path plan"), ("03_pile_layout.png", "Drawing 3: indicative pile layout"), ("04_section.png", "Drawing 4: indicative section")):
+for f, cap in (("05_flood_plain.png", "Drawing 5: Council 1% AEP flood plain over the four lots (extent only, S2)"), ("06_flood_prone.png", "Drawing 6: Council flood prone area FPA 30836607 (extent only, S3)"), ("01_site_plan.png", "Drawing 1: site plan (indicative)"), ("02_flow_path_plan.png", "Drawing 2: flood and overland flow path plan"), ("03_pile_layout.png", "Drawing 3: indicative pile layout"), ("04_section.png", "Drawing 4: indicative section")):
     para(d, cap, bold=True); img(d, OUT / "drawings" / f, 17.4)
 # ---- hold points
 d.add_heading("Construction hold points and completion", 1)
