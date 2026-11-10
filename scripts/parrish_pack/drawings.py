@@ -66,14 +66,14 @@ def furniture(d, v, bounds, legend, note):
     d.rectangle([W - 400, H - 90, W - 20, H - 25], outline=(190, 0, 0), width=4); d.text((W - 385, H - 80), "DRAFT - NOT FOR CONSTRUCTION\nNot surveyed. Not engineer-checked.", font=F(15, True), fill=(190, 0, 0))
 def site_plan(L, runs, E):
     allp = [p for p in L.values()]; b = (min(p.bounds[0] for p in allp) - 12, min(p.bounds[1] for p in allp) - 12, max(p.bounds[2] for p in allp) + 12, max(p.bounds[3] for p in allp) + 12)
-    im, d, v = base("Drawing 1: Site plan (indicative, 8 x 60 m2 relocatables)", "2, 4, 6 and 8 Parrish Road, Sandringham. EPSG:2193 (NZTM). Layout is a screening result from this app, not a design.", b)
+    im, d, v = base("Drawing 1: Site plan (indicative, 10 x 60 m2 relocatables)", "2, 4, 6 and 8 Parrish Road, Sandringham. EPSG:2193 (NZTM). Layout is a screening result from this app, not a design.", b)
     for n, p in L.items():
         poly(d, v, p, outline=(0, 0, 0), width=4)
         c = p.centroid; cx, cy = v.p(c.x, c.y + 3); d.text((cx - 30, cy), f"Lot {n}", font=F(22, True), fill=(0, 0, 0))
     for g in ofp(b):
         for L2 in [g]:
             if True: d.line([v.p(x, y) for x, y in L2.coords], fill=(0, 60, 220), width=6)
-    for key, col in (("2+4|THAB|flood", (255, 235, 120)), ("6+8|MHU|flood", (255, 235, 120))):
+    for key, col in (("T10", (255, 235, 120)),):
         r = runs[key]
         if r.get("access_geom"):
             for g in ([r["access_geom"]] if isinstance(r["access_geom"], dict) else r["access_geom"]): poly(d, v, shape(g), fill=(200, 200, 200), outline=(90, 90, 90), width=2)

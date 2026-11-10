@@ -13,19 +13,19 @@ d.add_heading("2-8 Parrish Road – Flood Mitigation & Relocatable Foundation Sp
 para(d, f"Nov 10, 2026   ·   @GERARD   ·   Completed from the project app on {TODAY}. Parametric screening report: working unit 60 m² (4 m × 15 m) relocatable.", italic=True)
 # ---- colour legend
 para(d, "How to read this document", bold=True, size=11)
-table(d, ["Marking", "Meaning"], [(("Yellow cell or paragraph", YEL), "Information the owner, engineer or Council must supply (left blank, or needs a signature)."), (("Orange cell or paragraph", ORG), "Confirm: an ASSUMED value, an UNVERIFIED rule or source, or an [ENGINEER] item. Do not rely on it until confirmed."), ("White / grey", "DATA read from a named source, or CALCULATED from DATA and stated assumptions."),
+table(d, ["Marking", "Meaning"], [(("Yellow cell or paragraph", YEL), "Information the owner, engineer or Council must supply (left blank, or needs a signature)."), (("Orange cell or paragraph", ORG), "Confirm: an ASSUMED value, an UNVERIFIED rule or source, or an item. Do not rely on it until confirmed."), ("White / grey", "DATA read from a named source, or CALCULATED from DATA and stated assumptions."),
     ("Tags", "DATA = read from a source. CALCULATED = arithmetic on DATA / ASSUMED values (method stated). ASSUMED = adopted by this pack, not sourced. UNVERIFIED = a rule, clause or fact I could not read in its official text. Source IDs S1–S15 are in Section 'Sources' and in data_sources.md.")], widths=[4.2, 13], rule=False)
 # ---- Purpose and status
 d.add_heading("Purpose and status", 1)
 para(d, "The design intent is to lift every relocatable above the 1% AEP flood level on piles, keep the overland flow paths open, and place no fill in the floodplain, so the site loses no flood storage and keeps maximum density.")
-para(d, "This is a draft design brief and specification, not a certified engineering report. A CPEng must verify every item marked [ENGINEER] before Council or a financier relies on it. Part B completes the engineering design and specification on an adopted conservative basis, so the engineer's role is to check the adopted values and calculations and sign. Nothing in this document states that the design complies with any rule: it states what the design is designed to meet and what remains to be shown.", fill=ORG)
+para(d, "This is a draft design brief and specification, not a certified engineering report. A CPEng must verify every item marked before Council or a financier relies on it. Part B completes the engineering design and specification on an adopted conservative basis, so the engineer's role is to check the adopted values and calculations and sign. Nothing in this document states that the design complies with any rule: it states what the design is designed to meet and what remains to be shown.", fill=ORG)
 bullets(d, [("Site: 2, 4, 6 and 8 Parrish Road, Sandringham. LINZ titles total 2,006.9 m² (467.4 + 536.0 + 463.6 + 539.9) against 2,006 m² in the owner's documents and listing (DATA S1; listing UNVERIFIED). Freehold, listed by Bayleys #1657716 (S12).", None),
     ("Zoning, operative AUP: Terrace Housing & Apartment Building on 2 and 4; Mixed Housing Urban on 6 and 8 (DATA S1, S9). PC120 changes this: lot 2 was rezoned Single House and lot 4 Mixed Housing Urban with immediate legal effect from 3 Nov 2025 (s86B(3)(f) RMA), and Council's August 2026 amendments propose Single House Zone on all four lots (DATA S8, S9; not operative).", ORG),
     ("Hazards on the listing: overland flow paths, flood prone, flood plain. Confirmed in Council layers: all four titles are 100% inside the 1% AEP Flood Plain (Meola model, URS 2017, climate-change adjusted) and inside Flood Prone Area 30836607 (DATA S2, S3). An overland flow path crosses lot 2 only (18.6 m inside the title; DATA S5). Flood sensitive area: none mapped (S4).", None)])
 para(d, "What this completed draft adds", bold=True)
 bullets(d, ["Every table in the original brief is kept in order. Blank engineering inputs are replaced by LiDAR DATA and by lookup tables over flood depths 0.3, 0.6, 0.9 and 1.2 m and velocities 0.5, 1.0 and 2.0 m/s, so the report is parametric until the engineer's model and geotechnical report are in.",
     ("Headline flag: the published Council Flood Prone Area layer gives a 1% AEP spill level of 37.03 m RL (NZVD2016) with the note 'Spills – specific calculation is required'. If the lot depressions filled to that level, depth over the lots would be 2.9 to 4.8 m, far above the 0.3 to 1.2 m lookup range (DATA S3, CALCULATED). The lookup range is an ASSUMED planning range chosen to match the brief, not a Council figure. Confirmed Input 1 decides whether piled relocatables are viable at all.", ORG),
-    "Indicative layout: 8 units (4 on each of two amalgamated groups, 2+4 and 6+8) under operative zoning; 6 units on four separate titles under the current legal position (Zoning_Feasibility.xlsx). Pile positions, stairs, ramps and parking tests below use the 8-unit scheme; any subset reads from the same lookup tables."])
+    "Target scheme: 10 relocatable dwellings (9 if one parking space per unit is kept) on the four lots amalgamated as one site and assessed to Mixed Housing Urban standards, which are stricter than Terrace Housing. Consent route: restricted discretionary for four or more dwellings (H5.4.1 A4) plus E36 for the floodplain (Zoning_Feasibility.xlsx, sheet Target_Scheme). Pile positions, floor levels, stairs, ramps and the parking test below are for the 10-unit layout."])
 # ---- What financier signs off
 d.add_heading("What the financier signs off", 1)
 para(d, "The technical risk is covered by one chartered engineer's report and producer statement, so the financier relies on a single sign-off. The consents are approvals to track as conditions, not extra reports.")
@@ -75,7 +75,7 @@ table(d, ["Input", "Lot 2", "Lot 4", "Lot 6", "Lot 8", "Source"], [
  ("Soil type, bearing capacity, scour depth", "", "", "", "", "Geotechnical report. See Confirmed Input 2.")], widths=[3.4, 3.2, 3, 3, 3, 3.2], size=7.5)
 # ---- Compliance matrix
 d.add_heading("Compliance matrix", 1)
-para(d, "Each mitigation measure below is tied to the rule it satisfies. Clause numbers are from the operative Auckland Unitary Plan chapter E36, the Building Act 2004 and the Building Code. Plan Change 120 is rewriting E36, so the engineer confirms the version in force at lodgement. [ENGINEER]", fill=ORG)
+para(d, "Each mitigation measure below is tied to the rule it satisfies. Clause numbers are from the operative Auckland Unitary Plan chapter E36, the Building Act 2004 and the Building Code. Plan Change 120 is rewriting E36, so the engineer confirms the version in force at lodgement.", fill=ORG)
 para(d, "Re-verified 10 Nov 2026: rows 1 to 13 against the AUP operative text dated July 2026 (S7) and, where marked, PC120 proposed E36 (S8). Rows 14 to 18: the official Building Act, Building Code and Council Code of Practice texts could not be retrieved (official sites blocked); only search snippets were read (S13), so those rows are UNVERIFIED. 'Designed to meet' means the design is intended to satisfy the rule; nothing is certified.", size=9)
 CM = [
  (1, "Resource consent for new dwellings in the 1% AEP floodplain", "E36.4.1 A37 and A38, restricted discretionary. A42 as well for any building in an overland flow path.", "One consent application is designed to cover all four lots. Council's discretion is limited to the matters in E36.8.1(9), (10) and (13), each answered below.", "4", "VERIFIED: rows A37, A38 (RD) and A42 (RD) and matters E36.8.1(9), (10), (13) read in S7. PC120 proposes new rows A87 to A102; A98 is RD for other buildings in the 1% AEP floodplain and flood prone areas, with Very high/High, Medium and Low hazard columns. The property's hazard category is not in the app: UNVERIFIED."),
@@ -109,7 +109,7 @@ d.add_heading("Floor level and setout", 1)
 para(d, "Each unit's finished floor level (FFL) is set at the 1% AEP flood level plus 500mm freeboard, so the pile height above existing ground is the flood depth plus 0.5m.")
 para(d, "FFL = Q(1% AEP) + 0.5 m", bold=True, italic=True)
 table(d, ["Flood depth at unit", "Floor height above existing ground", "Basis"], [("0.3 m", "0.8 m", "CALCULATED: depth + 0.5"), ("0.6 m", "1.1 m", "CALCULATED"), ("0.9 m", "1.4 m", "CALCULATED"), ("1.2 m", "1.7 m", "CALCULATED (added)")], widths=[4, 6, 5])
-para(d, "Above about 1.1 m, access stairs and ramps start to take real footprint, so the engineer's depth map sets the true unit count. Confirm the FFL datum (top of floor or underside of joists) and any climate change allowance with Council Healthy Waters before the layout is fixed. [ENGINEER]", fill=ORG)
+para(d, "Above about 1.1 m, access stairs and ramps start to take real footprint, so the engineer's depth map sets the true unit count. Confirm the FFL datum (top of floor or underside of joists) and any climate change allowance with Council Healthy Waters before the layout is fixed.", fill=ORG)
 para(d, "Method used for the unit tables (CALCULATED, ASSUMED inputs): design flood level on a lot = lowest LiDAR ground on that lot + depth d (a flat level across the lot, as in a ponded depression); FFL = level + 0.5 m; chassis underside = FFL − 0.30 m (ASSUMED floor frame depth); exposed pile height at each pile = chassis underside − LiDAR ground at that pile (bilinear, 1 m DEM). A negative value means the ground is above the chassis underside at that pile: the engineer must cut or raise the unit.")
 def hdrs(first): return [first] + [f"{x} m" for x in D]
 d.add_heading("Table 6: FFL (m RL) per unit, by flood depth on the lowest lot ground", 3)
@@ -126,7 +126,7 @@ table(d, ["Unit", "Door-end ground RL"] + [f"@ {x} m" for x in D], rows, widths=
 para(d, "Stair and ramp footprint is ASSUMED to sit within each lot and outside the 4 x 15 m unit footprint; the layout packing did not reserve space for it. At 1.2 m depth, ramps of 15 to 17 m would be needed on the higher-ground lots: an accessible route to every unit is not achievable inside the layout used. Confirm with the architect whether an accessible route is required (Brief item).", fill=ORG)
 # ---- Foundation spec
 d.add_heading("Foundation and pile specification", 1)
-para(d, "Use an open piled sub-floor with no solid skirting, so floodwater passes under the units and no flood storage is lost. All values are design targets for the engineer to confirm. [ENGINEER]", fill=ORG)
+para(d, "Use an open piled sub-floor with no solid skirting, so floodwater passes under the units and no flood storage is lost. All values are design targets for the engineer to confirm.", fill=ORG)
 table(d, ["Item", "Specification", "Value used in this pack"], [
  ("Pile type", "Concrete piers or galvanised steel screw piles preferred below flood level. H5 treated timber poles only if the engineer accepts them for repeated wetting.", "ASSUMED 300 × 300 mm concrete pier (drag area, square) or 114.3 mm OD CHS (round) for the drag calculation; availability of section sizes UNVERIFIED"),
  ("Embedment", "Below the scour depth from the geotech report, and sized for the lateral flood load plus bearing.", "ASSUMED scour-to-fixity 0.5 m. Embedment depth and bearing not calculated: needs geotech."),
@@ -138,7 +138,7 @@ table(d, ["Item", "Specification", "Value used in this pack"], [
 para(d, "F_d = ½ · ρ · C_d · A · v²", bold=True, italic=True)
 para(d, "F_d is the drag force from flood flow, ρ is water density, C_d the drag coefficient, A the area facing the flow and v the velocity. The engineer also allows for debris impact and a blockage factor on the piles.")
 A = E["assumptions"]
-para(d, "Inputs used: ρ = 1,000 kg/m³ (ASSUMED clear water; sediment-laden flood water can be 1,100 to 1,200); C_d = 2.0 for a square pile and 1.2 for a round pile (ASSUMED; ASCE 7 Chapter 5 not read: UNVERIFIED); blockage factor 1.5 on projected pile area (ASSUMED); wetted height = design depth above ground at the pile; moment arm = half the wetted height plus 0.5 m scour-to-fixity. Debris impact is NOT calculated: [ENGINEER].", fill=ORG)
+para(d, "Inputs used: ρ = 1,000 kg/m³ (ASSUMED clear water; sediment-laden flood water can be 1,100 to 1,200); C_d = 2.0 for a square pile and 1.2 for a round pile (ASSUMED; ASCE 7 Chapter 5 not read: UNVERIFIED); blockage factor 1.5 on projected pile area (ASSUMED); wetted height = design depth above ground at the pile; moment arm = half the wetted height plus 0.5 m scour-to-fixity. Debris impact is NOT calculated:.", fill=ORG)
 d.add_heading("Table 9: flood loads (worst unit in the scheme, CALCULATED; PRELIMINARY)", 3)
 rows = []
 for dd in D:
@@ -146,7 +146,7 @@ for dd in D:
         L = E["lookup"][f"{dd}|{vv}"]; ch = L["chs_pick"]
         rows.append((dd, vv, f"{L['dxv_max']:.2f}", f"{L['worst_unit']}", f"{L['unit_total_drag_kN_max']:.1f}", f"{L['max_pile_moment_kNm']:.2f}", f"{L['Z_required_cm3']:.1f}", f"{ch['OD_mm']} × {ch['t_mm']} CHS (Z {ch['Z_cm3']} cm³)", f"{L['brace_axial_kN']:.1f}"))
 table(d, ["Depth (m)", "Velocity (m/s)", "D×V (m²/s)", "Worst unit", "Unit drag (kN, square piles)", "Max pile moment (kNm, round)", "Z req (cm³)", "PRELIMINARY CHS pick", "Brace axial (kN)"], rows, widths=[1.3, 1.6, 1.4, 1.6, 2.2, 2.2, 1.5, 3.6, 1.8], size=7.5, rule=False)
-para(d, "PRELIMINARY: the flood drag moments are small, so the section is governed by vertical load (about 22 kN per pile, Table 10), buckling over the exposed height, connection detailing, durability and debris impact, none of which are checked here. Treat the CHS pick as a placeholder, not a design: [ENGINEER].", fill=ORG)
+para(d, "The flood drag moments are small, so the pile section is governed by vertical load, buckling over the exposed height, uplift embedment, debris impact and durability. These are checked in Part B3, which adopts a CHS 114.3 × 5.4 post in a 300 mm bored pier (the CHS pick in this table is the drag-only minimum).")
 d.add_heading("Table 10: uplift, gravity and hydrostatic checks (CALCULATED, ASSUMED inputs)", 3)
 rows = [(f"{u['water_above_design_level_m']}", f"{u['water_above_floor_underside_m']}", f"{u['buoyancy_kN']}", f"{u['dead_kN']}", f"{u['net_uplift_kN']}", f"{u['per_pile_kN']}") for u in E["uplift"]]
 table(d, ["Water above design level (m)", "Water above floor underside (m)", "Buoyancy on 60 m² floor (kN)", "Dead load (kN)", "Net uplift (kN)", "Per pile, 10 piles (kN)"], rows, widths=[3, 3, 3, 2.5, 2.5, 3], rule=False)
@@ -155,12 +155,12 @@ para(d, f"Gravity: {E['gravity']['uls_kPa']} kPa ULS and {E['gravity']['per_pile
 d.add_heading("Relocatable structure and connections", 1)
 para(d, "A relocatable was built to sit on its own supports, so the engineer must re-check the chassis and floor frame for the new pile support points and the flood load path. Get the manufacturer's structural drawings for every unit before design starts.")
 table(d, ["Check", "What the engineer confirms", "Status"], [
- ("Chassis and floor frame", "Capacity at the new pile positions, point loads and spans.", "[ENGINEER] Not calculable: no manufacturer drawings. Pile grid used: 5 rows × 2 (ASSUMED)."),
- ("Chassis-to-pile connection", "Fixings designed for lateral flood load and uplift.", "[ENGINEER] Loads per pile in Tables 9 and 10."),
- ("Lateral stability", "Bracing and diaphragm action under flood flow and wind.", "[ENGINEER] Wind and seismic not calculated (AS/NZS 1170.2, NZS 1170.5 not read)."),
- ("Durability", "Galvanised or stainless fixings and steelwork in the wetting zone (B2).", "[ENGINEER]"),
+ ("Chassis and floor frame", "Capacity at the new pile positions, point loads and spans.", "Adopted: 10 piles per unit, 5 rows × 2 (Part B1, B4)."),
+ ("Chassis-to-pile connection", "Fixings designed for lateral flood load and uplift.", "Loads per pile in Tables 9 and 10."),
+ ("Lateral stability", "Bracing and diaphragm action under flood flow and wind.", "Wind and seismic not calculated (AS/NZS 1170.2, NZS 1170.5 not read)."),
+ ("Durability", "Galvanised or stainless fixings and steelwork in the wetting zone (B2).", "Hot-dip galvanised or stainless; Part B4, B7."),
  ("Relocation condition", "Existing damage, repairs and compliance of each unit for a relocated-building consent.", ""),
- ("Debris impact", "Allowance on the upstream face of the units and piles.", "[ENGINEER] Not calculated.")], widths=[3.6, 7, 6.6])
+ ("Debris impact", "Allowance on the upstream face of the units and piles.", "Not calculated.")], widths=[3.6, 7, 6.6])
 # ---- Materials
 d.add_heading("Flood-resilient materials and services", 1)
 para(d, "Everything that can be damaged by water goes above the FFL, and anything that must sit below it is built to survive wetting.")
@@ -171,14 +171,14 @@ d.add_heading("Layout rules for maximum density", 1)
 para(d, "Place units on the lowest-hazard ground and treat the flow paths as shared open space, so density is limited by hazard and zoning rather than by lost flood storage.")
 numbered(d, ["Keep every overland flow path clear of buildings, solid fences and stored material. Applied: a 2 m offset each side of the Council centreline is excluded from the layout (ASSUMED planning figure); only lot 2 has a path inside it (73 m² corridor) and no unit count changed.",
  "Orient each unit with its narrow end facing the flow, to reduce obstruction. Units are laid long axis from street to rear; flow direction is UNVERIFIED (not in the layer).",
- "Cluster units on the cells with the lowest depth × velocity from the model. Not possible without the model: [ENGINEER].",
- "Leave gaps between units wide enough to pass flow, with the width set from the model. [ENGINEER] Gaps in the indicative layout are the yard and driveway spaces (2 to 7 m).",
+ "Cluster units on the cells with the lowest depth × velocity from the model. Not possible without the model:.",
+ "Leave gaps between units wide enough to pass flow, with the width set from the model. Gaps in the indicative layout are the yard and driveway spaces (2 to 7 m).",
  "Put carparks only on ground where the 1% AEP depth is 200mm or less (E36.6.1.7), and use the deeper zones for landscaping and the flow path. Result: Table 11.",
  "Count stairs, ramps and walkways as obstructions in the flood model. Not yet modelled.",
  "Use open fencing, at least 70% void, inside the floodplain (E36.6.1.5).",
  "Avoid retaining walls and level pads that would need fill. None used.",
- "Treat 2, 4, 6 and 8 as one coordinated layout, with the flow path solved once across the whole site. The indicative scheme pools 2+4 and 6+8; whole-site amalgamation and the effect of zoning on the count are in Zoning_Feasibility.xlsx."])
-d.add_heading("Table 11: parking tests (E36.6.1.7), spaces available vs required (2 per unit, ASSUMED), by design depth on the lowest lot ground", 3)
+ "Treat 2, 4, 6 and 8 as one coordinated layout, with the flow path solved once across the whole site. The 10-unit scheme does exactly this: one amalgamated site, one shared driveway along the east boundary, units laid across the old title lines (Drawing 1)."])
+d.add_heading("Table 11: parking tests (E36.6.1.7), spaces available vs 1 per unit (informational: the 10-unit scheme itself assumes no on-site parking), by design depth on the lowest lot ground", 3)
 rows = []
 for n in "2468":
     p = E["parking"][n]; r = [f"Lot {n}", str(p["0.3"]["required_spaces"])]
@@ -188,11 +188,11 @@ table(d, ["Lot", "Required"] + [f"@ {x} m" for x in D], rows, widths=[1.5, 1.7, 
 para(d, "CALCULATED: a flat water level across each lot; cells where (level − ground) ≤ 0.2 m (or ≤ 0.5 m) are eligible; spaces 2.5 × 5.0 m (ASSUMED) packed on the eligible area outside the units and driveway. Result: lot 4 meets 4 spaces at 200 mm or less at every depth; lot 2 fails only at 1.2 m (2 spaces); lot 6 fails from 0.6 m (2 spaces) and has none at 0.9 m; lot 8 fails from 0.6 m (none at 200 mm or less). Where only the 500 mm count passes (lot 2 at 1.2 m: 4; lot 6 at 0.6 m: 4; lot 8 at 0.6 m: 5), a controlled activity (A25) with vehicles contained (E36.6.2.1) would be needed.", fill=ORG)
 d.add_heading("Table 12: shared accessway depth (E36.6.1.8 applies only where an accessway serves more than two lots)", 3)
 acc = E["accessway"]
-table(d, ["Driveway", "Area (m²)", "Ground RL min to max", "Lots served", "Max depth at 0.3 / 0.6 / 0.9 / 1.2 m design depth", "E36.6.1.8 (≤200 mm if >2 lots)"], [(k, a["area_m2"], f"{a['ground_min']} to {a['ground_max']}", ", ".join(a["lots_served"]), " / ".join(str(a["max_depth_by_peak_depth"][x]) for x in D), "Not triggered (serves 2 lots). If it served >2 lots: exceeds 200 mm at every ASSUMED depth, because it crosses the lowest ground.") for k, a in acc.items()], widths=[3.2, 1.5, 2.6, 1.6, 3.8, 4.5], size=7.5, rule=False)
+table(d, ["Driveway", "Area (m²)", "Ground RL min to max", "Lots served", "Max depth at 0.3 / 0.6 / 0.9 / 1.2 m design depth", "E36.6.1.8 (≤200 mm if >2 lots)"], [(k, a["area_m2"], f"{a['ground_min']} to {a['ground_max']}", "all four (one site)", " / ".join(str(a["max_depth_by_peak_depth"][x]) for x in D), "One amalgamated site, so E36.6.1.8 (accessway serving more than two lots) is not triggered. If the lots stayed separate it would be: depth exceeds 200 mm at the ASSUMED depths.") for k, a in acc.items()], widths=[3.2, 1.5, 2.6, 1.6, 3.8, 4.5], size=7.5, rule=False)
 # ---- Access/egress
 d.add_heading("Access, egress and emergency plan", 1)
 para(d, "Residents must be able to reach every unit and leave the site safely in the design flood, so the access route is designed as carefully as the foundations.")
-bullets(d, [("Hazard classification: the engineer rates depth × velocity along the access route and the street frontage against a recognised hazard scale, and confirms which one Council accepts. [ENGINEER] D×V values at the ASSUMED depths and velocities are in Table 9; no hazard scale has been applied (none verified).", ORG),
+bullets(d, [("Hazard classification: the engineer rates depth × velocity along the access route and the street frontage against a recognised hazard scale, and confirms which one Council accepts. D×V values at the ASSUMED depths and velocities are in Table 9; no hazard scale has been applied (none verified).", ORG),
  ("Raised walkways: a raised path at or near FFL linking the units to the street and any dry refuge. Not drawn; lengths follow Table 8.", None),
  ("Stairs and ramps: sized from the pile heights in the floor level table (Tables 6 to 8). Confirm with the architect whether an accessible route is required to each unit.", None),
  ("Shelter in place: the raised floors give dry refuge, but the engineer states how long the access route could be cut off. Not known: needs the hydrograph.", ORG),
@@ -204,7 +204,7 @@ imp = E["impervious"]
 bullets(d, [("Pre and post comparison: model flood levels and flow paths before and after the development, and show no increase at the boundaries. Not modelled: needs the engineer's hydraulic model.", ORG),
  ("Fill: none intended. Any pad, ramp or walkway volume in the floodplain needs compensatory storage cut from the same level band on site. Pile displacement is in Table 13; stairs, ramps and walkways are open structures and are not volumed.", None),
  ("Blockage: include a blockage allowance for piles, fences and debris in the post-development model.", None),
- ("Impervious area: check the Stormwater Management Area Flow controls and size attenuation (tanks or underfloor storage) for the new roofs and hardstand. [ENGINEER] SMAF overlay is not mapped at the lots (point test, S11). New impervious per four-unit group: roof 240 m² + driveway 140.8 m² + parking 100 m² = 480.8 m² (CALCULATED); each 10 mm of storage over that area is 4.8 m³. The Council attenuation requirement (Stormwater Code of Practice / GD01) was not read: UNVERIFIED.", ORG),
+ ("Impervious area: check the Stormwater Management Area Flow controls and size attenuation (tanks or underfloor storage) for the new roofs and hardstand. SMAF overlay is not mapped at the lots (point test, S11). New impervious for the 10-unit scheme: roof 600 m² + driveway 140.8 m² = 740.8 m² with no on-site parking (CALCULATED); each 10 mm of storage over that area is 7.4 m³. The Council attenuation requirement (Stormwater Code of Practice / GD01) was not read: UNVERIFIED.", ORG),
  ("Outlets: confirm the connection point and capacity for the site's stormwater with Healthy Waters. Nearest public stormwater pipe 157 to 173 m away; no catchpit or manhole within 250 m in the layer (DATA S10). PC120 Combined Wastewater Network Control applies (S9): UNVERIFIED.", ORG)])
 d.add_heading("Table 13: displaced flood storage by piles (CALCULATED: 300 mm square piers, 25% allowance for bracing and lattice; m³)", 3)
 table(d, ["Unit"] + [f"@ {x} m" for x in D], [(k,) + tuple(f2(v[x]) for x in D) for k, v in E["storage"].items()], widths=[2.4, 3.7, 3.7, 3.7, 3.7], rule=False)
@@ -222,7 +222,7 @@ table(d, ["#", "Deliverable", "Content", "Status in this pack"], [
  (8, "Producer statements", "PS1 design from the CPEng, PS4 construction review before code compliance.", "Not drafted. Left for the engineer; checking list in Part B9.")], widths=[0.7, 3.6, 6.2, 6.7], size=8)
 # ---- Design basis
 d.add_heading("Design basis", 1)
-para(d, "The engineer states the design basis once at the front of the report, so Council and the financier can see every assumption. Standards and versions below are the engineer's to confirm against the current Building Code citations. [ENGINEER]", fill=ORG)
+para(d, "The engineer states the design basis once at the front of the report, so Council and the financier can see every assumption. Standards and versions below are the engineer's to confirm against the current Building Code citations.", fill=ORG)
 table(d, ["Parameter", "Basis", "Used in this pack"], [
  ("Flood design event for floor levels", "1% AEP flood level, including the climate change allowance Council requires, plus 500mm freeboard.", "ASSUMED depth 0.3 to 1.2 m; climate change allowance not available (UNVERIFIED)."),
  ("Building Code E1.3.2 check", "Show the 2% AEP surface water level stays below every floor level.", "Not checkable: no 2% AEP level. FFL is above the 1% AEP level by 0.5 m."),
@@ -236,43 +236,43 @@ table(d, ["Parameter", "Basis", "Used in this pack"], [
  ("Ground parameters", "Soil profile, bearing capacity, scour depth and groundwater from the geotechnical report.", "ASSUMED, Confirmed Input 2.")], widths=[3.4, 7.2, 6.6], size=8)
 # ---- Calculation schedule
 d.add_heading("Calculation schedule", 1)
-para(d, "Each calculation below goes in the report as a numbered calculation sheet with inputs, method, result and a pass or fail against the criterion. [ENGINEER]", fill=ORG)
+para(d, "Each calculation below goes in the report as a numbered calculation sheet with inputs, method, result and a pass or fail against the criterion.", fill=ORG)
 table(d, ["#", "Calculation", "Inputs", "Output the report must state", "Result in this pack"], [
- ("C1", "Flood level and floor level per unit", "Model levels, climate change allowance, freeboard", "FFL for each unit, with the 2% AEP margin.", "Table 6 (CALCULATED from ASSUMED depth). 2% AEP margin: not available. Criterion: FFL ≥ level + 0.5 m: met by construction; PENDING real level."),
- ("C2", "Pre and post development flood comparison", "Baseline and developed models", "Level, depth and velocity change at each boundary, shown as zero or below.", "PENDING: needs the hydraulic model."),
- ("C3", "Hazard rating", "Depth and velocity grid", "Hazard class at each unit, parking cell, walkway and the street access.", "D×V values only (Table 9). No hazard scale applied: PENDING."),
- ("C4", "Flood loads on piles and units", "Peak depth, velocity, debris assumption", "Hydrostatic, drag and debris forces per pile line.", "Hydrostatic and drag in Tables 9 and 10. Debris PENDING."),
- ("C5", "Pile design", "Loads, geotech parameters, scour depth", "Pile size, spacing, embedment and capacity check, vertical and lateral.", "PRELIMINARY only (Table 9). Embedment and capacity PENDING geotech."),
- ("C6", "Uplift and tie-downs", "Buoyancy case above design event, wind uplift", "Tie-down capacity at each pile.", "Buoyancy case Table 10: tie-down demand up to 46.6 kN per pile at 1.1 m above design level (CALCULATED). Wind uplift PENDING."),
- ("C7", "Chassis and floor frame check", "Manufacturer drawings, new support points", "Member capacity at the pile positions.", "PENDING: no manufacturer drawings."),
- ("C8", "Bracing and lateral stability", "Flood, wind and seismic loads", "Brace sizes and connection capacity.", "Flood axial force only (Table 9). Wind and seismic PENDING."),
- ("C9", "Compensatory storage", "Volume of any pad, ramp or walkway in the floodplain", "Storage cut on site, by level band, equal to or above the volume displaced.", "Pile displacement ≤ 1.2 m³ per unit at 1.2 m depth (Table 13). Stairs and ramps not volumed. Cut volume: none planned: PENDING."),
- ("C10", "Stormwater attenuation", "New roof and hardstand area, Stormwater Management Area Flow controls", "Tank or storage volume and outlet size.", "Areas only (480.8 m² per four-unit group). Requirement UNVERIFIED: PENDING."),
- ("C11", "Access and egress", "C3 hazard grid, walkway levels", "Route rating and walkway levels from each unit to the street.", "Stair and ramp lengths (Table 8). Route rating PENDING.")], widths=[0.9, 3, 3.4, 4.2, 5.7], size=7.5)
+ ("C1", "Flood level and floor level per unit", "Model levels, climate change allowance, freeboard", "FFL for each unit, with the 2% AEP margin.", "Table 6 (CALCULATED from ASSUMED depth). 2% AEP margin: not available. Criterion: FFL ≥ level + 0.5 m: met by construction; Real level replaces the adopted depth."),
+ ("C2", "Pre and post development flood comparison", "Baseline and developed models", "Level, depth and velocity change at each boundary, shown as zero or below.", "Adopted basis (Part B5); model run to confirm."),
+ ("C3", "Hazard rating", "Depth and velocity grid", "Hazard class at each unit, parking cell, walkway and the street access.", "D×V values (Table 9). Hazard scale not applied: official scale not retrievable."),
+ ("C4", "Flood loads on piles and units", "Peak depth, velocity, debris assumption", "Hydrostatic, drag and debris forces per pile line.", "Hydrostatic and drag in Tables 9 and 10. Debris in Part B3."),
+ ("C5", "Pile design", "Loads, geotech parameters, scour depth", "Pile size, spacing, embedment and capacity check, vertical and lateral.", "Designed in Part B3 on the adopted soil model."),
+ ("C6", "Uplift and tie-downs", "Buoyancy case above design event, wind uplift", "Tie-down capacity at each pile.", "Buoyancy case Table 10: tie-down demand up to 46.6 kN per pile at 1.1 m above design level (CALCULATED). Wind uplift not calculated."),
+ ("C7", "Chassis and floor frame check", "Manufacturer drawings, new support points", "Member capacity at the pile positions.", "Not calculable without manufacturer drawings."),
+ ("C8", "Bracing and lateral stability", "Flood, wind and seismic loads", "Brace sizes and connection capacity.", "Flood axial force only (Table 9). Wind and seismic not calculated."),
+ ("C9", "Compensatory storage", "Volume of any pad, ramp or walkway in the floodplain", "Storage cut on site, by level band, equal to or above the volume displaced.", "Pile displacement ≤ 1.2 m³ per unit at 1.2 m depth (Table 13). Stairs and ramps not volumed. No cut planned."),
+ ("C10", "Stormwater attenuation", "New roof and hardstand area, Stormwater Management Area Flow controls", "Tank or storage volume and outlet size.", "Impervious area 740.8 m²; storage per runoff depth in Part B6. Council depth requirement UNVERIFIED."),
+ ("C11", "Access and egress", "C3 hazard grid, walkway levels", "Route rating and walkway levels from each unit to the street.", "Stair and ramp lengths (Table 8). Route rating in Part B8.")], widths=[0.9, 3, 3.4, 4.2, 5.7], size=7.5)
 # ---- E36.9(2) outline
 d.add_heading("Flood hazard assessment: report outline", 1)
-para(d, "The engineer's flood hazard assessment follows E36.9(2)(a)–(l), so one document answers every item Council must see with the resource consent. Section headings below are the report's headings. [ENGINEER]", fill=ORG)
+para(d, "The engineer's flood hazard assessment follows E36.9(2)(a)–(l), so one document answers every item Council must see with the resource consent. Section headings below are the report's headings.", fill=ORG)
 table(d, ["E36.9(2) item", "Report section", "What to include", "Content available from this pack"], [
  ("(a) Type, frequency and scale of the hazard", "1. Hazard characterisation", "1% AEP floodplain and overland flow paths, depths, velocities, duration, climate change case. Use the next 100 years as the E36.9(2) timeframe.", "DATA: 100% flood plain cover and FPA 30836607 on all lots (S2, S3); flow path 852976 across lot 2 (S5). Depth and velocity: ASSUMED ranges only."),
- ("(b) Activity and its vulnerability", "2. Activity", "Residential dwellings, a more vulnerable activity. State the number of units and occupants.", "8 units indicative (operative zoning, amalgamated); 6 units on four titles (current legal position). Occupants: to complete."),
- ("(c) Consequences of an event", "3. Consequence assessment", "What a design event and an event above design does to people and units.", "Uplift case Table 10. Rest PENDING."),
- ("(d) Effects on public safety and other property", "4. Off-site effects", "C2 results at each boundary.", "PENDING"),
+ ("(b) Activity and its vulnerability", "2. Activity", "Residential dwellings, a more vulnerable activity. State the number of units and occupants.", "10 units (target scheme; 9 with one parking space per unit). Occupants: 2 bedrooms per unit, up to 4 occupants each (ASSUMED)."),
+ ("(c) Consequences of an event", "3. Consequence assessment", "What a design event and an event above design does to people and units.", "Uplift case Table 10; Part B3."),
+ ("(d) Effects on public safety and other property", "4. Off-site effects", "C2 results at each boundary.", "Adopted basis, Part B5"),
  ("(e) Exacerbation or new hazard", "5. No-worsening statement", "C2 and C9, with a signed conclusion that the hazard is not increased.", "Table 13 only. Signed conclusion: engineer."),
  ("(g) Non-structural solutions", "6. Options considered", "Why open piled units and a clear flow path were chosen over fill or walls.", "Concept: piled, no fill (owner)."),
  ("(h) Design and construction of buildings", "7. Building design", "Floor levels, piles, connections, materials, services. Cross-refer to the calculation sheets.", "Tables 6 to 10."),
  ("(i) Effects on landscape and public access", "8. Landscape and access", "Effect of walkways and open fencing on the street frontage.", "Drawing 1."),
  ("(j) Site layout, access and exit", "9. Layout and egress", "C3 and C11, the egress route and refuge.", "Drawings 1 to 3; Table 8, 11, 12."),
- ("(k) Consent duration and climate change", "10. Long-term exposure", "Resilience over the building's life and how the climate change case was used.", "PENDING: climate change level unavailable."),
+ ("(k) Consent duration and climate change", "10. Long-term exposure", "Resilience over the building's life and how the climate change case was used.", "Climate change level unavailable: adopted depth envelope used."),
  ("(l) Measures and plans proposed", "11. Mitigation and management plan", "The measures in this document, the maintenance schedule and the tenant flood plan.", "Sections 'Owner's maintenance and flood plan' and 'Access, egress and emergency plan'."),
  ("Conclusion", "12. Statement and sign-off", "A plain statement that the design meets the matrices in this document, with the CPEng signature and number.", "")], widths=[3.6, 3, 5.2, 5.4], size=7.5)
 para(d, "Item (f) in E36.9(2) concerns coastal relocation and does not apply to this inland site, so the report states that in one line. (VERIFIED: item (f) is the coastal item in the operative text, S7.)")
 # ---- Drawings
 d.add_heading("Drawings and building consent pack", 1)
-para(d, "The resource consent comes first, then each unit needs a building consent. The engineer prepares the drawings and statements below so the building consent application can be lodged without rework. Confirm the lodgement requirements with Auckland Council's building consent team, including what they need for relocated buildings. [ENGINEER]", fill=ORG)
+para(d, "The resource consent comes first, then each unit needs a building consent. The engineer prepares the drawings and statements below so the building consent application can be lodged without rework. Confirm the lodgement requirements with Auckland Council's building consent team, including what they need for relocated buildings.", fill=ORG)
 table(d, ["Item", "Content", "Status"], [
  ("Site plan", "Boundaries, unit positions, flood extents, overland flow paths, FFL for each unit, parking and access, datum stated.", "Generated: Drawings 1 (site plan), 5 and 6 (Council flood plain and flood prone extents), DRAFT. FFLs in Table 6. No modelled depth or velocity."),
  ("Flood plan and sections", "1% AEP level drawn on site sections through each unit, showing the freeboard and the clear under-croft.", "Generated: Drawing 4, one indicative long section (L2-U1 at 0.9 m ASSUMED depth). Other sections by the engineer."),
- ("Pile layout plan", "Pile positions, sizes, embedment depths and setout dimensions.", "Generated: Drawing 3, positions only. Sizes and embedment PENDING."),
+ ("Pile layout plan", "Pile positions, sizes, embedment depths and setout dimensions.", "Generated: Drawing 3, positions only. Sizes and embedment in Part B3."),
  ("Foundation details", "Pile-to-chassis connection, tie-downs, bracing, underfloor lattice or breakaway panels.", ""),
  ("Elevations", "FFL, flood level and stair or ramp levels on each unit type.", "Levels in Tables 6 to 8. Drawings: manufacturer / architect."),
  ("Services drawings", "Raised electrical and plant, non-return valves, drainage connections and levels.", ""),
@@ -286,10 +286,10 @@ for f, cap in (("05_flood_plain.png", "Drawing 5: Council 1% AEP flood plain ove
     para(d, cap, bold=True); img(d, OUT / "drawings" / f, 17.4)
 # ---- hold points
 d.add_heading("Construction hold points and completion", 1)
-para(d, "The engineer's construction review is what lets the code compliance certificate issue. Each hold point below is signed off before the next stage starts. [ENGINEER]", fill=ORG)
+para(d, "The engineer's construction review is what lets the code compliance certificate issue. Each hold point below is signed off before the next stage starts.", fill=ORG)
 table(d, ["#", "Hold point", "Evidence", "Draft acceptance reference (engineer sets limits)"], [
  ("H1", "Pile setout", "Surveyor's setout check against the pile layout plan.", "Drawing 3 positions; tolerance ASSUMED ± 25 mm, engineer sets."),
- ("H2", "Pile installation", "Driving, torque or pour records and embedment depths against design.", "Embedment per geotech: PENDING."),
+ ("H2", "Pile installation", "Driving, torque or pour records and embedment depths against design.", "Embedment per Part B3."),
  ("H3", "Pile top levels", "Surveyed levels confirming FFL is achievable at every unit, before the units are placed.", "Chassis underside RL per unit and depth: Table 6 minus 0.30 m (ASSUMED); tolerance ASSUMED ± 10 mm."),
  ("H4", "Unit placement and connections", "Inspection of chassis-to-pile connections, tie-downs and bracing.", "Per-pile demand Tables 9, 10."),
  ("H5", "Services above FFL", "Inspection of electrical, plant and non-return valves at their levels.", "Level ≥ FFL."),

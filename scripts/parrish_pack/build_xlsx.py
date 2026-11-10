@@ -30,7 +30,7 @@ rd = [("2-8 Parrish Road, Sandringham: zoning and feasibility workbook", B), (f"
  ("C. PC120 as notified 3 Nov 2025: 2 SHZ, 4 MHU, 6 THAB, 8 THAB. Not operative except where immediate legal effect.", None),
  ("D. PC120 as amended 27 Aug 2026 (proposed): all four Single House Zone. Not operative. Decisions expected mid-2027.", None), ("", None),
  ("Assumptions that change the numbers (edit the yellow cells to rerun the formulas)", B),
- ("Unit = 60 m2 relocatable, 4 m x 15 m, height 3.8 m (ASSUMED). 2 car spaces per unit (ASSUMED default). 3.5 m shared driveway (ASSUMED; E27 width test). Existing buildings on lots 2 and 6 assumed removed (ASSUMED).", None),
+ ("TARGET SCHEME (see sheet Target_Scheme): all four lots amalgamated as one site assessed to Mixed Housing Urban standards (stricter than THAB): 9 dwellings with 1 parking space per unit, 10 with no on-site parking and outdoor living met by 16 m2 ground + 5 m2 raised deck. The other sheets are the regime-by-regime comparison with 2 spaces per unit.", None), ("Unit = 60 m2 relocatable, 4 m x 15 m, height 3.8 m (ASSUMED). 2 car spaces per unit in the comparison sheets (ASSUMED default; the plan sets no minimum, E27 Table T17). 3.5 m shared driveway (ASSUMED; E27 width test). Existing buildings on lots 2 and 6 assumed removed (ASSUMED).", None),
  ("Flow path clearance: 2 m each side of the Council centreline (ASSUMED planning offset, not a Council rule). Flood-affected land is NOT excluded from building: units are piled over the floodplain (the owner's concept).", None),
  ("Layout fit is a packing result in the app, not an architect's design. Dwelling counts must be confirmed by a planner.", None), ("", None),
  ("Where one title spans lots whose zones differ (regimes B, C), the most restrictive zone sets the dwelling cap for that whole site: conservative, UNVERIFIED.", None), ("Colour key: yellow = user input / supply, orange = confirm or UNVERIFIED, grey = DATA from sources, white = CALCULATED.", None)]
@@ -157,7 +157,7 @@ rec = [("Per-lot fit, 4x15 m (lots 2 / 4 / 6 / 8)", f"{fit('2|THAB|flood')} / {f
        ("Sum of four lots on separate titles (regime A)", f"=SUM(E6:E9)".replace("E6:E9", "B7:B7") if False else "6", "1 + 2 + 1 + 2.", "CALCULATED"),
        ("2+4 amalgamated vs 2 and 4 separate", f"{fit('2+4|THAB|flood')} vs {fit('2|THAB|flood')+fit('4|THAB|flood')}", "Sharing one 3.5 m driveway and one yard set removes boundary yards between lots, so the pooled site fits one more unit. Needs boundary change or easements (UNVERIFIED consent route).", "CALCULATED S14"),
        ("6+8 amalgamated vs 6 and 8 separate", f"{fit('6+8|MHU|flood')} vs {fit('6|MHU|flood')+fit('8|MHU|flood')}", "Same effect as above.", "CALCULATED S14"),
-       ("All four, operative zones (2+4 THAB, 6+8 MHU)", f"{fit('2+4|THAB|flood')+fit('6+8|MHU|flood')}", "This is the 8-unit scheme used for the engineering report. Coverage caps (50% / 45%) are not binding: 8 x 60 = 480 m2 is 24% of 2,007 m2.", "CALCULATED"),
+       ("All four, operative zones (2+4 THAB, 6+8 MHU), 2 spaces per unit", f"{fit('2+4|THAB|flood')+fit('6+8|MHU|flood')}", "This is the earlier 8-unit comparison case (superseded as the headline by sheet Target_Scheme: 9 with 1 space per unit, 10 with none). The difference is the parking assumption (2 per unit) and treating lots as separate groups. Coverage caps (50% / 45%) are not binding: 8 x 60 = 480 m2 is 24% of 2,007 m2.", "CALCULATED"),
        ("All four amalgamated, Single House Zone (regime D)", f"{fit('2+4+6+8|SHZ|flood')} physical, 2 enabled", "The layout fits 4 but SHZ enables 1 dwelling + 1 minor dwelling per site. One amalgamated site therefore delivers 2 under restricted discretionary; four separate titles deliver up to 1+1+1+1 = 4 only if each lot fits a unit (it does, 1 each). A fifth unit on the 2,007 m2 site is blocked by vehicle access: 5 units need more than 9 car spaces so the driveway becomes a 5.5 m corridor against a 3.5 m input.", "CALCULATED S14, S7"),
        ("Does flow-path clearance change any count?", "No", "With a 2 m offset each side of the Council centreline (lot 2 only: 73 m2 corridor), flood-clear fit equals the fit ignoring flood on all 34 runs. Flood limits the project by pile height, access and consent, not by lost floor space.", "CALCULATED S14"),
        ("Coverage cap vs fit", "Coverage never binds", "Smallest coverage cap is SHZ lot 2: 35% x 467 m2 / 60 = 2.7, rounds to 2, vs fit 1. Fit binds first everywhere.", "CALCULATED"),
@@ -167,6 +167,51 @@ for r_ in rec: ws4.append(list(r_))
 ws4["B4"] = "=Scenarios!E2+Scenarios!E3+Scenarios!E4+Scenarios!E5"
 for row in ws4.iter_rows(min_row=2):
     for c in row: c.alignment = Alignment(wrap_text=True, vertical="top")
+
+# ---------------- Target scheme
+RT = RUNS
+wt = wb.create_sheet("Target_Scheme", 1)
+head(wt, 1, ["Item", "T9: 9 dwellings", "T10: 10 dwellings", "Basis"], [58, 22, 22, 90])
+rows = [
+ ("Site: lots 2+4+6+8 amalgamated, one site, MHU standards applied", "one site", "one site", "ASSUMED. MHU standards (45% coverage, 2.5 m front yard, 20 m2 outdoor living) are stricter than THAB, so they are the safe physical test for lots 2 and 4. Units straddle the old title lines, so amalgamation (or cross-lease/unit title) is needed: UNVERIFIED route."),
+ ("Dwellings fitted by the app's layout engine (flood-clear, 2 m flow-path offset)", RT["T9"]["units"], RT["T10"]["units"], "CALCULATED S14 (scenarios in scenario_runs.json: T9, T10)"),
+ ("Parking spaces per unit (on site)", 1, 0, "ASSUMED. AUP E27 sets no minimum parking for residential (Table T17 'no minimum or maximum', read in S7). T10 has none: tenants rely on street parking."),
+ ("Outdoor living: ground m2 + raised deck m2 per unit", "20 + 0", "16 + 5", "H5.6.14(1): 20 m2 may be ground (min 4 m dimension) and/or balcony/patio/terrace (min 5 m2, 1.8 m). T10 uses a 4 x 4 m ground space plus a 5 m2 deck on the piled floor level. UNVERIFIED whether Council accepts a deck at piled floor level as 'patio/balcony'."),
+ ("Site area m2", "=Lots!E7", "=Lots!E7", "DATA S1"),
+ ("Built floor area m2 (units x 60)", "=B3*Rules!$B$9", "=C3*Rules!$B$9", "CALCULATED"),
+ ("Building coverage % (decks add up to 5 m2 each in T10)", "=B7/B6*100/1", "=(C7+5*C3)/C6*100", "CALCULATED"),
+ ("MHU building coverage limit %", "=Rules!C3", "=Rules!C3", "H5.6.10 (S7)"),
+ ("Coverage test", '=IF(B8<=B9,"PASS","FAIL")', '=IF(C8<=C9,"PASS","FAIL")', "CALCULATED"),
+ ("Driveway / access m2", RT["T9"]["access_m2"], RT["T10"]["access_m2"], "CALCULATED S14 (3.5 m strip along the east boundary; walkways to each unit not drawn)"),
+ ("Parking m2 (spaces x 12.5)", "=B3*B4*Rules!$B$11", "=C3*C4*Rules!$B$11", "CALCULATED"),
+ ("Impervious m2 (roof + access + parking + deck 0 (open))", "=B7+B11+B12", "=C7+C11+C12", "CALCULATED; paths and paving not drawn: add"),
+ ("Impervious % of site", "=B13/B6*100", "=C13/C6*100", "CALCULATED"),
+ ("MHU impervious limit %", "=Rules!D3", "=Rules!D3", "H5.6.9 (S7)"),
+ ("Impervious test", '=IF(B14<=B15,"PASS","FAIL")', '=IF(C14<=C15,"PASS","FAIL")', "CALCULATED"),
+ ("Landscaped % (approx 100 - impervious)", "=100-B14", "=100-C14", "CALCULATED approximation; the AUP measures landscaped area directly"),
+ ("MHU landscaped minimum %", "=Rules!E3", "=Rules!E3", "H5.6.11 (S7)"),
+ ("Landscaped test", '=IF(B17>=B18,"PASS","FAIL")', '=IF(C17>=C18,"PASS","FAIL")', "CALCULATED"),
+ ("Dwellings enabled in MHU", "Up to 3 per site permitted (H5.4.1 A3); 4 or more restricted discretionary (A4)", "same", "DATA S7. Because the units straddle title lines the whole site is one site: 4 or more dwellings = restricted discretionary."),
+ ("Consent pathway for dwellings", '=IF(B3<=3,"Permitted (H5.4.1 A3)","Restricted discretionary, 4+ dwellings (H5.4.1 A4)")', '=IF(C3<=3,"Permitted (H5.4.1 A3)","Restricted discretionary, 4+ dwellings (H5.4.1 A4)")', "CALCULATED from the rule text"),
+ ("Flood consent", "E36 restricted discretionary (A37/A38; A42 on lot 2 flow path)", "same", "DATA S7"),
+ ("Dwellings by old title (centroid)", "2: %s, 4: %s, 6: %s, 8: %s" % tuple(RT["T9"]["alloc_by_lot"].get(k, 0) for k in "2468"), "2: %s, 4: %s, 6: %s, 8: %s" % tuple(RT["T10"]["alloc_by_lot"].get(k, 0) for k in "2468"), "CALCULATED. Not 3/3/3/1: the lots are 13-14.5 m wide and 40 m deep, so no lot holds three 4 x 15 m units on its own (best per lot 1/2/1/2, sheet Groups)."),
+ ("Engine standards that PASS", "yards, coverage, height, HIRB, outdoor living, dwelling size", "yards, coverage, height, HIRB, outdoor living (16 + deck), dwelling size", "S14"),
+ ("Standards the engine cannot test (need design)", "impervious/landscaped detail, outlook (H5.6.13), daylight (H5.6.14 per rule list), vehicle crossing", "same, no on-site parking", "UNVERIFIED: outlook and daylight standards are untested and are the likely limit at this density. A dwelling failing them needs consent under the RD rule's matters of discretion."),
+ ("PC120 effect on this scheme", "Lot 2 is rezoned Single House (immediate legal effect): one dwelling permitted there, more is non-complying. Aug 2026 amendments propose Single House on all four lots: 2 dwellings per site.", "same", "DATA S8, S9. This is the main risk to 9 and 10 dwellings. UNVERIFIED how Council treats an amalgamated site spanning two zones."),
+]
+for r in rows: wt.append(list(r))
+for row in wt.iter_rows(min_row=2):
+    for c in row: c.alignment = Alignment(wrap_text=True, vertical="top"); c.border = BOX
+for rr_ in (4, 5): 
+    for cc in (2, 3): wt.cell(rr_, cc).fill = YEL
+wt.cell(len(rows) + 3, 1, "Sensitivity (units that fit AND pass the engine's tested standards, flood-clear). Engine runs 10 Nov 2026 (S14).").font = B
+sens_hdr = ["Parking spaces per unit", "All four lots, standard outdoor living 20 m2", "All four, ground 16 m2 + 5 m2 deck", "Lots 4+6+8 only, standard", "Note"]
+r0 = len(rows) + 4
+for j, h in enumerate(sens_hdr, 1):
+    c = wt.cell(r0, j, h); c.font = WH; c.fill = HDR; c.alignment = Alignment(wrap_text=True)
+for i, v in enumerate([(2, 4, 4, 4, "Vehicle access (5.5 m corridor for many spaces) binds"), (1, 9, 9, 7, "Outdoor living / access bind"), (0, 9, 10, 7, "No on-site parking; 10 needs the deck")]): 
+    for j, x in enumerate(v, 1): wt.cell(r0 + 1 + i, j, x).fill = GRY
+wt.cell(r0 + 5, 1, "Lots 4+6+8 alone never reach 9 compliant (7); lot 2 contributes 1 to 2. Separate titles with 4 x 15 m units: 1 / 2 / 1 / 2 = 6 (sheet Groups). The owner's 3 + 3 + 3 + 1 split is not physically achievable with 4 x 15 m units on the existing lot shapes.").alignment = Alignment(wrap_text=True)
 for w in wb: 
     if w.title not in ("README",): w.sheet_view.zoomScale = 90
 wb.save(OUT / "Zoning_Feasibility.xlsx"); print("saved", G_END, S_END)

@@ -38,7 +38,7 @@ def main():
     sc.setup(); sites = sc._sites; haz = jload(DATA / "hazard_report.json"); runs = jload(DATA / "scenario_runs.json")
     lotpoly = {NUM[p]: sites[p]["poly"] for p in IDS}; gmin = {NUM[p]: haz["lots"][str(p)]["ground"]["elevation_min_m"] for p in IDS}; frames = {NUM[p]: lot_frame(sites[p]) for p in IDS}
     units = []
-    for key in ("2+4|THAB|flood", "6+8|MHU|flood"):
+    for key in ("T10",):
         r = runs[key]
         for g in r["units_geom"]: units.append(shape(g))
     rec = []
@@ -92,7 +92,7 @@ def main():
     for n, P in lotpoly.items(): lot_of[contains_xy(P, X, Y)] = n
     unit_by_lot = {}
     for u in res["units"]: unit_by_lot.setdefault(u["lot"], []).append(shape_from(u["geom"]))
-    access = {k: runs[k].get("access_geom") for k in ("2+4|THAB|flood", "6+8|MHU|flood")}; acc_poly = {k: (shape(g) if g else None) for k, g in access.items()}
+    access = {k: runs[k].get("access_geom") for k in ("T10",)}; acc_poly = {k: (shape(g) if g else None) for k, g in access.items()}
     corr = sc._corr
     for n, P in lotpoly.items():
         pid = PID_of(n); res["parking"][n] = {}
@@ -105,7 +105,7 @@ def main():
                 allowed = okp.difference(blocked) if not okp.is_empty else okp
                 spaces = count_spaces(allowed, P)
                 res["parking"][n].setdefault(str(d), {})[tag] = {"area_ok_m2": round(okp.area, 1), "area_ok_pct": round(100 * okp.area / P.area, 1), "free_area_m2": round(allowed.area, 1), "spaces": spaces}
-            res["parking"][n][str(d)]["required_spaces"] = 2 * len(unit_by_lot.get(n, []))
+            res["parking"][n][str(d)]["required_spaces"] = 1 * len(unit_by_lot.get(n, []))
     res["accessway"] = {}
     for k, g in acc_poly.items():
         if g is None: continue
@@ -114,7 +114,7 @@ def main():
     # displaced volume (compensatory storage) per unit: piles over the wetted height, plus 25% for stair/walkway piles (ASSUMED)
     for u in res["units"]:
         res["storage"][u["id"]] = {str(d): round(1.25 * sum(bsq * bsq * max(0.0, gmin[u["lot"]] + d - p["ground"]) for p in u["piles"]), 2) for d in DEPTHS}
-    runsA = {k: runs[k] for k in ("2+4|THAB|flood", "6+8|MHU|flood")}; res["impervious"] = {k: {"roof_m2": UNIT_A * r["units"], "access_m2": r.get("access_m2", 0), "parking_m2": 12.5 * 2 * r["units"], "units": r["units"]} for k, r in runsA.items()}
+    runsA = {k: runs[k] for k in ("T10",)}; res["impervious"] = {k: {"roof_m2": UNIT_A * r["units"], "access_m2": r.get("access_m2", 0), "parking_m2": 0.0, "units": r["units"]} for k, r in runsA.items()}
     res["lots_ground_min"] = gmin; jdump(res, DATA / "eng_results.json"); print("units", [u["id"] for u in res["units"]]); print(json.dumps(res["lookup"]["0.6|1.0"]), res["uplift"][1], res["accessway"])
 def PID_of(n): return next(p for p in IDS if NUM[p] == n)
 def shape_from(wkt_): from shapely import wkt; return wkt.loads(wkt_)

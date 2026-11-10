@@ -50,7 +50,7 @@ W = 10.0; aff = {}
 for d in DEPTHS:
     for v in VELS:
         F = E_["lookup"][f"{d}|{v}"]["unit_total_drag_kN_max"]; aff[f"{d}|{v}"] = round(F * 1000 / (RHO * G * W * d) * 1000, 1)     # mm per unit
-runoff = {f"{mm} mm": [round(a * mm / 1000, 2) for a in (240 + 140.8 + 100, 480.8 * 2)] for mm in (10, 20, 30)}
+runoff = {f"{mm} mm": [round(a * mm / 1000, 2) for a in (600 + 140.8, 540 + 140.8 + 9 * 12.5)] for mm in (10, 20, 30)}
 res = {"basis": B, "section": {"A_mm2": round(A, 0), "I_mm4": round(I, 0), "Z_mm3": round(Z, 0)}, "worst_pile_unit": worst, "exposed_max_m": hexp,
        "debris": {"F_kN": round(Fd, 1), "lever_m": round(h_app, 2), "M_debris_kNm": round(Mdeb, 2), "M_drag_kNm": Mdrag, "M_total_kNm": round(Mtot, 2), "M_cap_kNm": round(Mcap, 2), "util": round(Mtot / Mcap, 2)},
        "buckling": {"Le_m": round(Le, 2), "Pcr_kN": round(Pcr, 1), "Pyield_kN": round(Pyield, 1), "demand_kN": VULS, "util_Pcr": round(VULS / Pcr, 2), "util_yield": round(VULS / Pyield, 2)},
